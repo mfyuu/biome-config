@@ -1,0 +1,52 @@
+{
+	"name": "@mfyuu/biome-config",
+	"version": "0.0.0",
+	"description": "Shareable Biome configuration for JavaScript/TypeScript projects",
+	"keywords": [
+		"biome",
+		"config",
+		"linter",
+		"formatter",
+		"javascript",
+		"typescript",
+		"react",
+		"nextjs"
+	],
+	"author": "mfyuu",
+	"license": "MIT",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mfyuu/biome-config.git"
+	},
+	"files": [
+		"configs",
+		"README.md",
+		"LICENSE"
+	],
+	"exports": {
+		"./base": "./configs/base.json",
+		"./react": "./configs/react.json",
+		"./next": "./configs/next.json"
+	},
+	"peerDependencies": {
+		"@biomejs/biome": ">=2.0.0"
+	},
+	"peerDependenciesMeta": {
+		"@biomejs/biome": {
+			"optional": false
+		}
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.2.0",
+		"prettier": "^3.6.2"
+	},
+	"scripts": {
+		"format": "biome format --write .",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"check": "biome check --write ."
+	},
+	"publishConfig": {
+		"access": "public"
+	}
+}
