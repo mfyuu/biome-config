@@ -1,6 +1,6 @@
 {
 	"name": "@mfyuu/biome-config",
-	"version": "0.0.0",
+	"version": "0.1.0",
 	"description": "Shareable Biome configuration for JavaScript/TypeScript projects",
 	"keywords": [
 		"biome",
@@ -38,13 +38,18 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.0",
+		"@changesets/changelog-github": "^0.5.1",
+		"@changesets/cli": "^2.29.6",
 		"prettier": "^3.6.2"
 	},
 	"scripts": {
 		"format": "biome format --write .",
 		"lint": "biome lint .",
 		"lint:fix": "biome lint --write .",
-		"check": "biome check --write ."
+		"check": "biome check --write .",
+		"changeset": "changeset",
+		"release": "changeset publish",
+		"version": "changeset version"
 	},
 	"publishConfig": {
 		"access": "public"
