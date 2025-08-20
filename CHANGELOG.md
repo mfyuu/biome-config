@@ -1,5 +1,13 @@
 # @mfyuu/biome-config
 
+## 0.1.2
+
+### Patch Changes
+
+- [#4](https://github.com/mfyuu/biome-config/pull/4) [`45feda8`](https://github.com/mfyuu/biome-config/commit/45feda8b6de7ffc26b3677b4b1edac9c84d82335) Thanks [@mfyuu](https://github.com/mfyuu)! - Fix Japanese text in README documentation
+  - Translate Japanese note about schema resolution to English
+  - Ensure documentation consistency in English throughout
+
 ## 0.1.1
 
 ### Patch Changes
