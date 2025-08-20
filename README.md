@@ -1,40 +1,24 @@
 # @mfyuu/biome-config
 
-Shareable Biome configuration package for JavaScript/TypeScript projects. Choose from three configurations based on your project type: base, React, or Next.js.
+Shareable Biome configuration package for JavaScript/TypeScript projects by [@mfyuu](https://github.com/mfyuu).
+
+Choose from three configurations based on your project type: base, React, or Next.js.
 
 ## Installation
 
 ```bash
-npm install -D @mfyuu/biome-config
-```
-
-or
-
-```bash
-yarn add -D @mfyuu/biome-config
-```
-
-or
-
-```bash
-pnpm add -D @mfyuu/biome-config
-```
-
-or
-
-```bash
-bun add -D @mfyuu/biome-config
+npm i -D @mfyuu/biome-config
 ```
 
 ## Usage
 
-Extend the appropriate configuration in your project's `biome.json`:
+Extend the appropriate configuration in your project's `biome.json` or `biome.jsonc`:
 
 ### Base Configuration (Node.js/TypeScript Projects)
 
 ```json
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["@mfyuu/biome-config/base"]
 }
 ```
@@ -43,7 +27,7 @@ Extend the appropriate configuration in your project's `biome.json`:
 
 ```json
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["@mfyuu/biome-config/react"]
 }
 ```
@@ -52,10 +36,16 @@ Extend the appropriate configuration in your project's `biome.json`:
 
 ```json
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["@mfyuu/biome-config/next"]
 }
 ```
+
+> [!note]
+> スキーマファイルの解決に問題がある場合は、以下のURLスキーマを使用してください：
+> ```json
+> "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json"
+> ```
 
 ## Configuration Contents
 
@@ -84,7 +74,7 @@ You can override inherited settings by adding custom configuration in your `biom
 
 ```json
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json",
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
   "extends": ["@mfyuu/biome-config/base"],
   "formatter": {
     "indentWidth": 4
@@ -102,8 +92,4 @@ npm install -D @biomejs/biome
 
 ## License
 
-MIT
-
-## Author
-
-mfyuu
+[MIT](./LICENSE) License © 2025-PRESENT [Kazuya Suzuki](https://github.com/mfyuu)
