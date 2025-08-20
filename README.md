@@ -42,7 +42,7 @@ Extend the appropriate configuration in your project's `biome.json` or `biome.js
 ```
 
 > [!note]
-> スキーマファイルの解決に問題がある場合は、以下のURLスキーマを使用してください：
+> If you have problems with resolving the physical file, you can use the one published on this site:
 > ```json
 > "$schema": "https://biomejs.dev/schemas/2.2.0/schema.json"
 > ```
