@@ -1,8 +1,41 @@
 {
 	"name": "@mfyuu/biome-config",
 	"version": "0.1.2",
+	"author": "mfyuu",
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/mfyuu/biome-config.git"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "2.2.0",
+		"@changesets/changelog-github": "^0.5.1",
+		"@changesets/cli": "^2.29.6",
+		"@types/node": "^24.3.0",
+		"commander": "^14.0.0",
+		"prettier": "^3.6.2",
+		"tsdown": "^0.14.1",
+		"tsx": "^4.20.4",
+		"typescript": "^5.9.2"
+	},
+	"peerDependencies": {
+		"@biomejs/biome": ">=2.0.0"
+	},
+	"exports": {
+		"./base": "./configs/base.json",
+		"./react": "./configs/react.json",
+		"./next": "./configs/next.json"
+	},
+	"bin": {
+		"biome-config": "./dist/cli.js"
+	},
 	"description": "Shareable Biome configuration for JavaScript/TypeScript projects",
-	"type": "module",
+	"files": [
+		"configs",
+		"dist",
+		"templates",
+		"README.md",
+		"LICENSE"
+	],
 	"keywords": [
 		"biome",
 		"config",
@@ -13,44 +46,14 @@
 		"react",
 		"nextjs"
 	],
-	"author": "mfyuu",
 	"license": "MIT",
-	"repository": {
-		"type": "git",
-		"url": "https://github.com/mfyuu/biome-config.git"
-	},
-	"files": [
-		"configs",
-		"dist",
-		"templates",
-		"README.md",
-		"LICENSE"
-	],
-	"bin": {
-		"biome-config": "./dist/cli.js"
-	},
-	"exports": {
-		"./base": "./configs/base.json",
-		"./react": "./configs/react.json",
-		"./next": "./configs/next.json"
-	},
-	"peerDependencies": {
-		"@biomejs/biome": ">=2.0.0"
-	},
 	"peerDependenciesMeta": {
 		"@biomejs/biome": {
 			"optional": false
 		}
 	},
-	"devDependencies": {
-		"@biomejs/biome": "2.2.2",
-		"@changesets/changelog-github": "^0.5.1",
-		"@changesets/cli": "^2.29.6",
-		"@types/node": "^24.3.0",
-		"prettier": "^3.6.2",
-		"tsdown": "^0.14.1",
-		"tsx": "^4.20.4",
-		"typescript": "^5.9.2"
+	"publishConfig": {
+		"access": "public"
 	},
 	"scripts": {
 		"build": "tsdown",
@@ -65,10 +68,5 @@
 		"version": "changeset version",
 		"prepublishOnly": "bun run build"
 	},
-	"publishConfig": {
-		"access": "public"
-	},
-	"dependencies": {
-		"commander": "^14.0.0"
-	}
+	"type": "module"
 }

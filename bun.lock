@@ -3,14 +3,12 @@
   "workspaces": {
     "": {
       "name": "@mfyuu/biome-config",
-      "dependencies": {
-        "commander": "^14.0.0",
-      },
       "devDependencies": {
         "@biomejs/biome": "2.2.2",
         "@changesets/changelog-github": "^0.5.1",
         "@changesets/cli": "^2.29.6",
         "@types/node": "^24.3.0",
+        "commander": "^14.0.0",
         "prettier": "^3.6.2",
         "tsdown": "^0.14.1",
         "tsx": "^4.20.4",
