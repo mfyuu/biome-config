@@ -2,6 +2,7 @@
 	"name": "@mfyuu/biome-config",
 	"version": "0.1.2",
 	"description": "Shareable Biome configuration for JavaScript/TypeScript projects",
+	"type": "module",
 	"keywords": [
 		"biome",
 		"config",
@@ -20,9 +21,14 @@
 	},
 	"files": [
 		"configs",
+		"dist",
+		"templates",
 		"README.md",
 		"LICENSE"
 	],
+	"bin": {
+		"biome-config": "./dist/cli.js"
+	},
 	"exports": {
 		"./base": "./configs/base.json",
 		"./react": "./configs/react.json",
@@ -40,18 +46,29 @@
 		"@biomejs/biome": "2.2.2",
 		"@changesets/changelog-github": "^0.5.1",
 		"@changesets/cli": "^2.29.6",
-		"prettier": "^3.6.2"
+		"@types/node": "^24.3.0",
+		"prettier": "^3.6.2",
+		"tsdown": "^0.14.1",
+		"tsx": "^4.20.4",
+		"typescript": "^5.9.2"
 	},
 	"scripts": {
+		"build": "tsdown",
+		"dev": "tsx src/cli.ts",
+		"watch": "tsdown --watch",
 		"format": "biome format --write .",
 		"lint": "biome lint .",
 		"lint:fix": "biome lint --write .",
 		"check": "biome check --write .",
 		"changeset": "changeset",
 		"release": "changeset publish",
-		"version": "changeset version"
+		"version": "changeset version",
+		"prepublishOnly": "bun run build"
 	},
 	"publishConfig": {
 		"access": "public"
+	},
+	"dependencies": {
+		"commander": "^14.0.0"
 	}
 }
