@@ -11,20 +11,20 @@ Choose from three configurations based on your project type: base, React, or Nex
 The easiest way to set up Biome in your project is using our interactive CLI wizard:
 
 ```bash
-npx @mfyuu/biome-config@latest
+npx @mfyuu/biome-config
 ```
 
 This command will:
 
 - Detect your project type (base, React, or Next.js)
 - Install required dependencies (`@biomejs/biome` and `@mfyuu/biome-config`)
-- Create `biome.jsonc` with the appropriate configuration
+- Create `biome.json` or `biome.jsonc` with the appropriate configuration
 - Set up VS Code integration with `.vscode/settings.json`
 
 For all available options:
 
 ```bash
-npx @mfyuu/biome-config@latest --help
+npx @mfyuu/biome-config --help
 ```
 
 ### Manual Setup
