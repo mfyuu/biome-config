@@ -1,5 +1,30 @@
 # @mfyuu/biome-config
 
+## 1.0.0
+
+### Major Changes
+
+- [#7](https://github.com/mfyuu/biome-config/pull/7) [`e1b02db`](https://github.com/mfyuu/biome-config/commit/e1b02db51f8c6ecb2e6f95fc0eef11d23d9d4895) Thanks [@mfyuu](https://github.com/mfyuu)! - - Added
+  - Starter wizard CLI command for interactive Biome setup
+  - Automatic package manager detection (npm/yarn/pnpm/bun)
+  - Project type selection with templates (Base, React, Next.js)
+  - VS Code settings.json generation for Biome integration
+  - Dependency auto-installation with confirmation prompts
+  - File overwrite protection with user confirmations
+  - Colorful terminal output with progress indicators
+  - Modular architecture with separated concerns
+  - Zero runtime dependencies through bundling
+  - Changed
+    - Build process from tsc to tsdown for optimized output
+    - Package exports to include CLI binary
+    - Documentation to reflect new CLI capabilities
+    - TypeScript configuration optimized for bundler (ESNext target, Bundler module resolution)
+  - Technical Details
+    - Bundled commander.js to eliminate runtime dependencies
+    - Added comprehensive TypeScript types for all modules
+    - Implemented Git-aware file operations
+    - Added support for both .json and .jsonc Biome configs
+
 ## 0.1.2
 
 ### Patch Changes
