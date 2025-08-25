@@ -1,39 +1,27 @@
-import readline from "node:readline";
+import prompts from "prompts";
 import type { PackageManager } from "./package-manager.js";
 
 export const promptPackageManager = async (): Promise<PackageManager> => {
-	const rl = readline.createInterface({
-		input: process.stdin,
-		output: process.stdout,
-	});
+	const response = await prompts(
+		{
+			type: "select",
+			name: "packageManager",
+			message: "Which package manager do you want to use?",
+			choices: [
+				{ title: "npm", value: "npm" },
+				{ title: "yarn", value: "yarn" },
+				{ title: "pnpm", value: "pnpm" },
+				{ title: "bun", value: "bun" },
+			],
+			initial: 2, // default is pnpm
+		},
+		{
+			onCancel: () => {
+				console.log("\nOperation cancelled.");
+				process.exit(1);
+			},
+		},
+	);
 
-	return new Promise((resolve) => {
-		console.log("\nSelect a package manager:");
-		console.log("  1) npm");
-		console.log("  2) yarn");
-		console.log("  3) pnpm");
-		console.log("  4) bun");
-
-		rl.question("\nEnter your choice (1-4): ", (answer) => {
-			rl.close();
-			const choice = answer.trim();
-			switch (choice) {
-				case "1":
-					resolve("npm");
-					break;
-				case "2":
-					resolve("yarn");
-					break;
-				case "3":
-					resolve("pnpm");
-					break;
-				case "4":
-					resolve("bun");
-					break;
-				default:
-					console.log("\nInvalid choice. Using npm as default.");
-					resolve("npm");
-			}
-		});
-	});
+	return response.packageManager || "npm";
 };
