@@ -1,0 +1,31 @@
+import type { ProjectType } from "../constants.js";
+
+export interface InitOptions {
+	force?: boolean;
+	local?: boolean;
+	skipDeps?: boolean;
+	useNpm?: boolean;
+	useYarn?: boolean;
+	usePnpm?: boolean;
+	useBun?: boolean;
+	type?: ProjectType;
+}
+
+export interface InitResult {
+	success: boolean;
+	targetPath?: string;
+	error?: string;
+}
+
+export type TaskStatus = "success" | "error" | "skipped";
+
+type TaskResultDetail = {
+	status: TaskStatus;
+	message?: string;
+};
+
+export interface TaskResult {
+	dependencies: TaskResultDetail;
+	biomeConfig: TaskResultDetail;
+	settingsFile: TaskResultDetail;
+}
