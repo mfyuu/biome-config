@@ -17,6 +17,7 @@
   - Build process from tsc to tsdown for optimized output
   - Package exports to include CLI binary
   - Documentation to reflect new CLI capabilities
+  - TypeScript configuration optimized for bundler (ESNext target, Bundler module resolution)
 
 - Technical Details
   - Bundled commander.js to eliminate runtime dependencies
