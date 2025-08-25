@@ -68,7 +68,7 @@ const handleDependencies = async (
 	if (!packageJson) {
 		logger.warning(MESSAGES.WARNING.PACKAGE_JSON_NOT_FOUND);
 		logger.info(MESSAGES.INFO.NO_PACKAGE_JSON);
-		logger.info("  npm init -y");
+		logger.code("npm init -y");
 		return;
 	}
 
@@ -123,16 +123,18 @@ const handleDependencies = async (
 					cwd: baseDir,
 					stdio: "inherit",
 				});
-				logger.info(MESSAGES.INFO.DEPS_INSTALLED_SUCCESS);
+				logger.success(MESSAGES.INFO.DEPS_INSTALLED_SUCCESS);
 			} catch (execError) {
 				logger.error(
 					MESSAGES.ERROR.DEPS_INSTALL_EXEC_FAILED,
 					execError instanceof Error ? execError.message : "Unknown error",
 				);
-				logger.info(MESSAGES.INFO.RUN_INSTALL_MANUALLY(installCommand));
+				logger.info(MESSAGES.INFO.RUN_INSTALL_MANUALLY);
+				logger.code(installCommand);
 			}
 		} else {
-			logger.info(MESSAGES.INFO.RUN_INSTALL_MANUALLY(installCommand));
+			logger.info(MESSAGES.INFO.RUN_INSTALL_MANUALLY);
+			logger.code(installCommand);
 		}
 	} catch (error) {
 		const errorMessage =
@@ -178,9 +180,9 @@ export const initSettingsFile = async (
 		copyFile(templatePath, targetPath);
 
 		if (fileAlreadyExists) {
-			logger.info(MESSAGES.INFO.OVERWRITE_SUCCESS);
+			logger.success(MESSAGES.INFO.OVERWRITE_SUCCESS);
 		} else {
-			logger.info(MESSAGES.INFO.CREATE_SUCCESS);
+			logger.success(MESSAGES.INFO.CREATE_SUCCESS);
 		}
 		logger.info(MESSAGES.INFO.LOCATION(targetPath));
 
