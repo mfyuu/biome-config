@@ -1,0 +1,8 @@
+{
+	"$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+	"extends": ["@mfyuu/biome-config/base"]
+	// If you have any settings you'd like to customize, please add them here.
+	// "formatter": {
+	//   "indentStyle": "space"
+	// }
+}

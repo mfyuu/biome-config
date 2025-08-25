@@ -1,14 +1,25 @@
 import path from "node:path";
-import { DEPENDENCIES, MESSAGES, PATHS } from "../constants.js";
+import {
+	DEFAULT_BIOME_EXTENSION,
+	DEPENDENCIES,
+	MESSAGES,
+	PATHS,
+	type ProjectType,
+} from "../constants.js";
 import {
 	copyFile,
 	createDirectory,
 	fileExists,
+	findBiomeConfig,
 	getTemplatePath,
 } from "../utils/file.js";
 import { findGitRoot } from "../utils/git.js";
 import { logger } from "../utils/logger.js";
-import { hasDependency, readUserPackageJson } from "../utils/package.js";
+import {
+	detectProjectType,
+	hasDependency,
+	readUserPackageJson,
+} from "../utils/package.js";
 import {
 	detectPackageManager,
 	getInstallCommand,
@@ -16,9 +27,11 @@ import {
 	validatePackageManagerChoice,
 } from "../utils/package-manager.js";
 import {
+	promptBiomeOverwriteConfirmation,
 	promptInstallDependencies,
 	promptOverwriteConfirmation,
 	promptPackageManager,
+	promptProjectType,
 } from "../utils/prompt.js";
 
 interface InitOptions {
@@ -29,6 +42,7 @@ interface InitOptions {
 	useYarn?: boolean;
 	usePnpm?: boolean;
 	useBun?: boolean;
+	type?: ProjectType;
 }
 
 interface InitResult {
@@ -53,6 +67,79 @@ const determineBaseDir = (options: InitOptions): string | null => {
 
 	logger.info(MESSAGES.INFO.FOUND_GIT_ROOT(gitRoot));
 	return gitRoot;
+};
+
+const createBiomeConfig = async (
+	baseDir: string,
+	options: InitOptions,
+): Promise<void> => {
+	// Check if biome.json or biome.jsonc already exists
+	const existingBiomeConfig = findBiomeConfig(baseDir);
+
+	// Determine the target file path
+	// If existing file found, use its path; otherwise create biome.jsonc
+	const biomeFilePath =
+		existingBiomeConfig || path.join(baseDir, PATHS.BIOME_FILE_JSONC);
+
+	// Determine project type
+	let projectType: ProjectType;
+	if (options.type) {
+		// Use explicitly specified type
+		projectType = options.type;
+		logger.info(MESSAGES.INFO.PROJECT_TYPE_SELECTED(projectType));
+	} else {
+		// Auto-detect or prompt for project type
+		const packageJson = readUserPackageJson(baseDir);
+		const detectedType = detectProjectType(packageJson);
+
+		if (detectedType) {
+			projectType = detectedType;
+			logger.info(MESSAGES.INFO.PROJECT_TYPE_DETECTED(projectType));
+		} else {
+			// No package.json or couldn't detect, prompt user
+			projectType = await promptProjectType();
+			logger.info(MESSAGES.INFO.PROJECT_TYPE_SELECTED(projectType));
+		}
+	}
+
+	// Check if biome config already exists
+	if (existingBiomeConfig && !options.force) {
+		// Ask user if they want to overwrite
+		const shouldOverwrite = await promptBiomeOverwriteConfirmation();
+		if (!shouldOverwrite) {
+			logger.warning(MESSAGES.WARNING.BIOME_FILE_EXISTS);
+			logger.warning(MESSAGES.WARNING.USE_FORCE);
+			return;
+		}
+	}
+
+	try {
+		// Determine template extension based on existing file or use jsonc for new files
+		const templateExtension = existingBiomeConfig
+			? path.extname(existingBiomeConfig) // Use existing file's extension
+			: DEFAULT_BIOME_EXTENSION; // Default to .jsonc for new files (with comments)
+
+		// Get the appropriate template path
+		const templateFileName = `${projectType}${templateExtension}`;
+		const templatePath = getTemplatePath(
+			path.join(PATHS.BIOME_TEMPLATES_DIR, templateFileName),
+		);
+
+		// Copy template to destination
+		copyFile(templatePath, biomeFilePath);
+
+		if (existingBiomeConfig) {
+			logger.success(MESSAGES.INFO.BIOME_OVERWRITE_SUCCESS);
+		} else {
+			logger.success(MESSAGES.INFO.BIOME_CREATE_SUCCESS);
+		}
+		logger.info(MESSAGES.INFO.LOCATION(biomeFilePath));
+	} catch (error) {
+		const errorMessage =
+			error instanceof Error ? error.message : "Unknown error";
+		logger.error(MESSAGES.ERROR.BIOME_CREATE_FAILED, errorMessage);
+		// Continue to next section even if biome.json creation fails
+	}
 };
 
 const handleDependencies = async (
@@ -155,7 +242,24 @@ export const initSettingsFile = async (
 	const targetPath = path.join(vscodeDir, PATHS.SETTINGS_FILE);
 
 	// Always handle dependencies first (unless skipped)
-	await handleDependencies(baseDir, options);
+	try {
+		await handleDependencies(baseDir, options);
+	} catch (error) {
+		const errorMessage =
+			error instanceof Error ? error.message : "Unknown error";
+		logger.error("Failed to handle dependencies:", errorMessage);
+		// Continue to next section even if dependency handling fails
+	}
+
+	// Create biome.json
+	try {
+		await createBiomeConfig(baseDir, options);
+	} catch (error) {
+		const errorMessage =
+			error instanceof Error ? error.message : "Unknown error";
+		logger.error("Failed to create biome.json:", errorMessage);
+		// Continue to next section even if biome.json creation fails
+	}
 
 	// Check if settings.json already exists
 	const fileAlreadyExists = fileExists(targetPath);

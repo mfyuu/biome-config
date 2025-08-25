@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { PATHS } from "../constants.js";
 
 const getRootDir = (): string => {
 	const currentFileUrl = import.meta.url;
@@ -29,4 +30,16 @@ export const createDirectory = (dirPath: string): void => {
 
 export const copyFile = (source: string, destination: string): void => {
 	fs.copyFileSync(source, destination);
+};
+
+export const findBiomeConfig = (baseDir: string): string | null => {
+	// Check for biome.json first
+	const biomeJsonPath = path.join(baseDir, PATHS.BIOME_FILE);
+	if (fileExists(biomeJsonPath)) return biomeJsonPath;
+
+	// Then check for biome.jsonc
+	const biomeJsoncPath = path.join(baseDir, PATHS.BIOME_FILE_JSONC);
+	if (fileExists(biomeJsoncPath)) return biomeJsoncPath;
+
+	return null;
 };

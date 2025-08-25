@@ -5,6 +5,9 @@ export const PATHS = {
 	SETTINGS_FILE: "settings.json",
 	TEMPLATES_DIR: "templates",
 	GIT_DIR: ".git",
+	BIOME_FILE: "biome.json",
+	BIOME_FILE_JSONC: "biome.jsonc",
+	BIOME_TEMPLATES_DIR: "biome",
 } as const;
 
 export const MESSAGES = {
@@ -25,6 +28,12 @@ export const MESSAGES = {
 			`Detected package manager: ${highlight.package(manager)}`,
 		NO_PACKAGE_JSON: "No package.json found. Initialize it with:",
 		SKIP_DEPS: `Skipping dependency installation (${highlight.option("--skip-deps")} option)`,
+		BIOME_CREATE_SUCCESS: `${highlight.file("biome.json(c)")} created successfully!`,
+		BIOME_OVERWRITE_SUCCESS: `${highlight.file("biome.json(c)")} overwritten successfully!`,
+		PROJECT_TYPE_DETECTED: (type: string) =>
+			`Detected project type: ${highlight.package(type)}`,
+		PROJECT_TYPE_SELECTED: (type: string) =>
+			`Selected project type: ${highlight.package(type)}`,
 	},
 	WARNING: {
 		FILE_EXISTS: `${highlight.file(".vscode/settings.json")} already exists!`,
@@ -32,6 +41,7 @@ export const MESSAGES = {
 		PACKAGE_JSON_NOT_FOUND: `${highlight.file("package.json")} not found. Skipping dependency installation.`,
 		MULTIPLE_PACKAGE_MANAGERS:
 			"Multiple package managers specified. Please choose only one.",
+		BIOME_FILE_EXISTS: `${highlight.file("biome.json(c)")} already exists!`,
 	},
 	ERROR: {
 		NOT_IN_GIT: "Not in a git repository!",
@@ -41,10 +51,36 @@ export const MESSAGES = {
 		CREATE_FAILED: `Failed to create ${highlight.file(".vscode/settings.json")}:`,
 		DEPS_INSTALL_FAILED: `Failed to add dependencies to ${highlight.file("package.json")}:`,
 		DEPS_INSTALL_EXEC_FAILED: "Failed to install dependencies:",
+		BIOME_CREATE_FAILED: `Failed to create ${highlight.file("biome.json(c)")}:`,
 	},
 } as const;
 
 export const DEPENDENCIES = {
 	BIOME: "@biomejs/biome",
 	CONFIG: "@mfyuu/biome-config",
+} as const;
+
+export const PROJECT_TYPES = {
+	BASE: "base",
+	REACT: "react",
+	NEXT: "next",
+} as const;
+
+export type ProjectType = (typeof PROJECT_TYPES)[keyof typeof PROJECT_TYPES];
+
+export const FILE_EXTENSIONS = {
+	JSON: ".json",
+	JSONC: ".jsonc",
+} as const;
+
+export const DEFAULT_BIOME_EXTENSION = FILE_EXTENSIONS.JSONC;
+
+export const EXIT_CODES = {
+	SUCCESS: 0,
+	FAILURE: 1,
+} as const;
+
+export const PROMPT_DEFAULTS = {
+	PACKAGE_MANAGER_INDEX: 2, // pnpm
+	PROJECT_TYPE_INDEX: 0, // base
 } as const;

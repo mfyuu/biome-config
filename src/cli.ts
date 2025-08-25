@@ -2,6 +2,7 @@
 
 import { Command } from "commander";
 import { initSettingsFile } from "./commands/init.js";
+import { EXIT_CODES } from "./constants.js";
 import { readPackageJson } from "./utils/file.js";
 
 interface CliOptions {
@@ -12,6 +13,7 @@ interface CliOptions {
 	useYarn?: boolean;
 	usePnpm?: boolean;
 	useBun?: boolean;
+	type?: "base" | "react" | "next";
 }
 
 const packageJson = readPackageJson() as { version: string };
@@ -29,9 +31,19 @@ program
 	.option("--use-yarn", "use yarn as package manager")
 	.option("--use-pnpm", "use pnpm as package manager")
 	.option("--use-bun", "use bun as package manager")
+	.option(
+		"--type <type>",
+		"configuration type (base, react, next)",
+		(value) => {
+			if (!["base", "react", "next"].includes(value)) {
+				throw new Error(`Invalid type: ${value}`);
+			}
+			return value as "base" | "react" | "next";
+		},
+	)
 	.action(async (options: CliOptions) => {
 		const result = await initSettingsFile(options);
-		process.exit(result.success ? 0 : 1);
+		process.exit(result.success ? EXIT_CODES.SUCCESS : EXIT_CODES.FAILURE);
 	});
 
 program.parse();
