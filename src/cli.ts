@@ -5,7 +5,7 @@ import { initSettingsFile } from "./commands/init.js";
 import { EXIT_CODES } from "./constants.js";
 import { readPackageJson } from "./utils/file.js";
 
-interface CliOptions {
+type CliOptions = {
 	force?: boolean;
 	local?: boolean;
 	skipDeps?: boolean;
@@ -14,7 +14,7 @@ interface CliOptions {
 	usePnpm?: boolean;
 	useBun?: boolean;
 	type?: "base" | "react" | "next";
-}
+};
 
 const packageJson = readPackageJson() as { version: string };
 

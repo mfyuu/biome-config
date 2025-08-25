@@ -3,10 +3,10 @@ import path from "node:path";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
-interface LockFile {
+type LockFile = {
 	name: string;
 	manager: PackageManager;
-}
+};
 
 const LOCK_FILES: LockFile[] = [
 	{ name: "package-lock.json", manager: "npm" },
@@ -40,6 +40,8 @@ export const getInstallCommand = (
 			return `pnpm add -D ${packageList}`;
 		case "bun":
 			return `bun add -D ${packageList}`;
+		default:
+			return manager satisfies never;
 	}
 };
 

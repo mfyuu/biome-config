@@ -69,7 +69,7 @@ export const PROJECT_TYPES = {
 
 export type ProjectType = (typeof PROJECT_TYPES)[keyof typeof PROJECT_TYPES];
 
-export const FILE_EXTENSIONS = {
+const FILE_EXTENSIONS = {
 	JSON: ".json",
 	JSONC: ".jsonc",
 } as const;

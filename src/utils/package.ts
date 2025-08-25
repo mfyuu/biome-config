@@ -2,11 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 import { PROJECT_TYPES, type ProjectType } from "../constants.js";
 
-interface PackageJson {
+type PackageJson = {
 	devDependencies?: Record<string, string>;
 	dependencies?: Record<string, string>;
 	[key: string]: unknown;
-}
+};
 
 export const readUserPackageJson = (cwd: string): PackageJson | null => {
 	const packageJsonPath = path.join(cwd, "package.json");
