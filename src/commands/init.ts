@@ -1,4 +1,6 @@
 import path from "node:path";
+import { green, red, yellow } from "kleur/colors";
+import logSymbols from "log-symbols";
 import {
 	DEFAULT_BIOME_EXTENSION,
 	DEPENDENCIES,
@@ -51,6 +53,32 @@ interface InitResult {
 	error?: string;
 }
 
+type TaskStatus = "success" | "error" | "skipped";
+
+interface TaskResultDetail {
+	status: TaskStatus;
+	message?: string;
+}
+
+interface TaskResult {
+	dependencies: TaskResultDetail;
+	biomeConfig: TaskResultDetail;
+	settingsFile: TaskResultDetail;
+}
+
+type DependencyResult =
+	| { type: "already-installed" }
+	| { type: "installed" }
+	| { type: "skipped" }
+	| { type: "no-package-json" }
+	| { type: "error"; message: string };
+
+type BiomeConfigResult =
+	| { type: "created" }
+	| { type: "overwritten" }
+	| { type: "skipped" }
+	| { type: "error"; message: string };
+
 const determineBaseDir = (options: InitOptions): string | null => {
 	if (options.local) {
 		logger.info(MESSAGES.INFO.USING_LOCAL);
@@ -72,7 +100,7 @@ const determineBaseDir = (options: InitOptions): string | null => {
 const createBiomeConfig = async (
 	baseDir: string,
 	options: InitOptions,
-): Promise<void> => {
+): Promise<BiomeConfigResult> => {
 	// Check if biome.json or biome.jsonc already exists
 	const existingBiomeConfig = findBiomeConfig(baseDir);
 
@@ -109,7 +137,7 @@ const createBiomeConfig = async (
 		if (!shouldOverwrite) {
 			logger.warning(MESSAGES.WARNING.BIOME_FILE_EXISTS);
 			logger.warning(MESSAGES.WARNING.USE_FORCE);
-			return;
+			return { type: "skipped" };
 		}
 	}
 
@@ -130,25 +158,28 @@ const createBiomeConfig = async (
 
 		if (existingBiomeConfig) {
 			logger.success(MESSAGES.INFO.BIOME_OVERWRITE_SUCCESS);
+			logger.info(MESSAGES.INFO.LOCATION(biomeFilePath));
+			return { type: "overwritten" };
 		} else {
 			logger.success(MESSAGES.INFO.BIOME_CREATE_SUCCESS);
+			logger.info(MESSAGES.INFO.LOCATION(biomeFilePath));
+			return { type: "created" };
 		}
-		logger.info(MESSAGES.INFO.LOCATION(biomeFilePath));
 	} catch (error) {
 		const errorMessage =
 			error instanceof Error ? error.message : "Unknown error";
 		logger.error(MESSAGES.ERROR.BIOME_CREATE_FAILED, errorMessage);
-		// Continue to next section even if biome.json creation fails
+		return { type: "error", message: errorMessage };
 	}
 };
 
 const handleDependencies = async (
 	baseDir: string,
 	options: InitOptions,
-): Promise<void> => {
+): Promise<DependencyResult> => {
 	if (options.skipDeps) {
 		logger.info(MESSAGES.INFO.SKIP_DEPS);
-		return;
+		return { type: "skipped" };
 	}
 
 	const packageJson = readUserPackageJson(baseDir);
@@ -156,7 +187,7 @@ const handleDependencies = async (
 		logger.warning(MESSAGES.WARNING.PACKAGE_JSON_NOT_FOUND);
 		logger.info(MESSAGES.INFO.NO_PACKAGE_JSON);
 		logger.code("npm init -y");
-		return;
+		return { type: "no-package-json" };
 	}
 
 	const requiredPackages = [DEPENDENCIES.BIOME, DEPENDENCIES.CONFIG];
@@ -176,7 +207,7 @@ const handleDependencies = async (
 	}
 
 	if (missingPackages.length === 0) {
-		return;
+		return { type: "already-installed" };
 	}
 
 	try {
@@ -199,6 +230,7 @@ const handleDependencies = async (
 		const installCommand = getInstallCommand(packageManager, missingPackages);
 
 		// Ask user if they want to install dependencies
+		console.log();
 		const shouldInstall = await promptInstallDependencies(missingPackages);
 
 		if (shouldInstall) {
@@ -211,6 +243,7 @@ const handleDependencies = async (
 					stdio: "inherit",
 				});
 				logger.success(MESSAGES.INFO.DEPS_INSTALLED_SUCCESS);
+				return { type: "installed" };
 			} catch (execError) {
 				logger.error(
 					MESSAGES.ERROR.DEPS_INSTALL_EXEC_FAILED,
@@ -218,15 +251,81 @@ const handleDependencies = async (
 				);
 				logger.info(MESSAGES.INFO.RUN_INSTALL_MANUALLY);
 				logger.code(installCommand);
+				return { type: "error", message: "Failed to install dependencies" };
 			}
 		} else {
 			logger.info(MESSAGES.INFO.RUN_INSTALL_MANUALLY);
 			logger.code(installCommand);
+			return { type: "skipped" };
 		}
 	} catch (error) {
 		const errorMessage =
 			error instanceof Error ? error.message : "Unknown error";
 		logger.error(MESSAGES.ERROR.DEPS_INSTALL_FAILED, errorMessage);
+		return { type: "error", message: errorMessage };
+	}
+};
+
+const showSetupSummary = (tasks: TaskResult): void => {
+	logger.finalSuccess(MESSAGES.INFO.SETUP_COMPLETE);
+
+	const statusIcon = (status: TaskStatus): string => {
+		switch (status) {
+			case "success":
+				return logSymbols.success;
+			case "error":
+				return logSymbols.error;
+			case "skipped":
+				return logSymbols.warning;
+		}
+	};
+
+	const items = [
+		{
+			name: "Dependencies",
+			status: tasks.dependencies.status,
+			message: tasks.dependencies.message,
+		},
+		{
+			name: "biome.json",
+			status: tasks.biomeConfig.status,
+			message: tasks.biomeConfig.message,
+		},
+		{
+			name: ".vscode/settings.json",
+			status: tasks.settingsFile.status,
+			message: tasks.settingsFile.message,
+		},
+	];
+
+	// Count completed tasks
+	const completedCount = items.filter(
+		(item) => item.status === "success",
+	).length;
+	const totalCount = items.length;
+
+	// Create progress bar
+	const barWidth = 20;
+	const filledWidth = Math.round((completedCount / totalCount) * barWidth);
+	const emptyWidth = barWidth - filledWidth;
+	const progressBar = `[${green("█".repeat(filledWidth))}${"░".repeat(emptyWidth)}]`;
+
+	// Create summary header with progress
+	console.log(`  ${progressBar} ${completedCount}/${totalCount} completed`);
+	console.log();
+
+	// List items with their status
+	for (const item of items) {
+		const icon = statusIcon(item.status);
+		const statusText = item.message
+			? item.status === "skipped"
+				? yellow(`(${item.message})`)
+				: item.status === "error"
+					? red(`(${item.message})`)
+					: green(`(${item.message})`)
+			: "";
+
+		console.log(`  ${icon} ${item.name} ${statusText}`);
 	}
 };
 
@@ -240,25 +339,45 @@ export const initSettingsFile = async (
 
 	const vscodeDir = path.join(baseDir, PATHS.VSCODE_DIR);
 	const targetPath = path.join(vscodeDir, PATHS.SETTINGS_FILE);
+	const tasks: TaskResult = {
+		dependencies: { status: "skipped" },
+		biomeConfig: { status: "skipped" },
+		settingsFile: { status: "skipped" },
+	};
 
 	// Always handle dependencies first (unless skipped)
-	try {
-		await handleDependencies(baseDir, options);
-	} catch (error) {
-		const errorMessage =
-			error instanceof Error ? error.message : "Unknown error";
-		logger.error("Failed to handle dependencies:", errorMessage);
-		// Continue to next section even if dependency handling fails
+	const depResult = await handleDependencies(baseDir, options);
+	switch (depResult.type) {
+		case "already-installed":
+			tasks.dependencies = { status: "success", message: "already installed" };
+			break;
+		case "installed":
+			tasks.dependencies = { status: "success", message: "installed" };
+			break;
+		case "skipped":
+		case "no-package-json":
+			tasks.dependencies = { status: "skipped", message: "skipped" };
+			break;
+		case "error":
+			tasks.dependencies = { status: "error", message: "failed" };
+			break;
 	}
 
 	// Create biome.json
-	try {
-		await createBiomeConfig(baseDir, options);
-	} catch (error) {
-		const errorMessage =
-			error instanceof Error ? error.message : "Unknown error";
-		logger.error("Failed to create biome.json:", errorMessage);
-		// Continue to next section even if biome.json creation fails
+	const biomeResult = await createBiomeConfig(baseDir, options);
+	switch (biomeResult.type) {
+		case "created":
+			tasks.biomeConfig = { status: "success", message: "created" };
+			break;
+		case "overwritten":
+			tasks.biomeConfig = { status: "success", message: "overwritten" };
+			break;
+		case "skipped":
+			tasks.biomeConfig = { status: "skipped", message: "skipped" };
+			break;
+		case "error":
+			tasks.biomeConfig = { status: "error", message: "failed" };
+			break;
 	}
 
 	// Check if settings.json already exists
@@ -269,6 +388,9 @@ export const initSettingsFile = async (
 		if (!shouldOverwrite) {
 			logger.warning(MESSAGES.WARNING.FILE_EXISTS);
 			logger.warning(MESSAGES.WARNING.USE_FORCE);
+			tasks.settingsFile = { status: "skipped", message: "skipped" };
+			// Show setup summary
+			showSetupSummary(tasks);
 			// Return success: true since dependencies may have been added
 			return { success: true, targetPath };
 		}
@@ -285,10 +407,14 @@ export const initSettingsFile = async (
 
 		if (fileAlreadyExists) {
 			logger.success(MESSAGES.INFO.OVERWRITE_SUCCESS);
+			tasks.settingsFile = { status: "success", message: "overwritten" };
 		} else {
 			logger.success(MESSAGES.INFO.CREATE_SUCCESS);
+			tasks.settingsFile = { status: "success", message: "created" };
 		}
 		logger.info(MESSAGES.INFO.LOCATION(targetPath));
+		// Show setup summary
+		showSetupSummary(tasks);
 
 		return { success: true, targetPath };
 	} catch (error) {

@@ -34,6 +34,7 @@ export const MESSAGES = {
 			`Detected project type: ${highlight.package(type)}`,
 		PROJECT_TYPE_SELECTED: (type: string) =>
 			`Selected project type: ${highlight.package(type)}`,
+		SETUP_COMPLETE: "Biome configuration setup completed.",
 	},
 	WARNING: {
 		FILE_EXISTS: `${highlight.file(".vscode/settings.json")} already exists!`,

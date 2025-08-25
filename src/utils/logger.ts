@@ -1,4 +1,4 @@
-import * as kleur from "kleur/colors";
+import { cyan, dim, green } from "kleur/colors";
 import logSymbols from "log-symbols";
 
 export const logger = {
@@ -20,14 +20,20 @@ export const logger = {
 
 	code: (command: string): void => {
 		console.log();
-		console.log(kleur.gray(`  $ ${command}`));
+		console.log(dim(`  $ ${command}`));
+		console.log();
+	},
+
+	finalSuccess: (message: string): void => {
+		console.log();
+		console.log(`${green("Success!")} ${message}`);
 		console.log();
 	},
 } as const;
 
 export const highlight = {
-	file: (text: string): string => kleur.bold(kleur.cyan(text)),
-	package: (text: string): string => kleur.bold(text),
-	path: (text: string): string => kleur.dim(text),
-	option: (text: string): string => kleur.gray(text),
+	file: (text: string): string => green(text),
+	package: (text: string): string => cyan(text),
+	path: (text: string): string => green(text),
+	option: (text: string): string => dim(text),
 } as const;
