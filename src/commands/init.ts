@@ -15,7 +15,11 @@ import {
 	type PackageManager,
 	validatePackageManagerChoice,
 } from "../utils/package-manager.js";
-import { promptPackageManager } from "../utils/prompt.js";
+import {
+	promptInstallDependencies,
+	promptOverwriteConfirmation,
+	promptPackageManager,
+} from "../utils/prompt.js";
 
 interface InitOptions {
 	force?: boolean;
@@ -106,20 +110,28 @@ const handleDependencies = async (
 		}
 
 		const installCommand = getInstallCommand(packageManager, missingPackages);
-		logger.info(MESSAGES.INFO.INSTALLING_DEPS(missingPackages));
 
-		try {
-			const { execSync } = await import("node:child_process");
-			execSync(installCommand, {
-				cwd: baseDir,
-				stdio: "inherit",
-			});
-			logger.info(MESSAGES.INFO.DEPS_INSTALLED_SUCCESS);
-		} catch (execError) {
-			logger.error(
-				MESSAGES.ERROR.DEPS_INSTALL_EXEC_FAILED,
-				execError instanceof Error ? execError.message : "Unknown error",
-			);
+		// Ask user if they want to install dependencies
+		const shouldInstall = await promptInstallDependencies(missingPackages);
+
+		if (shouldInstall) {
+			logger.info(MESSAGES.INFO.INSTALLING_DEPS(missingPackages));
+
+			try {
+				const { execSync } = await import("node:child_process");
+				execSync(installCommand, {
+					cwd: baseDir,
+					stdio: "inherit",
+				});
+				logger.info(MESSAGES.INFO.DEPS_INSTALLED_SUCCESS);
+			} catch (execError) {
+				logger.error(
+					MESSAGES.ERROR.DEPS_INSTALL_EXEC_FAILED,
+					execError instanceof Error ? execError.message : "Unknown error",
+				);
+				logger.info(MESSAGES.INFO.RUN_INSTALL_MANUALLY(installCommand));
+			}
+		} else {
 			logger.info(MESSAGES.INFO.RUN_INSTALL_MANUALLY(installCommand));
 		}
 	} catch (error) {
@@ -146,10 +158,15 @@ export const initSettingsFile = async (
 	// Check if settings.json already exists
 	const fileAlreadyExists = fileExists(targetPath);
 	if (fileAlreadyExists && !options.force) {
-		logger.warning(MESSAGES.WARNING.FILE_EXISTS);
-		logger.warning(MESSAGES.WARNING.USE_FORCE);
-		// Return success: true since dependencies may have been added
-		return { success: true, targetPath };
+		// Ask user if they want to overwrite
+		const shouldOverwrite = await promptOverwriteConfirmation();
+		if (!shouldOverwrite) {
+			logger.warning(MESSAGES.WARNING.FILE_EXISTS);
+			logger.warning(MESSAGES.WARNING.USE_FORCE);
+			// Return success: true since dependencies may have been added
+			return { success: true, targetPath };
+		}
+		// User chose to overwrite, continue with the file creation
 	}
 
 	try {
@@ -160,7 +177,7 @@ export const initSettingsFile = async (
 		createDirectory(vscodeDir);
 		copyFile(templatePath, targetPath);
 
-		if (options.force && fileAlreadyExists) {
+		if (fileAlreadyExists) {
 			logger.info(MESSAGES.INFO.OVERWRITE_SUCCESS);
 		} else {
 			logger.info(MESSAGES.INFO.CREATE_SUCCESS);
