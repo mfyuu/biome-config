@@ -1,5 +1,13 @@
 # @mfyuu/biome-config
 
+## 1.0.1
+
+### Patch Changes
+
+- [#10](https://github.com/mfyuu/biome-config/pull/10) [`2372307`](https://github.com/mfyuu/biome-config/commit/23723071216c63eedfe5fdc9d23b6926b6f6c4c0) Thanks [@mfyuu](https://github.com/mfyuu)! - - Update README documentation
+  - Remove unnecessary @latest tag from npx commands
+  - Clarify configuration file format (biome.json or biome.jsonc)
+
 ## 1.0.0
 
 ### Major Changes
