@@ -1,20 +1,21 @@
 import * as kleur from "kleur/colors";
+import logSymbols from "log-symbols";
 
 export const logger = {
 	info: (...messages: string[]): void => {
-		console.log(kleur.cyan("ℹ"), ...messages);
+		console.log(logSymbols.info, ...messages);
 	},
 
 	success: (...messages: string[]): void => {
-		console.log(kleur.green("✔"), ...messages);
+		console.log(logSymbols.success, ...messages);
 	},
 
 	warning: (...messages: string[]): void => {
-		console.log(kleur.yellow("⚠"), ...messages);
+		console.log(logSymbols.warning, ...messages);
 	},
 
 	error: (...messages: string[]): void => {
-		console.error(kleur.red("✖"), ...messages);
+		console.error(logSymbols.error, ...messages);
 	},
 
 	code: (command: string): void => {

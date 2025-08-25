@@ -14,6 +14,7 @@
 		"@types/prompts": "^2.4.9",
 		"commander": "^14.0.0",
 		"kleur": "^4.1.5",
+		"log-symbols": "^7.0.1",
 		"prettier": "^3.6.2",
 		"prompts": "^2.4.2",
 		"tsdown": "^0.14.1",
