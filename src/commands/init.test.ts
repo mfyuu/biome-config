@@ -49,7 +49,6 @@ vi.mock("../core/summary", () => ({
 }));
 
 vi.mock("../utils/prompt");
-vi.mock("../utils/package-manager");
 vi.mock("../core/lefthook");
 
 // Mock fs modules using memfs
@@ -107,6 +106,7 @@ describe("init", () => {
 		detectPackageManagerSpy = vi
 			.spyOn(packageManager, "detectPackageManager")
 			.mockReturnValue("npm");
+		vi.spyOn(packageManager, "getLefthookInstallCommand");
 	});
 
 	afterEach(() => {
@@ -678,7 +678,7 @@ describe("init", () => {
 				"pnpm",
 				undefined,
 			);
-			expect(execSync).toHaveBeenCalledWith("npx lefthook install", {
+			expect(execSync).toHaveBeenCalledWith("pnpm exec lefthook install", {
 				cwd: "/test-project",
 				stdio: "pipe",
 			});
@@ -850,6 +850,87 @@ describe("init", () => {
 				undefined,
 			);
 			expect(execSync).toHaveBeenCalledWith("npx lefthook install", {
+				cwd: "/test-project",
+				stdio: "pipe",
+			});
+		});
+
+		it("should use yarn exec for yarn package manager", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue("yarn");
+			createLefthookConfigSpy.mockResolvedValue({ type: "created" });
+			addLefthookScriptSpy.mockResolvedValue("success");
+
+			await initSettingsFile({ lefthook: true });
+
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"yarn",
+				undefined,
+			);
+			expect(execSync).toHaveBeenCalledWith("yarn exec lefthook install", {
+				cwd: "/test-project",
+				stdio: "pipe",
+			});
+		});
+
+		it("should use pnpm exec for pnpm package manager", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue("pnpm");
+			createLefthookConfigSpy.mockResolvedValue({ type: "created" });
+			addLefthookScriptSpy.mockResolvedValue("success");
+
+			await initSettingsFile({ lefthook: true });
+
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"pnpm",
+				undefined,
+			);
+			expect(execSync).toHaveBeenCalledWith("pnpm exec lefthook install", {
+				cwd: "/test-project",
+				stdio: "pipe",
+			});
+		});
+
+		it("should use bunx for bun package manager", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue("bun");
+			createLefthookConfigSpy.mockResolvedValue({ type: "created" });
+			addLefthookScriptSpy.mockResolvedValue("success");
+
+			await initSettingsFile({ lefthook: true });
+
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"bun",
+				undefined,
+			);
+			expect(execSync).toHaveBeenCalledWith("bunx --bun lefthook install", {
 				cwd: "/test-project",
 				stdio: "pipe",
 			});

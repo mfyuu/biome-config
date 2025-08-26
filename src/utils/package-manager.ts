@@ -78,6 +78,25 @@ export const getInstallCommand = (
 	}
 };
 
+const LEFTHOOK_INSTALL_COMMAND = "lefthook install";
+
+export const getLefthookInstallCommand = (
+	packageManager: PackageManager,
+): string => {
+	switch (packageManager) {
+		case "npm":
+			return `npx ${LEFTHOOK_INSTALL_COMMAND}`;
+		case "yarn":
+			return `yarn exec ${LEFTHOOK_INSTALL_COMMAND}`;
+		case "pnpm":
+			return `pnpm exec ${LEFTHOOK_INSTALL_COMMAND}`;
+		case "bun":
+			return `bunx --bun ${LEFTHOOK_INSTALL_COMMAND}`;
+		default:
+			return packageManager satisfies never;
+	}
+};
+
 export const validatePackageManagerChoice = (
 	choices: Partial<
 		Record<"useNpm" | "useYarn" | "usePnpm" | "useBun", boolean>

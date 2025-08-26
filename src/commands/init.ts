@@ -11,6 +11,7 @@ import { findGitRoot } from "../utils/git";
 import { logger } from "../utils/logger";
 import {
 	detectPackageManager,
+	getLefthookInstallCommand,
 	validatePackageManagerChoice,
 } from "../utils/package-manager";
 import { promptLefthookIntegration } from "../utils/prompt";
@@ -190,7 +191,8 @@ export const initSettingsFile = async (
 			} else if (scriptResult === "success") {
 				// Execute lefthook install to set up Git hooks
 				try {
-					execSync("npx lefthook install", {
+					const installCommand = getLefthookInstallCommand(packageManager);
+					execSync(installCommand, {
 						cwd: baseDir,
 						stdio: "pipe",
 					});
