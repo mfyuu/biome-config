@@ -20,10 +20,10 @@ export const addBiomeScripts = async (
 			});
 		}
 
-		logger.success("Added Biome development scripts");
+		logger.success("Added Biome development scripts.");
 		return "success";
 	} catch {
-		logger.warning("Failed to add Biome scripts to package.json");
+		logger.warning("Failed to add Biome scripts to package.json.");
 		return "error";
 	}
 };

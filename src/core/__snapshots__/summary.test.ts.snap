@@ -4,38 +4,38 @@ exports[`summary > showSetupSummary > should match snapshot for skipped/mixed st
 "  [████████████░░░░░░░░] 3/5 completed
 
   ✔ Dependencies (installed)
-  ⚠ biome.json (already exists)
-  ✔ Scripts (added)
-  ✖ .vscode/settings.json (permission denied)
-  ✔ lefthook.yml (created)"
+  ⚠ Biome Config (already exists)
+  ✔ Package Scripts (added)
+  ✖ VS Code Settings (permission denied)
+  ✔ Git Hooks (lefthook) (created)"
 `;
 
 exports[`summary > showSetupSummary > should match snapshot for skipped/mixed status patterns > skipped-mixed-patterns 1`] = `
 "  [░░░░░░░░░░░░░░░░░░░░] 0/5 completed
 
   ⚠ Dependencies (skipped)
-  ⚠ biome.json (skipped)
-  ⚠ Scripts (skipped)
-  ⚠ .vscode/settings.json (skipped)
-  ⚠ lefthook.yml (skipped)"
+  ⚠ Biome Config (skipped)
+  ⚠ Package Scripts (skipped)
+  ⚠ VS Code Settings (skipped)
+  ⚠ Git Hooks (lefthook) (skipped)"
 `;
 
 exports[`summary > showSetupSummary > should match snapshot for success/failure patterns > success-failure-mixed 1`] = `
 "  [████████████░░░░░░░░] 3/5 completed
 
   ✔ Dependencies (installed)
-  ✖ biome.json (failed)
-  ✔ Scripts (added)
-  ✔ .vscode/settings.json (created)
-  ⚠ lefthook.yml (skipped)"
+  ✖ Biome Config (failed)
+  ✔ Package Scripts (added)
+  ✔ VS Code Settings (created)
+  ⚠ Git Hooks (lefthook) (skipped)"
 `;
 
 exports[`summary > showSetupSummary > should match snapshot for success/failure patterns > success-failure-patterns 1`] = `
 "  [████████████████████] 5/5 completed
 
   ✔ Dependencies (installed)
-  ✔ biome.json (created)
-  ✔ Scripts (added)
-  ✔ .vscode/settings.json (created)
-  ✔ lefthook.yml (created)"
+  ✔ Biome Config (created)
+  ✔ Package Scripts (added)
+  ✔ VS Code Settings (created)
+  ✔ Git Hooks (lefthook) (created)"
 `;

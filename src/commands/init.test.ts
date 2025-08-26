@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { vol } from "memfs";
 import {
 	afterEach,
@@ -36,6 +37,11 @@ vi.mock("../utils/logger", () => ({
 		path: (text: string) => text,
 		option: (text: string) => text,
 	},
+}));
+
+// Mock execSync for lefthook install
+vi.mock("node:child_process", () => ({
+	execSync: vi.fn(),
 }));
 
 vi.mock("../core/summary", () => ({
@@ -638,6 +644,10 @@ describe("init", () => {
 				undefined,
 			);
 			expect(addLefthookScriptSpy).toHaveBeenCalledWith("/test-project");
+			expect(execSync).toHaveBeenCalledWith("npx lefthook install", {
+				cwd: "/test-project",
+				stdio: "pipe",
+			});
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
 					lefthook: { status: "success", message: "created" },
@@ -668,6 +678,10 @@ describe("init", () => {
 				"pnpm",
 				undefined,
 			);
+			expect(execSync).toHaveBeenCalledWith("npx lefthook install", {
+				cwd: "/test-project",
+				stdio: "pipe",
+			});
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
 					lefthook: { status: "success", message: "created" },
@@ -781,6 +795,10 @@ describe("init", () => {
 				"npm",
 				true,
 			);
+			expect(execSync).toHaveBeenCalledWith("npx lefthook install", {
+				cwd: "/test-project",
+				stdio: "pipe",
+			});
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
 					lefthook: { status: "success", message: "overwritten" },
@@ -831,6 +849,10 @@ describe("init", () => {
 				"npm",
 				undefined,
 			);
+			expect(execSync).toHaveBeenCalledWith("npx lefthook install", {
+				cwd: "/test-project",
+				stdio: "pipe",
+			});
 		});
 	});
 });

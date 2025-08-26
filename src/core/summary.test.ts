@@ -70,10 +70,10 @@ describe("summary", () => {
 				expect.stringContaining("Dependencies"),
 			);
 			expect(consoleLogSpy).toHaveBeenCalledWith(
-				expect.stringContaining("biome.json"),
+				expect.stringContaining("Biome Config"),
 			);
 			expect(consoleLogSpy).toHaveBeenCalledWith(
-				expect.stringContaining(".vscode/settings.json"),
+				expect.stringContaining("VS Code Settings"),
 			);
 		});
 
@@ -205,10 +205,10 @@ describe("summary", () => {
 				expect.stringContaining("Dependencies"),
 			);
 			expect(consoleLogSpy).toHaveBeenCalledWith(
-				expect.stringContaining("biome.json"),
+				expect.stringContaining("Biome Config"),
 			);
 			expect(consoleLogSpy).toHaveBeenCalledWith(
-				expect.stringContaining(".vscode/settings.json"),
+				expect.stringContaining("VS Code Settings"),
 			);
 		});
 

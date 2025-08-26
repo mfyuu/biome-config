@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { MESSAGES } from "../constants";
 import { createBiomeConfig } from "../core/biome-config";
 import { handleDependencies } from "../core/dependencies";
@@ -186,6 +187,17 @@ export const initSettingsFile = async (
 			const scriptResult = await addLefthookScript(baseDir);
 			if (scriptResult === "error" && tasks.lefthook.status === "success") {
 				tasks.lefthook = { status: "error", message: "script failed" };
+			} else if (scriptResult === "success") {
+				// Execute lefthook install to set up Git hooks
+				try {
+					execSync("npx lefthook install", {
+						cwd: baseDir,
+						stdio: "pipe",
+					});
+					logger.info("Git hooks installed successfully");
+				} catch {
+					logger.warning("Failed to install Git hooks automatically");
+				}
 			}
 		}
 	} else {

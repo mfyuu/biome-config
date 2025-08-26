@@ -27,22 +27,22 @@ export const showSetupSummary = (tasks: TaskResult): void => {
 			message: tasks.dependencies.message,
 		},
 		{
-			name: "biome.json",
+			name: "Biome Config",
 			status: tasks.biomeConfig.status,
 			message: tasks.biomeConfig.message,
 		},
 		{
-			name: "Scripts",
+			name: "Package Scripts",
 			status: tasks.scripts.status,
 			message: tasks.scripts.message,
 		},
 		{
-			name: ".vscode/settings.json",
+			name: "VS Code Settings",
 			status: tasks.settingsFile.status,
 			message: tasks.settingsFile.message,
 		},
 		{
-			name: "lefthook.yml",
+			name: "Git Hooks (lefthook)",
 			status: tasks.lefthook.status,
 			message: tasks.lefthook.message,
 		},
