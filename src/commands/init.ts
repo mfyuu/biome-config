@@ -1,6 +1,7 @@
 import { MESSAGES } from "../constants";
 import { createBiomeConfig } from "../core/biome-config";
 import { handleDependencies } from "../core/dependencies";
+import { addBiomeScripts } from "../core/scripts";
 import { showSetupSummary } from "../core/summary";
 import { createVSCodeSettings } from "../core/vscode-settings";
 import type { InitOptions, InitResult, TaskResult } from "../types/index";
@@ -37,6 +38,7 @@ export const initSettingsFile = async (
 	const tasks: TaskResult = {
 		dependencies: { status: "skipped" },
 		biomeConfig: { status: "skipped" },
+		scripts: { status: "skipped" },
 		settingsFile: { status: "skipped" },
 	};
 
@@ -93,6 +95,13 @@ export const initSettingsFile = async (
 		default:
 			biomeResult satisfies never;
 	}
+
+	// Add Biome scripts to package.json
+	const scriptsResult = await addBiomeScripts(baseDir);
+	tasks.scripts = {
+		status: scriptsResult === "success" ? "success" : "error",
+		message: scriptsResult === "success" ? "added" : "failed",
+	};
 
 	// Determine formatter choice from CLI flags
 	let formatterChoice: "biome-only" | "with-prettier" | undefined;

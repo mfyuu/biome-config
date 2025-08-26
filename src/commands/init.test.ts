@@ -10,6 +10,7 @@ import {
 } from "vitest";
 import * as biomeConfig from "../core/biome-config";
 import * as dependencies from "../core/dependencies";
+import * as scripts from "../core/scripts";
 import * as summary from "../core/summary";
 import * as vscodeSettings from "../core/vscode-settings";
 import type { InitOptions } from "../types/index";
@@ -54,6 +55,9 @@ describe("init", () => {
 	let createVSCodeSettingsSpy: MockInstance<
 		(baseDir: string, force?: boolean) => Promise<unknown>
 	>;
+	let addBiomeScriptsSpy: MockInstance<
+		(baseDir: string) => Promise<"success" | "error">
+	>;
 
 	beforeEach(() => {
 		originalCwd = process.cwd();
@@ -62,6 +66,9 @@ describe("init", () => {
 		findGitRootSpy = vi.spyOn(git, "findGitRoot");
 		handleDependenciesSpy = vi.spyOn(dependencies, "handleDependencies");
 		createBiomeConfigSpy = vi.spyOn(biomeConfig, "createBiomeConfig");
+		addBiomeScriptsSpy = vi
+			.spyOn(scripts, "addBiomeScripts")
+			.mockResolvedValue("success");
 		createVSCodeSettingsSpy = vi.spyOn(vscodeSettings, "createVSCodeSettings");
 	});
 
@@ -82,6 +89,7 @@ describe("init", () => {
 			findGitRootSpy.mockReturnValue("/test-project");
 			handleDependenciesSpy.mockResolvedValue({ type: "installed" });
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			addBiomeScriptsSpy.mockResolvedValue("success");
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
 			const result = await initSettingsFile({});
@@ -97,6 +105,7 @@ describe("init", () => {
 			expect(summary.showSetupSummary).toHaveBeenCalledWith({
 				dependencies: { status: "success", message: "installed" },
 				biomeConfig: { status: "success", message: "created" },
+				scripts: { status: "success", message: "added" },
 				settingsFile: { status: "success", message: "created" },
 			});
 		});
@@ -109,6 +118,7 @@ describe("init", () => {
 			vi.spyOn(process, "cwd").mockReturnValue("/current");
 			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			addBiomeScriptsSpy.mockResolvedValue("success");
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
 			const result = await initSettingsFile({ local: true });
@@ -221,6 +231,7 @@ describe("init", () => {
 				type: "error",
 				message: "Permission denied",
 			});
+			addBiomeScriptsSpy.mockResolvedValue("error");
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
 			const result = await initSettingsFile({});
@@ -229,6 +240,7 @@ describe("init", () => {
 			expect(summary.showSetupSummary).toHaveBeenCalledWith({
 				dependencies: { status: "error", message: "failed" },
 				biomeConfig: { status: "error", message: "failed" },
+				scripts: { status: "error", message: "failed" },
 				settingsFile: { status: "success", message: "created" },
 			});
 		});
@@ -244,6 +256,7 @@ describe("init", () => {
 				type: "error",
 				message: "Failed",
 			});
+			addBiomeScriptsSpy.mockResolvedValue("error");
 			createVSCodeSettingsSpy.mockResolvedValue({
 				type: "error",
 				message: "Failed",
@@ -255,6 +268,7 @@ describe("init", () => {
 			expect(summary.showSetupSummary).toHaveBeenCalledWith({
 				dependencies: { status: "skipped", message: "skipped" },
 				biomeConfig: { status: "error", message: "failed" },
+				scripts: { status: "error", message: "failed" },
 				settingsFile: { status: "error", message: "failed" },
 			});
 		});
