@@ -1,5 +1,16 @@
 # @mfyuu/biome-config
 
+## 1.2.0
+
+### Minor Changes
+
+- [#26](https://github.com/mfyuu/biome-config/pull/26) [`ea569f0`](https://github.com/mfyuu/biome-config/commit/ea569f07cc419101eb4079b117db75a4b9483e00) Thanks [@mfyuu](https://github.com/mfyuu)! - - Add automatic Biome scripts to package.json during init process
+  - Automatically adds format, lint, lint-fix, and check scripts
+  - Uses npm pkg set for reliable script addition
+  - Shows scripts status in the setup summary (4/4 completed)
+  - Gracefully handles errors without interrupting the init flow
+  - No user interaction required - scripts are always added
+
 ## 1.1.0
 
 ### Minor Changes
