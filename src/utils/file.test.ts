@@ -1,7 +1,7 @@
 import path from "node:path";
 import { fs, vol } from "memfs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { PATHS } from "../constants.js";
+import { PATHS } from "../constants";
 import {
 	copyFile,
 	createDirectory,
@@ -9,7 +9,7 @@ import {
 	findBiomeConfig,
 	getTemplatePath,
 	readPackageJson,
-} from "./file.js";
+} from "./file";
 
 // Mock fs modules using memfs
 vi.mock("node:fs");

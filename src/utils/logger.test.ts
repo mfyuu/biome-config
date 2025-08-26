@@ -1,7 +1,7 @@
 import { cyan, dim, green } from "kleur/colors";
 import logSymbols from "log-symbols";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { highlight, logger } from "./logger.js";
+import { highlight, logger } from "./logger";
 
 describe("logger", () => {
 	let consoleLogSpy: ReturnType<typeof vi.spyOn>;

@@ -1,17 +1,17 @@
-import { DEPENDENCIES, MESSAGES } from "../constants.js";
-import type { InitOptions } from "../types/index.js";
-import { logger } from "../utils/logger.js";
-import { hasDependency, readUserPackageJson } from "../utils/package.js";
+import { DEPENDENCIES, MESSAGES } from "../constants";
+import type { InitOptions } from "../types/index";
+import { logger } from "../utils/logger";
+import { hasDependency, readUserPackageJson } from "../utils/package";
 import {
 	detectPackageManager,
 	getInstallCommand,
 	type PackageManager,
 	validatePackageManagerChoice,
-} from "../utils/package-manager.js";
+} from "../utils/package-manager";
 import {
 	promptInstallDependencies,
 	promptPackageManager,
-} from "../utils/prompt.js";
+} from "../utils/prompt";
 
 type DependencyResult =
 	| { type: "already-installed" }

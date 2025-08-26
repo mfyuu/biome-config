@@ -1,17 +1,17 @@
 import path from "node:path";
 import { vol } from "memfs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import * as fileUtils from "../utils/file.js";
-import * as promptUtils from "../utils/prompt.js";
-import { createVSCodeSettings } from "./vscode-settings.js";
+import * as fileUtils from "../utils/file";
+import * as promptUtils from "../utils/prompt";
+import { createVSCodeSettings } from "./vscode-settings";
 
 // Mock fs modules using memfs
 vi.mock("node:fs");
 vi.mock("node:fs/promises");
 
 // Mock setup
-vi.mock("../utils/logger.js");
-vi.mock("../utils/prompt.js");
+vi.mock("../utils/logger");
+vi.mock("../utils/prompt");
 
 describe("vscode-settings", () => {
 	beforeEach(() => {

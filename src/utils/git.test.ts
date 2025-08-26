@@ -1,8 +1,8 @@
 import os from "node:os";
 import { vol } from "memfs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { PATHS } from "../constants.js";
-import { findGitRoot } from "./git.js";
+import { PATHS } from "../constants";
+import { findGitRoot } from "./git";
 
 // Mock fs modules using memfs
 vi.mock("node:fs");

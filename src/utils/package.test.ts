@@ -1,16 +1,16 @@
 import { vol } from "memfs";
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { PROJECT_TYPES } from "../constants.js";
+import { PROJECT_TYPES } from "../constants";
 import {
 	basePackageJson,
 	nextPackageJson,
 	reactPackageJson,
-} from "../test-helpers/fixtures.js";
+} from "../test-helpers/fixtures";
 import {
 	detectProjectType,
 	hasDependency,
 	readUserPackageJson,
-} from "./package.js";
+} from "./package";
 
 // Mock fs modules using memfs
 vi.mock("node:fs");

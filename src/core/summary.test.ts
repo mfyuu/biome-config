@@ -1,11 +1,11 @@
 import { green, red, yellow } from "kleur/colors";
 import logSymbols from "log-symbols";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import type { TaskResult } from "../types/index.js";
-import { showSetupSummary } from "./summary.js";
+import type { TaskResult } from "../types/index";
+import { showSetupSummary } from "./summary";
 
 // Mock setup
-vi.mock("../utils/logger.js", () => ({
+vi.mock("../utils/logger", () => ({
 	logger: {
 		finalSuccess: vi.fn(),
 	},

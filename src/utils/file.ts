@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { PATHS } from "../constants.js";
+import { PATHS } from "../constants";
 
 const getRootDir = (): string => {
 	const currentFileUrl = import.meta.url;

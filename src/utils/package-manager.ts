@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { promptPackageManager } from "./prompt.js";
+import { promptPackageManager } from "./prompt";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 

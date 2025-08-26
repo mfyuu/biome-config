@@ -1,8 +1,8 @@
 import { green, red, yellow } from "kleur/colors";
 import logSymbols from "log-symbols";
-import { MESSAGES } from "../constants.js";
-import type { TaskResult, TaskStatus } from "../types/index.js";
-import { logger } from "../utils/logger.js";
+import { MESSAGES } from "../constants";
+import type { TaskResult, TaskStatus } from "../types/index";
+import { logger } from "../utils/logger";
 
 const statusIcon = (status: TaskStatus): string => {
 	switch (status) {

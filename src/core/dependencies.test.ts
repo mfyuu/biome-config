@@ -1,18 +1,18 @@
 import { vol } from "memfs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DEPENDENCIES } from "../constants.js";
-import * as packageUtils from "../utils/package.js";
-import * as packageManagerUtils from "../utils/package-manager.js";
-import * as promptUtils from "../utils/prompt.js";
-import { handleDependencies } from "./dependencies.js";
+import { DEPENDENCIES } from "../constants";
+import * as packageUtils from "../utils/package";
+import * as packageManagerUtils from "../utils/package-manager";
+import * as promptUtils from "../utils/prompt";
+import { handleDependencies } from "./dependencies";
 
 // Mock fs modules using memfs
 vi.mock("node:fs");
 vi.mock("node:fs/promises");
 
 // Mock setup
-vi.mock("../utils/logger.js");
-vi.mock("../utils/prompt.js");
+vi.mock("../utils/logger");
+vi.mock("../utils/prompt");
 
 const execSyncMock = vi.fn();
 vi.mock("node:child_process", () => ({

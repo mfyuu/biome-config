@@ -4,8 +4,8 @@ import {
 	PROJECT_TYPES,
 	PROMPT_DEFAULTS,
 	type ProjectType,
-} from "../constants.js";
-import type { PackageManager } from "./package-manager.js";
+} from "../constants";
+import type { PackageManager } from "./package-manager";
 
 export const promptOverwriteConfirmation = async (): Promise<boolean> => {
 	const response = await prompts(
@@ -121,7 +121,7 @@ export const promptProjectType = async (): Promise<ProjectType> => {
 					description: "React applications and libraries",
 				},
 				{
-					title: "Next.js",
+					title: "Next",
 					value: PROJECT_TYPES.NEXT,
 					description: "Next.js applications",
 				},

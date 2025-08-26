@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { PATHS } from "../constants.js";
+import { PATHS } from "../constants";
 
 export const findGitRoot = (startDir: string): string | null => {
 	let currentDir = startDir;

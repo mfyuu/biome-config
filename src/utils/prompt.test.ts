@@ -8,15 +8,15 @@ import {
 	type MockInstance,
 	vi,
 } from "vitest";
-import { EXIT_CODES, PROJECT_TYPES } from "../constants.js";
-import type { PackageManager } from "./package-manager.js";
+import { EXIT_CODES, PROJECT_TYPES } from "../constants";
+import type { PackageManager } from "./package-manager";
 import {
 	promptBiomeOverwriteConfirmation,
 	promptInstallDependencies,
 	promptOverwriteConfirmation,
 	promptPackageManager,
 	promptProjectType,
-} from "./prompt.js";
+} from "./prompt";
 
 // Mock prompts module
 vi.mock("prompts");
@@ -355,7 +355,7 @@ describe("prompt", () => {
 							value: PROJECT_TYPES.REACT,
 						}),
 						expect.objectContaining({
-							title: "Next.js",
+							title: "Next",
 							value: PROJECT_TYPES.NEXT,
 						}),
 					]),

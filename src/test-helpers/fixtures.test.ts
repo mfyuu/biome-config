@@ -9,7 +9,7 @@ import {
 	reactBiomeConfig,
 	reactPackageJson,
 	vscodeSettings,
-} from "./fixtures.js";
+} from "./fixtures";
 
 describe("fixtures", () => {
 	describe("package.json fixtures", () => {

@@ -6,15 +6,15 @@ import {
 	detectPackageManager,
 	getInstallCommand,
 	validatePackageManagerChoice,
-} from "./package-manager.js";
-import { promptPackageManager } from "./prompt.js";
+} from "./package-manager";
+import { promptPackageManager } from "./prompt";
 
 // Mock fs modules using memfs
 vi.mock("node:fs");
 vi.mock("node:fs/promises");
 
 // Mock promptPackageManager
-vi.mock("./prompt.js", () => ({
+vi.mock("./prompt", () => ({
 	promptPackageManager: vi.fn(),
 }));
 

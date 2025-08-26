@@ -6,7 +6,7 @@ import {
 	cleanupOldTestDirs,
 	cleanupTestTempDir,
 	createTestTempDir,
-} from "./test-cleanup.js";
+} from "./test-cleanup";
 
 /**
  * Helper function to expect command failure and verify error message
@@ -97,7 +97,7 @@ describe("E2E: biome-config init", () => {
 
 	it("should execute init command successfully", async () => {
 		// Get CLI path (use built version)
-		const cliPath = path.resolve("./dist/cli.js");
+		const cliPath = path.resolve("./dist/cli");
 
 		// Execute command (skip dependency installation with --skip-deps)
 		const output = execSync(`node ${cliPath} --skip-deps`, {
@@ -126,7 +126,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should apply React configuration with --type option", async () => {
-		const cliPath = path.resolve("./dist/cli.js");
+		const cliPath = path.resolve("./dist/cli");
 
 		// Execute command with React configuration
 		execSync(`node ${cliPath} --type react --skip-deps`, {
@@ -143,7 +143,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should overwrite existing files with --force option", async () => {
-		const cliPath = path.resolve("./dist/cli.js");
+		const cliPath = path.resolve("./dist/cli");
 
 		// First execution
 		execSync(`node ${cliPath} --skip-deps`, {
@@ -171,7 +171,7 @@ describe("E2E: biome-config init", () => {
 		// Delete package.json
 		await fs.unlink(path.join(tempDir, "package.json"));
 
-		const cliPath = path.resolve("./dist/cli.js");
+		const cliPath = path.resolve("./dist/cli");
 
 		// Can execute without package.json (explicitly specify type)
 		execSync(`node ${cliPath} --type base --skip-deps`, {
@@ -207,7 +207,7 @@ describe("E2E: biome-config init", () => {
 			),
 		);
 
-		const cliPath = path.resolve("./dist/cli.js");
+		const cliPath = path.resolve("./dist/cli");
 
 		// Execute with --local option
 		execSync(`node ${cliPath} --local --skip-deps`, {
@@ -233,7 +233,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should handle error when multiple package manager options are specified", async () => {
-		const cliPath = path.resolve("./dist/cli.js");
+		const cliPath = path.resolve("./dist/cli");
 
 		// Multiple package managers don't cause error, first option is used
 		// (May cause error depending on implementation, verify it can execute)
@@ -257,7 +257,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should display version information with --version option", async () => {
-		const cliPath = path.resolve("./dist/cli.js");
+		const cliPath = path.resolve("./dist/cli");
 
 		const output = execSync(`node ${cliPath} --version`, {
 			cwd: tempDir,
@@ -269,7 +269,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should apply Next.js configuration with --type option", async () => {
-		const cliPath = path.resolve("./dist/cli.js");
+		const cliPath = path.resolve("./dist/cli");
 
 		// Execute command with Next.js configuration
 		execSync(`node ${cliPath} --type next --skip-deps`, {
@@ -286,7 +286,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should throw error with invalid --type value", async () => {
-		const cliPath = path.resolve("./dist/cli.js");
+		const cliPath = path.resolve("./dist/cli");
 
 		// Execute error test using helper function (error output is suppressed)
 		expectCommandToFail(`node ${cliPath} --type invalid --skip-deps`, {

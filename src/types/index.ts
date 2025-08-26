@@ -1,4 +1,4 @@
-import type { ProjectType } from "../constants.js";
+import type { ProjectType } from "../constants";
 
 export interface InitOptions {
 	force?: boolean;

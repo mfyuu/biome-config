@@ -8,16 +8,16 @@ import {
 	type MockInstance,
 	vi,
 } from "vitest";
-import * as biomeConfig from "../core/biome-config.js";
-import * as dependencies from "../core/dependencies.js";
-import * as summary from "../core/summary.js";
-import * as vscodeSettings from "../core/vscode-settings.js";
-import type { InitOptions } from "../types/index.js";
-import * as git from "../utils/git.js";
-import { initSettingsFile } from "./init.js";
+import * as biomeConfig from "../core/biome-config";
+import * as dependencies from "../core/dependencies";
+import * as summary from "../core/summary";
+import * as vscodeSettings from "../core/vscode-settings";
+import type { InitOptions } from "../types/index";
+import * as git from "../utils/git";
+import { initSettingsFile } from "./init";
 
 // Mock setup
-vi.mock("../utils/logger.js", () => ({
+vi.mock("../utils/logger", () => ({
 	logger: {
 		info: vi.fn(),
 		success: vi.fn(),
@@ -34,7 +34,7 @@ vi.mock("../utils/logger.js", () => ({
 	},
 }));
 
-vi.mock("../core/summary.js", () => ({
+vi.mock("../core/summary", () => ({
 	showSetupSummary: vi.fn(),
 }));
 
