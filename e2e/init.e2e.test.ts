@@ -235,25 +235,14 @@ describe("E2E: biome-config init", () => {
 	it("should handle error when multiple package manager options are specified", async () => {
 		const cliPath = path.resolve("./dist/cli");
 
-		// Multiple package managers don't cause error, first option is used
-		// (May cause error depending on implementation, verify it can execute)
-		try {
-			const output = execSync(
-				`node ${cliPath} --use-npm --use-yarn --skip-deps --force`,
-				{
-					cwd: tempDir,
-					encoding: "utf-8",
-					timeout: 5000,
-				},
-			);
-			// Verify command was executed
-			expect(output).toContain("Biome configuration");
-		} catch (error) {
-			// Verify error message mentions multiple package managers
-			if (error instanceof Error && error.message) {
-				expect(error.message.toLowerCase()).toMatch(/multiple|package manager/);
-			}
-		}
+		// Should throw error when multiple package managers are specified
+		expectCommandToFail(
+			`node ${cliPath} --use-npm --use-yarn --skip-deps --force --biome-only`,
+			{
+				cwd: tempDir,
+				expectedError: "Multiple package managers specified",
+			},
+		);
 	});
 
 	it("should display version information with --version option", async () => {
