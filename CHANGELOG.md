@@ -1,5 +1,15 @@
 # @mfyuu/biome-config
 
+## 1.0.3
+
+### Patch Changes
+
+- [#21](https://github.com/mfyuu/biome-config/pull/21) [`2aec14a`](https://github.com/mfyuu/biome-config/commit/2aec14a25b9e148a5f0cc259f964817836a59c94) Thanks [@mfyuu](https://github.com/mfyuu)! - - Fix pnpm migration in CI/CD workflows
+  - Add pnpm action setup to release workflow
+  - Update Node.js cache configuration from npm to pnpm
+  - Replace npm install commands with pnpm install
+  - Ensure proper dependency installation in release process
+
 ## 1.0.2
 
 ### Patch Changes
