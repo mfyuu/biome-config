@@ -70,7 +70,8 @@
 		"changeset": "changeset",
 		"release": "changeset publish",
 		"version": "changeset version",
-		"prepublishOnly": "bun run build"
+		"prepublishOnly": "pnpm run build"
 	},
-	"type": "module"
+	"type": "module",
+	"packageManager": "pnpm@10.14.0"
 }
