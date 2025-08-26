@@ -92,6 +92,7 @@ describe("init", () => {
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				undefined,
+				undefined,
 			);
 			expect(summary.showSetupSummary).toHaveBeenCalledWith({
 				dependencies: { status: "success", message: "installed" },
@@ -278,6 +279,7 @@ describe("init", () => {
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				true,
+				undefined,
 			);
 		});
 
@@ -368,6 +370,7 @@ describe("init", () => {
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				true,
+				undefined,
 			);
 		});
 	});
@@ -403,7 +406,11 @@ describe("init", () => {
 				force: true,
 				type: "react",
 			});
-			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith("/project", true);
+			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
+				"/project",
+				true,
+				undefined,
+			);
 		});
 
 		it("should handle actual filesystem state properly", async () => {
@@ -439,6 +446,119 @@ describe("init", () => {
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/existing-project",
 				true,
+				undefined,
+			);
+		});
+	});
+
+	describe("initSettingsFile - formatter choice tests", () => {
+		it("should pass biome-only when biomeOnly flag is set", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+
+			await initSettingsFile({
+				biomeOnly: true,
+			});
+
+			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
+				"/test-project",
+				undefined,
+				"biome-only",
+			);
+		});
+
+		it("should pass with-prettier when withPrettier flag is set", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+
+			await initSettingsFile({
+				withPrettier: true,
+			});
+
+			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
+				"/test-project",
+				undefined,
+				"with-prettier",
+			);
+		});
+
+		it("should pass undefined when no formatter flags are set", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+
+			await initSettingsFile({});
+
+			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
+				"/test-project",
+				undefined,
+				undefined,
+			);
+		});
+
+		it("should handle conflicting formatter flags and return error", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+
+			const result = await initSettingsFile({
+				biomeOnly: true,
+				withPrettier: true,
+			});
+
+			expect(result).toEqual({
+				success: false,
+				error: "Conflicting formatter flags",
+			});
+			expect(createVSCodeSettingsSpy).not.toHaveBeenCalled();
+		});
+
+		it("should work with force and formatter flags combined", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+
+			await initSettingsFile({
+				force: true,
+				biomeOnly: true,
+			});
+
+			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
+				"/test-project",
+				true,
+				"biome-only",
 			);
 		});
 	});

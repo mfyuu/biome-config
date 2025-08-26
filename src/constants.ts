@@ -9,6 +9,10 @@ export const PATHS = {
 	BIOME_FILE_JSONC: "biome.jsonc",
 	BIOME_TEMPLATES_DIR: "biome",
 } as const;
+export const VSCODE_SETTINGS_TEMPLATES = {
+	BIOME_ONLY: "biome-only.json",
+	WITH_PRETTIER: "biome-prettier.json",
+} as const;
 
 export const MESSAGES = {
 	INFO: {
@@ -34,6 +38,8 @@ export const MESSAGES = {
 			`Detected project type: ${highlight.package(type)}`,
 		PROJECT_TYPE_SELECTED: (type: string) =>
 			`Selected project type: ${highlight.package(type)}`,
+		FORMATTER_SELECTED: (choice: string) =>
+			`Selected formatter configuration: ${highlight.package(choice)}`,
 		SETUP_COMPLETE: "Biome configuration setup completed.",
 	},
 	WARNING: {
@@ -43,6 +49,8 @@ export const MESSAGES = {
 		MULTIPLE_PACKAGE_MANAGERS:
 			"Multiple package managers specified. Please choose only one.",
 		BIOME_FILE_EXISTS: `${highlight.file("biome.json(c)")} already exists!`,
+		CONFLICTING_FORMATTER_FLAGS:
+			"Cannot use both --biome-only and --with-prettier flags together.",
 	},
 	ERROR: {
 		NOT_IN_GIT: "Not in a git repository!",

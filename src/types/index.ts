@@ -9,7 +9,17 @@ export interface InitOptions {
 	usePnpm?: boolean;
 	useBun?: boolean;
 	type?: ProjectType;
+	biomeOnly?: boolean;
+	withPrettier?: boolean;
 }
+
+export type FormatterChoice = "biome-only" | "with-prettier";
+
+export type VSCodeSettingsResult =
+	| { type: "created" }
+	| { type: "overwritten" }
+	| { type: "skipped" }
+	| { type: "error"; message: string };
 
 export interface InitResult {
 	success: boolean;

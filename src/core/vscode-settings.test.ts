@@ -32,28 +32,38 @@ describe("vscode-settings", () => {
 		it("should create new .vscode directory", async () => {
 			vol.fromJSON({
 				"/project": null,
-				"/templates/.vscode/settings.json": JSON.stringify({
+				"/templates/.vscode/with-prettier.json": JSON.stringify({
 					"editor.formatOnSave": true,
 				}),
 			});
+
+			vi.mocked(promptUtils.promptFormatterChoice).mockResolvedValue(
+				"with-prettier",
+			);
 
 			const result = await createVSCodeSettings("/project");
 			expect(result).toEqual({ type: "created" });
 			expect(fileUtils.fileExists("/project/.vscode")).toBe(true);
 			expect(fileUtils.fileExists("/project/.vscode/settings.json")).toBe(true);
+			expect(promptUtils.promptFormatterChoice).toHaveBeenCalled();
 		});
 
 		it("should create new settings.json", async () => {
 			vol.fromJSON({
 				"/project/.vscode": null,
-				"/templates/.vscode/settings.json": JSON.stringify({
+				"/templates/.vscode/biome-only.json": JSON.stringify({
 					"editor.formatOnSave": true,
 				}),
 			});
 
+			vi.mocked(promptUtils.promptFormatterChoice).mockResolvedValue(
+				"biome-only",
+			);
+
 			const result = await createVSCodeSettings("/project");
 			expect(result).toEqual({ type: "created" });
 			expect(fileUtils.fileExists("/project/.vscode/settings.json")).toBe(true);
+			expect(promptUtils.promptFormatterChoice).toHaveBeenCalled();
 		});
 
 		it("should confirm when settings.json exists", async () => {
@@ -61,7 +71,7 @@ describe("vscode-settings", () => {
 				"/project/.vscode/settings.json": JSON.stringify({
 					"editor.fontSize": 14,
 				}),
-				"/templates/.vscode/settings.json": JSON.stringify({
+				"/templates/.vscode/with-prettier.json": JSON.stringify({
 					"editor.formatOnSave": true,
 				}),
 			});
@@ -69,10 +79,14 @@ describe("vscode-settings", () => {
 			vi.mocked(promptUtils.promptOverwriteConfirmation).mockResolvedValue(
 				true,
 			);
+			vi.mocked(promptUtils.promptFormatterChoice).mockResolvedValue(
+				"with-prettier",
+			);
 
 			const result = await createVSCodeSettings("/project");
 			expect(result).toEqual({ type: "overwritten" });
 			expect(promptUtils.promptOverwriteConfirmation).toHaveBeenCalled();
+			expect(promptUtils.promptFormatterChoice).toHaveBeenCalled();
 		});
 
 		it("should skip when overwrite confirmation is rejected", async () => {
@@ -86,19 +100,27 @@ describe("vscode-settings", () => {
 
 			const result = await createVSCodeSettings("/project");
 			expect(result).toEqual({ type: "skipped" });
+			expect(promptUtils.promptOverwriteConfirmation).toHaveBeenCalled();
+			// Should not call promptFormatterChoice when skipping
+			expect(promptUtils.promptFormatterChoice).not.toHaveBeenCalled();
 		});
 
 		it("should overwrite with force option", async () => {
 			vol.fromJSON({
 				"/project/.vscode/settings.json": "{}",
-				"/templates/.vscode/settings.json": JSON.stringify({
+				"/templates/.vscode/biome-only.json": JSON.stringify({
 					"editor.formatOnSave": true,
 				}),
 			});
 
+			vi.mocked(promptUtils.promptFormatterChoice).mockResolvedValue(
+				"biome-only",
+			);
+
 			const result = await createVSCodeSettings("/project", true);
 			expect(result).toEqual({ type: "overwritten" });
 			expect(promptUtils.promptOverwriteConfirmation).not.toHaveBeenCalled();
+			expect(promptUtils.promptFormatterChoice).toHaveBeenCalled();
 		});
 
 		it("should handle directory creation error", async () => {
@@ -156,12 +178,16 @@ describe("vscode-settings", () => {
 		it("should work with nested directory structure", async () => {
 			vol.fromJSON({
 				"/workspace/projects/myapp": null,
-				"/templates/.vscode/settings.json": JSON.stringify({
+				"/templates/.vscode/biome-only.json": JSON.stringify({
 					"editor.formatOnSave": true,
 				}),
 			});
 
-			const result = await createVSCodeSettings("/workspace/projects/myapp");
+			const result = await createVSCodeSettings(
+				"/workspace/projects/myapp",
+				false,
+				"biome-only",
+			);
 			expect(result).toEqual({ type: "created" });
 			expect(
 				fileUtils.fileExists("/workspace/projects/myapp/.vscode/settings.json"),
@@ -173,12 +199,16 @@ describe("vscode-settings", () => {
 				"/project/.vscode/extensions.json": JSON.stringify({
 					recommendations: ["biomejs.biome"],
 				}),
-				"/templates/.vscode/settings.json": JSON.stringify({
+				"/templates/.vscode/with-prettier.json": JSON.stringify({
 					"editor.formatOnSave": true,
 				}),
 			});
 
-			const result = await createVSCodeSettings("/project");
+			const result = await createVSCodeSettings(
+				"/project",
+				false,
+				"with-prettier",
+			);
 			expect(result).toEqual({ type: "created" });
 			expect(fileUtils.fileExists("/project/.vscode/settings.json")).toBe(true);
 			expect(fileUtils.fileExists("/project/.vscode/extensions.json")).toBe(
@@ -198,7 +228,7 @@ describe("vscode-settings", () => {
 						null,
 						2,
 					),
-					"/templates/.vscode/settings.json": JSON.stringify(
+					"/templates/.vscode/biome-only.json": JSON.stringify(
 						{
 							"editor.formatOnSave": true,
 							"editor.codeActionsOnSave": {
@@ -214,7 +244,11 @@ describe("vscode-settings", () => {
 					true,
 				);
 
-				const result = await createVSCodeSettings("/project");
+				const result = await createVSCodeSettings(
+					"/project",
+					false,
+					"biome-only",
+				);
 				expect(result).toEqual({ type: "overwritten" });
 
 				// Verify file content (completely replaced)
@@ -246,7 +280,7 @@ describe("vscode-settings", () => {
 	   settings description */
 	"editor.tabSize": 2
 }`,
-					"/templates/.vscode/settings.json": JSON.stringify(
+					"/templates/.vscode/with-prettier.json": JSON.stringify(
 						{
 							"editor.formatOnSave": true,
 						},
@@ -259,7 +293,11 @@ describe("vscode-settings", () => {
 					true,
 				);
 
-				const result = await createVSCodeSettings("/project");
+				const result = await createVSCodeSettings(
+					"/project",
+					false,
+					"with-prettier",
+				);
 				expect(result).toEqual({ type: "overwritten" });
 
 				// Verify file content (comments are lost)
@@ -281,7 +319,7 @@ describe("vscode-settings", () => {
 			it("should overwrite invalid JSON format existing settings file", async () => {
 				vol.fromJSON({
 					"/project/.vscode/settings.json": "{ invalid json syntax",
-					"/templates/.vscode/settings.json": JSON.stringify({
+					"/templates/.vscode/biome-only.json": JSON.stringify({
 						"editor.formatOnSave": true,
 					}),
 				});
@@ -290,7 +328,11 @@ describe("vscode-settings", () => {
 					true,
 				);
 
-				const result = await createVSCodeSettings("/project");
+				const result = await createVSCodeSettings(
+					"/project",
+					false,
+					"biome-only",
+				);
 				expect(result).toEqual({ type: "overwritten" });
 
 				// Overwritten with valid JSON
@@ -307,7 +349,7 @@ describe("vscode-settings", () => {
 			it("should replace empty settings.json normally", async () => {
 				vol.fromJSON({
 					"/project/.vscode/settings.json": "",
-					"/templates/.vscode/settings.json": JSON.stringify({
+					"/templates/.vscode/with-prettier.json": JSON.stringify({
 						"editor.formatOnSave": true,
 						"editor.codeActionsOnSave": {
 							"quickfix.biome": "explicit",
@@ -319,7 +361,11 @@ describe("vscode-settings", () => {
 					true,
 				);
 
-				const result = await createVSCodeSettings("/project");
+				const result = await createVSCodeSettings(
+					"/project",
+					false,
+					"with-prettier",
+				);
 				expect(result).toEqual({ type: "overwritten" });
 
 				const content = vol.readFileSync(
@@ -333,6 +379,81 @@ describe("vscode-settings", () => {
 						"quickfix.biome": "explicit",
 					},
 				});
+			});
+		});
+
+		describe("formatter choice tests", () => {
+			it("should use biome-only template when formatterChoice is specified", async () => {
+				vol.fromJSON({
+					"/project": null,
+					"/templates/.vscode/biome-only.json": JSON.stringify({
+						"editor.formatOnSave": true,
+						"editor.defaultFormatter": "biomejs.biome",
+					}),
+				});
+
+				const result = await createVSCodeSettings(
+					"/project",
+					false,
+					"biome-only",
+				);
+				expect(result).toEqual({ type: "created" });
+				expect(promptUtils.promptFormatterChoice).not.toHaveBeenCalled();
+			});
+
+			it("should use with-prettier template when formatterChoice is specified", async () => {
+				vol.fromJSON({
+					"/project": null,
+					"/templates/.vscode/with-prettier.json": JSON.stringify({
+						"editor.formatOnSave": true,
+						"[markdown]": {
+							"editor.defaultFormatter": "esbenp.prettier-vscode",
+						},
+					}),
+				});
+
+				const result = await createVSCodeSettings(
+					"/project",
+					false,
+					"with-prettier",
+				);
+				expect(result).toEqual({ type: "created" });
+				expect(promptUtils.promptFormatterChoice).not.toHaveBeenCalled();
+			});
+
+			it("should skip formatter choice prompt when overwrite is rejected", async () => {
+				vol.fromJSON({
+					"/project/.vscode/settings.json": "{}",
+				});
+
+				vi.mocked(promptUtils.promptOverwriteConfirmation).mockResolvedValue(
+					false,
+				);
+
+				const result = await createVSCodeSettings("/project");
+				expect(result).toEqual({ type: "skipped" });
+				expect(promptUtils.promptFormatterChoice).not.toHaveBeenCalled();
+			});
+
+			it("should prompt for formatter choice after overwrite confirmation", async () => {
+				vol.fromJSON({
+					"/project/.vscode/settings.json": "{}",
+					"/templates/.vscode/biome-only.json": JSON.stringify({
+						"editor.formatOnSave": true,
+					}),
+				});
+
+				vi.mocked(promptUtils.promptOverwriteConfirmation).mockResolvedValue(
+					true,
+				);
+				vi.mocked(promptUtils.promptFormatterChoice).mockResolvedValue(
+					"biome-only",
+				);
+
+				const result = await createVSCodeSettings("/project");
+				expect(result).toEqual({ type: "overwritten" });
+				expect(promptUtils.promptOverwriteConfirmation).toHaveBeenCalled();
+				expect(promptUtils.promptFormatterChoice).toHaveBeenCalled();
 			});
 		});
 	});

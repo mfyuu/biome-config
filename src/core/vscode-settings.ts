@@ -1,5 +1,6 @@
 import path from "node:path";
 import { MESSAGES, PATHS } from "../constants";
+import type { FormatterChoice, VSCodeSettingsResult } from "../types";
 import {
 	copyFile,
 	createDirectory,
@@ -7,17 +8,15 @@ import {
 	getTemplatePath,
 } from "../utils/file";
 import { logger } from "../utils/logger";
-import { promptOverwriteConfirmation } from "../utils/prompt";
-
-type VSCodeSettingsResult =
-	| { type: "created" }
-	| { type: "overwritten" }
-	| { type: "skipped" }
-	| { type: "error"; message: string };
+import {
+	promptFormatterChoice,
+	promptOverwriteConfirmation,
+} from "../utils/prompt";
 
 export const createVSCodeSettings = async (
 	baseDir: string,
 	force?: boolean,
+	formatterChoice?: FormatterChoice,
 ): Promise<VSCodeSettingsResult> => {
 	const vscodeDir = path.join(baseDir, PATHS.VSCODE_DIR);
 	const targetPath = path.join(vscodeDir, PATHS.SETTINGS_FILE);
@@ -35,9 +34,20 @@ export const createVSCodeSettings = async (
 		// User chose to overwrite, continue with the file creation
 	}
 
+	// Prompt for formatter choice if not provided
+	let selectedFormatter = formatterChoice;
+	if (!selectedFormatter) {
+		selectedFormatter = await promptFormatterChoice();
+	}
+
 	try {
+		// Select template based on formatter choice
+		const templateFileName =
+			selectedFormatter === "biome-only"
+				? "biome-only.json"
+				: "with-prettier.json";
 		const templatePath = getTemplatePath(
-			path.join(PATHS.VSCODE_DIR, PATHS.SETTINGS_FILE),
+			path.join(PATHS.VSCODE_DIR, templateFileName),
 		);
 
 		createDirectory(vscodeDir);

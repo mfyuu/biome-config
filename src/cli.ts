@@ -14,6 +14,8 @@ type CliOptions = {
 	usePnpm?: boolean;
 	useBun?: boolean;
 	type?: "base" | "react" | "next";
+	biomeOnly?: boolean;
+	withPrettier?: boolean;
 };
 
 const packageJson = readPackageJson() as { version: string };
@@ -31,6 +33,8 @@ program
 	.option("--use-yarn", "use yarn as package manager")
 	.option("--use-pnpm", "use pnpm as package manager")
 	.option("--use-bun", "use bun as package manager")
+	.option("--biome-only", "use Biome as the only formatter")
+	.option("--with-prettier", "use Biome with Prettier for Markdown files")
 	.option(
 		"--type <type>",
 		"configuration type (base, react, next)",
