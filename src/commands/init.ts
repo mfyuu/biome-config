@@ -38,6 +38,7 @@ export const initSettingsFile = async (
 	const tasks: TaskResult = {
 		dependencies: { status: "skipped" },
 		biomeConfig: { status: "skipped" },
+		scripts: { status: "skipped" },
 		settingsFile: { status: "skipped" },
 	};
 
@@ -96,7 +97,11 @@ export const initSettingsFile = async (
 	}
 
 	// Add Biome scripts to package.json
-	await addBiomeScripts(baseDir);
+	const scriptsResult = await addBiomeScripts(baseDir);
+	tasks.scripts = {
+		status: scriptsResult === "success" ? "success" : "error",
+		message: scriptsResult === "success" ? "added" : "failed",
+	};
 
 	// Determine formatter choice from CLI flags
 	let formatterChoice: "biome-only" | "with-prettier" | undefined;

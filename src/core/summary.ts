@@ -32,6 +32,11 @@ export const showSetupSummary = (tasks: TaskResult): void => {
 			message: tasks.biomeConfig.message,
 		},
 		{
+			name: "Scripts",
+			status: tasks.scripts.status,
+			message: tasks.scripts.message,
+		},
+		{
 			name: ".vscode/settings.json",
 			status: tasks.settingsFile.status,
 			message: tasks.settingsFile.message,

@@ -1,6 +1,8 @@
 import { logger } from "../utils/logger";
 
-export const addBiomeScripts = async (baseDir: string): Promise<void> => {
+export const addBiomeScripts = async (
+	baseDir: string,
+): Promise<"success" | "error"> => {
 	try {
 		const { execSync } = await import("node:child_process");
 
@@ -19,7 +21,9 @@ export const addBiomeScripts = async (baseDir: string): Promise<void> => {
 		}
 
 		logger.success("Added Biome development scripts");
+		return "success";
 	} catch {
 		logger.warning("Failed to add Biome scripts to package.json");
+		return "error";
 	}
 };

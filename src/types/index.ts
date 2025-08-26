@@ -37,5 +37,6 @@ type TaskResultDetail = {
 export interface TaskResult {
 	dependencies: TaskResultDetail;
 	biomeConfig: TaskResultDetail;
+	scripts: TaskResultDetail;
 	settingsFile: TaskResultDetail;
 }
