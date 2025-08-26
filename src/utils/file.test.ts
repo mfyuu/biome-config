@@ -231,26 +231,30 @@ describe("file", () => {
 	describe("getTemplatePath", () => {
 		it("should return correct template file path", () => {
 			const result = getTemplatePath("biome/base.json");
-			expect(result).toMatch(/.*\/templates\/biome\/base\.json$/);
-			expect(result).toContain("templates/biome/base.json");
+			expect(result).toMatch(/.*[\\/]templates[\\/]biome[\\/]base\.json$/);
+			expect(result).toContain(path.join("templates", "biome", "base.json"));
 		});
 
 		it("should return correct path for react config type", () => {
 			const result = getTemplatePath("biome/react.json");
-			expect(result).toMatch(/.*\/templates\/biome\/react\.json$/);
-			expect(result).toContain("templates/biome/react.json");
+			expect(result).toMatch(/.*[\\/]templates[\\/]biome[\\/]react\.json$/);
+			expect(result).toContain(path.join("templates", "biome", "react.json"));
 		});
 
 		it("should return correct path for next config type", () => {
 			const result = getTemplatePath("biome/next.jsonc");
-			expect(result).toMatch(/.*\/templates\/biome\/next\.jsonc$/);
-			expect(result).toContain("templates/biome/next.jsonc");
+			expect(result).toMatch(/.*[\\/]templates[\\/]biome[\\/]next\.jsonc$/);
+			expect(result).toContain(path.join("templates", "biome", "next.jsonc"));
 		});
 
 		it("should return correct VSCode settings file path", () => {
 			const result = getTemplatePath(".vscode/settings.json");
-			expect(result).toMatch(/.*\/templates\/\.vscode\/settings\.json$/);
-			expect(result).toContain("templates/.vscode/settings.json");
+			expect(result).toMatch(
+				/.*[\\/]templates[\\/]\.vscode[\\/]settings\.json$/,
+			);
+			expect(result).toContain(
+				path.join("templates", ".vscode", "settings.json"),
+			);
 		});
 
 		it("should verify path resolution accuracy", () => {
@@ -263,15 +267,15 @@ describe("file", () => {
 			expect(reactPath).not.toBe(nextPath);
 			expect(basePath).not.toBe(nextPath);
 
-			// Verify all contain templates/ directory
-			[basePath, reactPath, nextPath].forEach((path) => {
-				expect(path).toContain("templates/");
+			// Verify all contain templates directory
+			[basePath, reactPath, nextPath].forEach((filePath) => {
+				expect(filePath).toContain(path.join("templates", ""));
 			});
 		});
 
 		it("should generate correct path even with empty string", () => {
 			const result = getTemplatePath("");
-			expect(result).toMatch(/.*\/templates$/);
+			expect(result).toMatch(/.*[\\/]templates$/);
 			expect(result).toContain("templates");
 		});
 	});

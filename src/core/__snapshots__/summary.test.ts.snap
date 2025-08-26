@@ -3,31 +3,31 @@
 exports[`summary > showSetupSummary > should match snapshot for skipped/mixed status patterns > complex-mixed-status 1`] = `
 "  [███████░░░░░░░░░░░░░] 1/3 completed
 
-  [32m✔[39m Dependencies (installed)
-  [33m⚠[39m biome.json (already exists)
-  [31m✖[39m .vscode/settings.json (permission denied)"
+  ✔ Dependencies (installed)
+  ⚠ biome.json (already exists)
+  ✖ .vscode/settings.json (permission denied)"
 `;
 
 exports[`summary > showSetupSummary > should match snapshot for skipped/mixed status patterns > skipped-mixed-patterns 1`] = `
 "  [░░░░░░░░░░░░░░░░░░░░] 0/3 completed
 
-  [33m⚠[39m Dependencies (skipped)
-  [33m⚠[39m biome.json (skipped)
-  [33m⚠[39m .vscode/settings.json (skipped)"
+  ⚠ Dependencies (skipped)
+  ⚠ biome.json (skipped)
+  ⚠ .vscode/settings.json (skipped)"
 `;
 
 exports[`summary > showSetupSummary > should match snapshot for success/failure patterns > success-failure-mixed 1`] = `
 "  [█████████████░░░░░░░] 2/3 completed
 
-  [32m✔[39m Dependencies (installed)
-  [31m✖[39m biome.json (failed)
-  [32m✔[39m .vscode/settings.json (created)"
+  ✔ Dependencies (installed)
+  ✖ biome.json (failed)
+  ✔ .vscode/settings.json (created)"
 `;
 
 exports[`summary > showSetupSummary > should match snapshot for success/failure patterns > success-failure-patterns 1`] = `
 "  [████████████████████] 3/3 completed
 
-  [32m✔[39m Dependencies (installed)
-  [32m✔[39m biome.json (created)
-  [32m✔[39m .vscode/settings.json (created)"
+  ✔ Dependencies (installed)
+  ✔ biome.json (created)
+  ✔ .vscode/settings.json (created)"
 `;

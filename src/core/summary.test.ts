@@ -17,6 +17,22 @@ vi.mock("../utils/logger", () => ({
 	},
 }));
 
+// Mock log-symbols for consistent cross-platform behavior
+vi.mock("log-symbols", () => ({
+	default: {
+		success: "✔",
+		error: "✖",
+		warning: "⚠",
+	},
+}));
+
+// Mock kleur/colors for consistent output
+vi.mock("kleur/colors", () => ({
+	green: (str: string) => str,
+	red: (str: string) => str,
+	yellow: (str: string) => str,
+}));
+
 describe("summary", () => {
 	let consoleLogSpy: ReturnType<typeof vi.spyOn>;
 
