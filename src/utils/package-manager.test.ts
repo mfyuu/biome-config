@@ -107,49 +107,58 @@ describe("package-manager", () => {
 	});
 
 	describe("getInstallCommand", () => {
-		it("should generate npm command", () => {
+		it("should generate npm commands with correct flags", () => {
 			const result = getInstallCommand("npm", [
 				"@biomejs/biome",
 				"@mfyuu/biome-config",
 			]);
-			expect(result).toBe(
-				"npm i -D @biomejs/biome@latest @mfyuu/biome-config@latest",
-			);
+			expect(result).toEqual([
+				"npm i -D -E @biomejs/biome",
+				"npm i -D @mfyuu/biome-config",
+			]);
 		});
 
-		it("should generate yarn command", () => {
+		it("should generate yarn commands with correct flags", () => {
 			const result = getInstallCommand("yarn", [
 				"@biomejs/biome",
 				"@mfyuu/biome-config",
 			]);
-			expect(result).toBe(
-				"yarn add -D @biomejs/biome@latest @mfyuu/biome-config@latest",
-			);
+			expect(result).toEqual([
+				"yarn add -D -E @biomejs/biome",
+				"yarn add -D @mfyuu/biome-config",
+			]);
 		});
 
-		it("should generate pnpm command", () => {
+		it("should generate pnpm commands with correct flags", () => {
 			const result = getInstallCommand("pnpm", [
 				"@biomejs/biome",
 				"@mfyuu/biome-config",
 			]);
-			expect(result).toBe(
-				"pnpm add -D @biomejs/biome@latest @mfyuu/biome-config@latest",
-			);
+			expect(result).toEqual([
+				"pnpm add -D -E @biomejs/biome",
+				"pnpm add -D @mfyuu/biome-config",
+			]);
 		});
 
-		it("should generate bun command", () => {
+		it("should generate bun commands with correct flags", () => {
 			const result = getInstallCommand("bun", [
 				"@biomejs/biome",
 				"@mfyuu/biome-config",
 			]);
-			expect(result).toBe(
-				"bun add -D @biomejs/biome@latest @mfyuu/biome-config@latest",
-			);
+			expect(result).toEqual([
+				"bun add -D -E @biomejs/biome",
+				"bun add -D @mfyuu/biome-config",
+			]);
 		});
 
-		it("should handle single package", () => {
+		it("should handle single biome package with exact flag", () => {
 			const result = getInstallCommand("npm", ["@biomejs/biome"]);
-			expect(result).toBe("npm i -D @biomejs/biome@latest");
+			expect(result).toEqual(["npm i -D -E @biomejs/biome"]);
+		});
+
+		it("should handle single config package without exact flag", () => {
+			const result = getInstallCommand("npm", ["@mfyuu/biome-config"]);
+			expect(result).toEqual(["npm i -D @mfyuu/biome-config"]);
 		});
 	});
 

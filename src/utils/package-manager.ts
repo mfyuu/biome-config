@@ -62,20 +62,37 @@ export const detectAndSelectPackageManager = async (
 export const getInstallCommand = (
 	manager: PackageManager,
 	packages: string[],
-): string => {
-	const packageList = packages.map((pkg) => `${pkg}@latest`).join(" ");
-	switch (manager) {
-		case "npm":
-			return `npm i -D ${packageList}`;
-		case "yarn":
-			return `yarn add -D ${packageList}`;
-		case "pnpm":
-			return `pnpm add -D ${packageList}`;
-		case "bun":
-			return `bun add -D ${packageList}`;
-		default:
-			return manager satisfies never;
+): string[] => {
+	const commands: string[] = [];
+
+	for (const pkg of packages) {
+		let command = "";
+		const isExactPackage = pkg === "@biomejs/biome";
+
+		switch (manager) {
+			case "npm":
+				command = isExactPackage ? `npm i -D -E ${pkg}` : `npm i -D ${pkg}`;
+				break;
+			case "yarn":
+				command = isExactPackage
+					? `yarn add -D -E ${pkg}`
+					: `yarn add -D ${pkg}`;
+				break;
+			case "pnpm":
+				command = isExactPackage
+					? `pnpm add -D -E ${pkg}`
+					: `pnpm add -D ${pkg}`;
+				break;
+			case "bun":
+				command = isExactPackage ? `bun add -D -E ${pkg}` : `bun add -D ${pkg}`;
+				break;
+			default:
+				return manager satisfies never;
+		}
+		commands.push(command);
 	}
+
+	return commands;
 };
 
 const LEFTHOOK_INSTALL_COMMAND = "lefthook install";

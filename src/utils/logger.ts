@@ -1,4 +1,4 @@
-import { cyan, dim, green } from "kleur/colors";
+import { cyan, green, grey } from "kleur/colors";
 import logSymbols from "log-symbols";
 
 export const logger = {
@@ -20,7 +20,7 @@ export const logger = {
 
 	code: (command: string): void => {
 		console.log();
-		console.log(dim(`  $ ${command}`));
+		console.log(grey(`  $ ${command}`));
 		console.log();
 	},
 
@@ -35,5 +35,5 @@ export const highlight = {
 	file: (text: string): string => green(text),
 	package: (text: string): string => cyan(text),
 	path: (text: string): string => green(text),
-	option: (text: string): string => dim(text),
+	option: (text: string): string => grey(text),
 } as const;

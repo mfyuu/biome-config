@@ -1,4 +1,4 @@
-import { cyan, dim, green } from "kleur/colors";
+import { cyan, green, grey } from "kleur/colors";
 import logSymbols from "log-symbols";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { highlight, logger } from "./logger";
@@ -105,7 +105,7 @@ describe("logger", () => {
 			logger.code("npm install");
 			expect(consoleLogSpy).toHaveBeenCalledTimes(3);
 			expect(consoleLogSpy).toHaveBeenNthCalledWith(1);
-			expect(consoleLogSpy).toHaveBeenNthCalledWith(2, dim("  $ npm install"));
+			expect(consoleLogSpy).toHaveBeenNthCalledWith(2, grey("  $ npm install"));
 			expect(consoleLogSpy).toHaveBeenNthCalledWith(3);
 		});
 
@@ -115,7 +115,7 @@ describe("logger", () => {
 			logger.code(longCommand);
 			expect(consoleLogSpy).toHaveBeenNthCalledWith(
 				2,
-				dim(`  $ ${longCommand}`),
+				grey(`  $ ${longCommand}`),
 			);
 		});
 	});
@@ -158,9 +158,9 @@ describe("highlight", () => {
 		expect(result).toBe(green("/usr/local/bin"));
 	});
 
-	it("should highlight options in dim color", () => {
+	it("should highlight options in grey color", () => {
 		const result = highlight.option("--force");
-		expect(result).toBe(dim("--force"));
+		expect(result).toBe(grey("--force"));
 	});
 
 	it("should combine multiple highlights", () => {

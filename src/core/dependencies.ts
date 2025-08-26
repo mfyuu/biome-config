@@ -1,3 +1,4 @@
+import { grey } from "kleur/colors";
 import { DEPENDENCIES, MESSAGES } from "../constants";
 import type { InitOptions } from "../types/index";
 import { logger } from "../utils/logger";
@@ -74,7 +75,7 @@ export const handleDependencies = async (
 			}
 		}
 
-		const installCommand = getInstallCommand(packageManager, missingPackages);
+		const installCommands = getInstallCommand(packageManager, missingPackages);
 
 		// Ask user if they want to install dependencies
 		console.log();
@@ -85,10 +86,13 @@ export const handleDependencies = async (
 
 			try {
 				const { execSync } = await import("node:child_process");
-				execSync(installCommand, {
-					cwd: baseDir,
-					stdio: "inherit",
-				});
+				// Execute each install command
+				for (const command of installCommands) {
+					execSync(command, {
+						cwd: baseDir,
+						stdio: "inherit",
+					});
+				}
 				logger.success(MESSAGES.INFO.DEPS_INSTALLED_SUCCESS);
 				return { type: "installed" };
 			} catch (execError) {
@@ -97,12 +101,20 @@ export const handleDependencies = async (
 					execError instanceof Error ? execError.message : "Unknown error",
 				);
 				logger.info(MESSAGES.INFO.RUN_INSTALL_MANUALLY);
-				logger.code(installCommand);
+				console.log();
+				for (const command of installCommands) {
+					console.log(grey(`  $ ${command}`));
+				}
+				console.log();
 				return { type: "error", message: "Failed to install dependencies" };
 			}
 		}
 		logger.info(MESSAGES.INFO.RUN_INSTALL_MANUALLY);
-		logger.code(installCommand);
+		console.log();
+		for (const command of installCommands) {
+			console.log(grey(`  $ ${command}`));
+		}
+		console.log();
 		return { type: "skipped" };
 	} catch (error) {
 		const errorMessage =
