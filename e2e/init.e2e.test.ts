@@ -100,7 +100,7 @@ describe("E2E: biome-config init", () => {
 		const cliPath = path.resolve("./dist/cli");
 
 		// Execute command (skip dependency installation with --skip-deps)
-		const output = execSync(`node ${cliPath} --skip-deps`, {
+		const output = execSync(`node ${cliPath} --skip-deps --biome-only`, {
 			cwd: tempDir,
 			encoding: "utf-8",
 		});
@@ -146,7 +146,7 @@ describe("E2E: biome-config init", () => {
 		const cliPath = path.resolve("./dist/cli");
 
 		// First execution
-		execSync(`node ${cliPath} --skip-deps`, {
+		execSync(`node ${cliPath} --skip-deps --biome-only`, {
 			cwd: tempDir,
 			encoding: "utf-8",
 		});
@@ -156,7 +156,7 @@ describe("E2E: biome-config init", () => {
 		await fs.writeFile(biomeConfigPath, "// Custom config\n{}");
 
 		// Overwrite with --force option
-		execSync(`node ${cliPath} --force --skip-deps`, {
+		execSync(`node ${cliPath} --force --skip-deps --biome-only`, {
 			cwd: tempDir,
 			encoding: "utf-8",
 		});
@@ -174,7 +174,7 @@ describe("E2E: biome-config init", () => {
 		const cliPath = path.resolve("./dist/cli");
 
 		// Can execute without package.json (explicitly specify type)
-		execSync(`node ${cliPath} --type base --skip-deps`, {
+		execSync(`node ${cliPath} --type base --skip-deps --biome-only`, {
 			cwd: tempDir,
 			encoding: "utf-8",
 		});
@@ -235,25 +235,14 @@ describe("E2E: biome-config init", () => {
 	it("should handle error when multiple package manager options are specified", async () => {
 		const cliPath = path.resolve("./dist/cli");
 
-		// Multiple package managers don't cause error, first option is used
-		// (May cause error depending on implementation, verify it can execute)
-		try {
-			const output = execSync(
-				`node ${cliPath} --use-npm --use-yarn --skip-deps --force`,
-				{
-					cwd: tempDir,
-					encoding: "utf-8",
-					timeout: 5000,
-				},
-			);
-			// Verify command was executed
-			expect(output).toContain("Biome configuration");
-		} catch (error) {
-			// Verify error message mentions multiple package managers
-			if (error instanceof Error && error.message) {
-				expect(error.message.toLowerCase()).toMatch(/multiple|package manager/);
-			}
-		}
+		// Should throw error when multiple package managers are specified
+		expectCommandToFail(
+			`node ${cliPath} --use-npm --use-yarn --skip-deps --force --biome-only`,
+			{
+				cwd: tempDir,
+				expectedError: "Multiple package managers specified",
+			},
+		);
 	});
 
 	it("should display version information with --version option", async () => {
@@ -293,5 +282,101 @@ describe("E2E: biome-config init", () => {
 			cwd: tempDir,
 			expectedError: "Invalid type",
 		});
+	});
+
+	it("should create biome-only VSCode settings with --biome-only flag", async () => {
+		const cliPath = path.resolve("./dist/cli");
+
+		// Execute with --biome-only flag
+		execSync(`node ${cliPath} --biome-only --skip-deps`, {
+			cwd: tempDir,
+			encoding: "utf-8",
+		});
+
+		// Check VSCode settings file was created
+		const settingsPath = path.join(tempDir, ".vscode", "settings.json");
+		const settingsExists = await fs
+			.access(settingsPath)
+			.then(() => true)
+			.catch(() => false);
+		expect(settingsExists).toBe(true);
+
+		// Read and verify settings content (should not have prettier configuration)
+		const settingsContent = await fs.readFile(settingsPath, "utf-8");
+		const settings = JSON.parse(settingsContent);
+
+		// Should have biome as default formatter
+		expect(settings["editor.defaultFormatter"]).toBe("biomejs.biome");
+		// Should not have prettier settings for markdown
+		expect(settings["[markdown]"]).toBeUndefined();
+	});
+
+	it("should create with-prettier VSCode settings with --with-prettier flag", async () => {
+		const cliPath = path.resolve("./dist/cli");
+
+		// Execute with --with-prettier flag
+		execSync(`node ${cliPath} --with-prettier --skip-deps`, {
+			cwd: tempDir,
+			encoding: "utf-8",
+		});
+
+		// Check VSCode settings file was created
+		const settingsPath = path.join(tempDir, ".vscode", "settings.json");
+		const settingsExists = await fs
+			.access(settingsPath)
+			.then(() => true)
+			.catch(() => false);
+		expect(settingsExists).toBe(true);
+
+		// Read and verify settings content (should have prettier for markdown)
+		const settingsContent = await fs.readFile(settingsPath, "utf-8");
+		const settings = JSON.parse(settingsContent);
+
+		// Should have prettier settings for markdown
+		expect(settings["[markdown]"]).toBeDefined();
+		expect(settings["[markdown]"]["editor.defaultFormatter"]).toBe(
+			"esbenp.prettier-vscode",
+		);
+	});
+
+	it("should error when both --biome-only and --with-prettier flags are used", async () => {
+		const cliPath = path.resolve("./dist/cli");
+
+		// Execute error test using helper function
+		expectCommandToFail(
+			`node ${cliPath} --biome-only --with-prettier --skip-deps`,
+			{
+				cwd: tempDir,
+				expectedError: "Cannot use both",
+			},
+		);
+	});
+
+	it("should use force flag with formatter options", async () => {
+		const cliPath = path.resolve("./dist/cli");
+
+		// Create existing VSCode settings file
+		const vscodeDir = path.join(tempDir, ".vscode");
+		await fs.mkdir(vscodeDir, { recursive: true });
+		await fs.writeFile(
+			path.join(vscodeDir, "settings.json"),
+			JSON.stringify({ "editor.fontSize": 14 }),
+		);
+
+		// Execute with force and biome-only flags
+		execSync(`node ${cliPath} --force --biome-only --skip-deps`, {
+			cwd: tempDir,
+			encoding: "utf-8",
+		});
+
+		// Verify file was overwritten with biome-only template
+		const settingsPath = path.join(tempDir, ".vscode", "settings.json");
+		const settingsContent = await fs.readFile(settingsPath, "utf-8");
+		const settings = JSON.parse(settingsContent);
+
+		// Should not have the original fontSize setting
+		expect(settings["editor.fontSize"]).toBeUndefined();
+		// Should have biome formatter
+		expect(settings["editor.defaultFormatter"]).toBe("biomejs.biome");
 	});
 });

@@ -6,6 +6,7 @@ import { createVSCodeSettings } from "../core/vscode-settings";
 import type { InitOptions, InitResult, TaskResult } from "../types/index";
 import { findGitRoot } from "../utils/git";
 import { logger } from "../utils/logger";
+import { validatePackageManagerChoice } from "../utils/package-manager";
 
 const determineBaseDir = (options: InitOptions): string | null => {
 	if (options.local) {
@@ -38,6 +39,21 @@ export const initSettingsFile = async (
 		biomeConfig: { status: "skipped" },
 		settingsFile: { status: "skipped" },
 	};
+
+	// Validate package manager choice early
+	try {
+		validatePackageManagerChoice({
+			useNpm: options.useNpm,
+			useYarn: options.useYarn,
+			usePnpm: options.usePnpm,
+			useBun: options.useBun,
+		});
+	} catch (error) {
+		const errorMessage =
+			error instanceof Error ? error.message : "Unknown error";
+		logger.error(errorMessage);
+		return { success: false, error: errorMessage };
+	}
 
 	// Always handle dependencies first (unless skipped)
 	const depResult = await handleDependencies(baseDir, options);
@@ -78,8 +94,26 @@ export const initSettingsFile = async (
 			biomeResult satisfies never;
 	}
 
+	// Determine formatter choice from CLI flags
+	let formatterChoice: "biome-only" | "with-prettier" | undefined;
+	if (options.biomeOnly && options.withPrettier) {
+		logger.error(
+			"Cannot use both --biome-only and --with-prettier flags together",
+		);
+		return { success: false, error: "Conflicting formatter flags" };
+	}
+	if (options.biomeOnly) {
+		formatterChoice = "biome-only";
+	} else if (options.withPrettier) {
+		formatterChoice = "with-prettier";
+	}
+
 	// Create .vscode/settings.json
-	const settingsResult = await createVSCodeSettings(baseDir, options.force);
+	const settingsResult = await createVSCodeSettings(
+		baseDir,
+		options.force,
+		formatterChoice,
+	);
 	switch (settingsResult.type) {
 		case "created":
 			tasks.settingsFile = { status: "success", message: "created" };

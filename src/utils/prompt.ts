@@ -5,6 +5,7 @@ import {
 	PROMPT_DEFAULTS,
 	type ProjectType,
 } from "../constants";
+import type { FormatterChoice } from "../types";
 import type { PackageManager } from "./package-manager";
 
 export const promptOverwriteConfirmation = async (): Promise<boolean> => {
@@ -101,6 +102,31 @@ export const promptPackageManager = async (
 	);
 
 	return response.packageManager || (availableManagers?.[0] ?? "npm");
+};
+export const promptFormatterChoice = async (): Promise<FormatterChoice> => {
+	const response = await prompts(
+		{
+			type: "select",
+			name: "formatter",
+			message: "Which formatter configuration would you like to use?",
+			choices: [
+				{
+					title: "Biome + Prettier (for Markdown)",
+					value: "with-prettier" as const,
+				},
+				{ title: "Biome only", value: "biome-only" as const },
+			],
+			initial: 0,
+		},
+		{
+			onCancel: () => {
+				console.log("\nOperation cancelled.");
+				process.exit(EXIT_CODES.FAILURE);
+			},
+		},
+	);
+
+	return response.formatter || "with-prettier";
 };
 
 export const promptProjectType = async (): Promise<ProjectType> => {

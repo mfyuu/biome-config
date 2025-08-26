@@ -12,6 +12,7 @@ import { EXIT_CODES, PROJECT_TYPES } from "../constants";
 import type { PackageManager } from "./package-manager";
 import {
 	promptBiomeOverwriteConfirmation,
+	promptFormatterChoice,
 	promptInstallDependencies,
 	promptOverwriteConfirmation,
 	promptPackageManager,
@@ -359,6 +360,70 @@ describe("prompt", () => {
 							value: PROJECT_TYPES.NEXT,
 						}),
 					]),
+				}),
+				expect.any(Object),
+			);
+		});
+	});
+
+	describe("promptFormatterChoice", () => {
+		it("should return 'with-prettier' when selected", async () => {
+			vi.mocked(prompts).mockResolvedValue({ formatter: "with-prettier" });
+
+			const result = await promptFormatterChoice();
+			expect(result).toBe("with-prettier");
+			expect(prompts).toHaveBeenCalledWith(
+				expect.objectContaining({
+					type: "select",
+					name: "formatter",
+					message: "Which formatter configuration would you like to use?",
+					choices: [
+						{
+							title: "Biome + Prettier (for Markdown)",
+							value: "with-prettier",
+						},
+						{ title: "Biome only", value: "biome-only" },
+					],
+					initial: 0,
+				}),
+				expect.any(Object),
+			);
+		});
+
+		it("should return 'biome-only' when selected", async () => {
+			vi.mocked(prompts).mockResolvedValue({ formatter: "biome-only" });
+
+			const result = await promptFormatterChoice();
+			expect(result).toBe("biome-only");
+		});
+
+		it("should return default 'with-prettier' when response is empty", async () => {
+			vi.mocked(prompts).mockResolvedValue({});
+
+			const result = await promptFormatterChoice();
+			expect(result).toBe("with-prettier");
+		});
+
+		it("should exit when prompt is cancelled", async () => {
+			vi.mocked(prompts).mockImplementation((_question, options) => {
+				if (options?.onCancel) {
+					options.onCancel({} as never, {} as never);
+				}
+				return Promise.resolve({});
+			});
+
+			await expect(promptFormatterChoice()).rejects.toThrow("Process exit");
+			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
+		});
+
+		it("should have correct default selection (with-prettier)", async () => {
+			vi.mocked(prompts).mockResolvedValue({ formatter: "with-prettier" });
+
+			await promptFormatterChoice();
+			expect(prompts).toHaveBeenCalledWith(
+				expect.objectContaining({
+					initial: 0, // First choice is "with-prettier"
 				}),
 				expect.any(Object),
 			);
