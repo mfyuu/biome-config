@@ -1,6 +1,7 @@
 import { MESSAGES } from "../constants";
 import { createBiomeConfig } from "../core/biome-config";
 import { handleDependencies } from "../core/dependencies";
+import { addBiomeScripts } from "../core/scripts";
 import { showSetupSummary } from "../core/summary";
 import { createVSCodeSettings } from "../core/vscode-settings";
 import type { InitOptions, InitResult, TaskResult } from "../types/index";
@@ -93,6 +94,9 @@ export const initSettingsFile = async (
 		default:
 			biomeResult satisfies never;
 	}
+
+	// Add Biome scripts to package.json
+	await addBiomeScripts(baseDir);
 
 	// Determine formatter choice from CLI flags
 	let formatterChoice: "biome-only" | "with-prettier" | undefined;
