@@ -17,6 +17,7 @@ import * as summary from "../core/summary";
 import * as vscodeSettings from "../core/vscode-settings";
 import type { InitOptions } from "../types/index";
 import * as git from "../utils/git";
+import { logger } from "../utils/logger";
 import * as packageManager from "../utils/package-manager";
 import * as prompt from "../utils/prompt";
 import { initSettingsFile } from "./init";
@@ -30,6 +31,7 @@ vi.mock("../utils/logger", () => ({
 		error: vi.fn(),
 		code: vi.fn(),
 		finalSuccess: vi.fn(),
+		hooksSync: vi.fn(),
 	},
 	highlight: {
 		file: (text: string) => text,
@@ -648,6 +650,7 @@ describe("init", () => {
 				cwd: "/test-project",
 				stdio: "pipe",
 			});
+			expect(logger.hooksSync).toHaveBeenCalled();
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
 					lefthook: { status: "success", message: "created" },
@@ -682,6 +685,7 @@ describe("init", () => {
 				cwd: "/test-project",
 				stdio: "pipe",
 			});
+			expect(logger.hooksSync).toHaveBeenCalled();
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
 					lefthook: { status: "success", message: "created" },
@@ -799,6 +803,7 @@ describe("init", () => {
 				cwd: "/test-project",
 				stdio: "pipe",
 			});
+			expect(logger.hooksSync).toHaveBeenCalled();
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
 					lefthook: { status: "success", message: "overwritten" },
@@ -853,6 +858,7 @@ describe("init", () => {
 				cwd: "/test-project",
 				stdio: "pipe",
 			});
+			expect(logger.hooksSync).toHaveBeenCalled();
 		});
 
 		it("should use yarn exec for yarn package manager", async () => {

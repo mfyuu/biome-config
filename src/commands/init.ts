@@ -196,7 +196,7 @@ export const initSettingsFile = async (
 						cwd: baseDir,
 						stdio: "pipe",
 					});
-					logger.info("Git hooks installed successfully");
+					logger.hooksSync();
 				} catch {
 					logger.warning("Failed to install Git hooks automatically");
 				}

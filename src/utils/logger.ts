@@ -1,4 +1,4 @@
-import { cyan, green, grey } from "kleur/colors";
+import { cyan, dim, green, grey } from "kleur/colors";
 import logSymbols from "log-symbols";
 
 export const logger = {
@@ -28,6 +28,10 @@ export const logger = {
 		console.log();
 		console.log(`${green("Success!")} ${message}`);
 		console.log();
+	},
+
+	hooksSync: (): void => {
+		console.log(`${cyan("sync hooks:")} ${dim(`✔ (pre-commit, pre-push)`)}`);
 	},
 } as const;
 

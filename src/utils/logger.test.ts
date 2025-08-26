@@ -140,6 +140,23 @@ describe("logger", () => {
 			expect(calls[2]).toEqual([]);
 		});
 	});
+
+	describe("hooksSync", () => {
+		it("should output hooks sync message with correct formatting", () => {
+			logger.hooksSync();
+			expect(consoleLogSpy).toHaveBeenCalledTimes(1);
+			expect(consoleLogSpy).toHaveBeenCalledWith(
+				`${cyan("sync hooks:")} ${grey(`✔ (pre-commit, pre-push)`)}`,
+			);
+		});
+
+		it("should use cyan color for label and grey for hooks", () => {
+			logger.hooksSync();
+			const calledWith = consoleLogSpy.mock.calls[0][0];
+			expect(calledWith).toContain(cyan("sync hooks:"));
+			expect(calledWith).toContain(grey("✔ (pre-commit, pre-push)"));
+		});
+	});
 });
 
 describe("highlight", () => {

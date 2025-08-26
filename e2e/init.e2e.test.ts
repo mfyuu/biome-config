@@ -470,4 +470,45 @@ describe("E2E: biome-config init", () => {
 		const packageJson = JSON.parse(packageJsonContent);
 		expect(packageJson.scripts?.prepare).toBeUndefined();
 	});
+
+	it("should show hooks sync message when lefthook installation succeeds", async () => {
+		const cliPath = path.resolve("./dist/cli");
+
+		// Install lefthook dependency first to enable actual installation
+		await fs.writeFile(
+			path.join(tempDir, "package.json"),
+			JSON.stringify(
+				{
+					name: "test-project",
+					version: "1.0.0",
+					devDependencies: {
+						lefthook: "^1.5.0",
+					},
+				},
+				null,
+				2,
+			),
+		);
+
+		// Execute with --lefthook and --biome-only flags (this should install actual hooks)
+		const output = execSync(
+			`node ${cliPath} --lefthook --biome-only --skip-deps`,
+			{
+				cwd: tempDir,
+				encoding: "utf-8",
+			},
+		);
+
+		// Verify output contains hooks sync message
+		expect(output).toContain("sync hooks:");
+		expect(output).toContain("(pre-commit, pre-push)");
+
+		// Also verify lefthook.yml was created
+		const lefthookPath = path.join(tempDir, "lefthook.yml");
+		const lefthookExists = await fs
+			.access(lefthookPath)
+			.then(() => true)
+			.catch(() => false);
+		expect(lefthookExists).toBe(true);
+	});
 });
