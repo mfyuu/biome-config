@@ -1,5 +1,19 @@
 # @mfyuu/biome-config
 
+## 1.0.2
+
+### Patch Changes
+
+- [#17](https://github.com/mfyuu/biome-config/pull/17) [`92035d6`](https://github.com/mfyuu/biome-config/commit/92035d6e36540ed93914e64ebb83c2b2d1381df1) Thanks [@mfyuu](https://github.com/mfyuu)! - - Add comprehensive testing infrastructure and improve cross-platform compatibility
+  - Add 230+ unit and e2e test cases covering all major functionality
+  - Set up GitHub Actions CI pipeline for multi-platform testing (Ubuntu, Windows, macOS)
+  - Configure Vitest with coverage reporting and snapshot testing
+  - Add test utilities and mock helpers for file system and git operations
+  - Fix Windows path separator compatibility issues in file handling tests
+  - Fix cross-platform Unicode character display in console output
+  - Mock external dependencies (log-symbols, kleur) for consistent test results
+  - Add comprehensive test fixtures and test data generators
+
 ## 1.0.1
 
 ### Patch Changes
