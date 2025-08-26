@@ -14,6 +14,7 @@ import {
 	promptBiomeOverwriteConfirmation,
 	promptFormatterChoice,
 	promptInstallDependencies,
+	promptLefthookIntegration,
 	promptOverwriteConfirmation,
 	promptPackageManager,
 	promptProjectType,
@@ -424,6 +425,63 @@ describe("prompt", () => {
 			expect(prompts).toHaveBeenCalledWith(
 				expect.objectContaining({
 					initial: 0, // First choice is "with-prettier"
+				}),
+				expect.any(Object),
+			);
+		});
+	});
+
+	describe("promptLefthookIntegration", () => {
+		it("should return true when yes is selected", async () => {
+			vi.mocked(prompts).mockResolvedValue({ integrate: true });
+
+			const result = await promptLefthookIntegration();
+			expect(result).toBe(true);
+			expect(prompts).toHaveBeenCalledWith(
+				expect.objectContaining({
+					type: "confirm",
+					name: "integrate",
+					message: "Would you like to integrate lefthook for Git hooks?",
+					initial: true,
+				}),
+				expect.any(Object),
+			);
+		});
+
+		it("should return false when no is selected", async () => {
+			vi.mocked(prompts).mockResolvedValue({ integrate: false });
+
+			const result = await promptLefthookIntegration();
+			expect(result).toBe(false);
+		});
+
+		it("should return false when response is empty", async () => {
+			vi.mocked(prompts).mockResolvedValue({});
+
+			const result = await promptLefthookIntegration();
+			expect(result).toBe(false);
+		});
+
+		it("should exit when prompt is cancelled", async () => {
+			vi.mocked(prompts).mockImplementation((_question, options) => {
+				if (options?.onCancel) {
+					options.onCancel({} as never, {} as never);
+				}
+				return Promise.resolve({});
+			});
+
+			await expect(promptLefthookIntegration()).rejects.toThrow("Process exit");
+			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
+		});
+
+		it("should have correct default selection (true)", async () => {
+			vi.mocked(prompts).mockResolvedValue({ integrate: true });
+
+			await promptLefthookIntegration();
+			expect(prompts).toHaveBeenCalledWith(
+				expect.objectContaining({
+					initial: true,
 				}),
 				expect.any(Object),
 			);

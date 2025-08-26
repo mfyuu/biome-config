@@ -16,6 +16,7 @@ type CliOptions = {
 	type?: "base" | "react" | "next";
 	biomeOnly?: boolean;
 	withPrettier?: boolean;
+	lefthook?: boolean;
 };
 
 const packageJson = readPackageJson() as { version: string };
@@ -35,6 +36,7 @@ program
 	.option("--use-bun", "use bun as package manager")
 	.option("--biome-only", "use Biome as the only formatter")
 	.option("--with-prettier", "use Biome with Prettier for Markdown files")
+	.option("--lefthook", "integrate lefthook for Git hooks")
 	.option(
 		"--type <type>",
 		"configuration type (base, react, next)",
