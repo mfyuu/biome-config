@@ -17,7 +17,7 @@ export const findGitRoot = (startDir: string): string | null => {
 				return currentDir;
 			}
 		} catch {
-			// .gitが存在しない場合は続行
+			// if .git is not a directory or file, continue
 		}
 
 		if (currentDir === homeDir) {

@@ -66,19 +66,31 @@ export const promptInstallDependencies = async (
 	return response.install || false;
 };
 
-export const promptPackageManager = async (): Promise<PackageManager> => {
+export const promptPackageManager = async (
+	availableManagers?: PackageManager[],
+): Promise<PackageManager> => {
+	const allChoices = [
+		{ title: "npm", value: "npm" as const satisfies PackageManager },
+		{ title: "yarn", value: "yarn" as const satisfies PackageManager },
+		{ title: "pnpm", value: "pnpm" as const satisfies PackageManager },
+		{ title: "bun", value: "bun" as const satisfies PackageManager },
+	];
+
+	const choices = availableManagers
+		? allChoices.filter((choice) => availableManagers.includes(choice.value))
+		: allChoices;
+
+	const message = availableManagers
+		? "Multiple package managers detected. Choose one:"
+		: "Which package manager do you want to use?";
+
 	const response = await prompts(
 		{
 			type: "select",
 			name: "packageManager",
-			message: "Which package manager do you want to use?",
-			choices: [
-				{ title: "npm", value: "npm" },
-				{ title: "yarn", value: "yarn" },
-				{ title: "pnpm", value: "pnpm" },
-				{ title: "bun", value: "bun" },
-			],
-			initial: PROMPT_DEFAULTS.PACKAGE_MANAGER_INDEX, // default is pnpm
+			message,
+			choices,
+			initial: 0,
 		},
 		{
 			onCancel: () => {
@@ -88,7 +100,7 @@ export const promptPackageManager = async (): Promise<PackageManager> => {
 		},
 	);
 
-	return response.packageManager || "npm";
+	return response.packageManager || (availableManagers?.[0] ?? "npm");
 };
 
 export const promptProjectType = async (): Promise<ProjectType> => {
