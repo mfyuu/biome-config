@@ -10,11 +10,14 @@ import {
 } from "vitest";
 import * as biomeConfig from "../core/biome-config";
 import * as dependencies from "../core/dependencies";
+import * as lefthook from "../core/lefthook";
 import * as scripts from "../core/scripts";
 import * as summary from "../core/summary";
 import * as vscodeSettings from "../core/vscode-settings";
 import type { InitOptions } from "../types/index";
 import * as git from "../utils/git";
+import * as packageManager from "../utils/package-manager";
+import * as prompt from "../utils/prompt";
 import { initSettingsFile } from "./init";
 
 // Mock setup
@@ -39,6 +42,10 @@ vi.mock("../core/summary", () => ({
 	showSetupSummary: vi.fn(),
 }));
 
+vi.mock("../utils/prompt");
+vi.mock("../utils/package-manager");
+vi.mock("../core/lefthook");
+
 // Mock fs modules using memfs
 vi.mock("node:fs");
 vi.mock("node:fs/promises");
@@ -58,6 +65,18 @@ describe("init", () => {
 	let addBiomeScriptsSpy: MockInstance<
 		(baseDir: string) => Promise<"success" | "error">
 	>;
+	let createLefthookConfigSpy: MockInstance<
+		(
+			baseDir: string,
+			packageManager: packageManager.PackageManager,
+			force?: boolean,
+		) => Promise<unknown>
+	>;
+	let addLefthookScriptSpy: MockInstance<
+		(baseDir: string) => Promise<"success" | "error">
+	>;
+	let promptLefthookIntegrationSpy: MockInstance<() => Promise<boolean>>;
+	let detectPackageManagerSpy: MockInstance<(cwd: string) => string | null>;
 
 	beforeEach(() => {
 		originalCwd = process.cwd();
@@ -70,6 +89,18 @@ describe("init", () => {
 			.spyOn(scripts, "addBiomeScripts")
 			.mockResolvedValue("success");
 		createVSCodeSettingsSpy = vi.spyOn(vscodeSettings, "createVSCodeSettings");
+		createLefthookConfigSpy = vi
+			.spyOn(lefthook, "createLefthookConfig")
+			.mockResolvedValue({ type: "skipped" });
+		addLefthookScriptSpy = vi
+			.spyOn(lefthook, "addLefthookScript")
+			.mockResolvedValue("success");
+		promptLefthookIntegrationSpy = vi
+			.spyOn(prompt, "promptLefthookIntegration")
+			.mockResolvedValue(false);
+		detectPackageManagerSpy = vi
+			.spyOn(packageManager, "detectPackageManager")
+			.mockReturnValue("npm");
 	});
 
 	afterEach(() => {
@@ -107,6 +138,7 @@ describe("init", () => {
 				biomeConfig: { status: "success", message: "created" },
 				scripts: { status: "success", message: "added" },
 				settingsFile: { status: "success", message: "created" },
+				lefthook: { status: "skipped", message: "skipped" },
 			});
 		});
 
@@ -170,6 +202,7 @@ describe("init", () => {
 					dependencies: { status: "skipped", message: "skipped" },
 					biomeConfig: { status: "success", message: "created" },
 					settingsFile: { status: "success", message: "created" },
+					lefthook: { status: "skipped", message: "skipped" },
 				}),
 			);
 		});
@@ -191,6 +224,7 @@ describe("init", () => {
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
 					biomeConfig: { status: "success", message: "overwritten" },
+					lefthook: { status: "skipped", message: "skipped" },
 				}),
 			);
 		});
@@ -212,6 +246,7 @@ describe("init", () => {
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
 					settingsFile: { status: "skipped", message: "skipped" },
+					lefthook: { status: "skipped", message: "skipped" },
 				}),
 			);
 		});
@@ -242,6 +277,7 @@ describe("init", () => {
 				biomeConfig: { status: "error", message: "failed" },
 				scripts: { status: "error", message: "failed" },
 				settingsFile: { status: "success", message: "created" },
+				lefthook: { status: "skipped", message: "skipped" },
 			});
 		});
 
@@ -270,6 +306,7 @@ describe("init", () => {
 				biomeConfig: { status: "error", message: "failed" },
 				scripts: { status: "error", message: "failed" },
 				settingsFile: { status: "error", message: "failed" },
+				lefthook: { status: "skipped", message: "skipped" },
 			});
 		});
 
@@ -573,6 +610,226 @@ describe("init", () => {
 				"/test-project",
 				true,
 				"biome-only",
+			);
+		});
+	});
+
+	describe("initSettingsFile - lefthook integration tests", () => {
+		it("should integrate lefthook when --lefthook flag is set", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue("npm");
+			createLefthookConfigSpy.mockResolvedValue({ type: "created" });
+			addLefthookScriptSpy.mockResolvedValue("success");
+
+			await initSettingsFile({ lefthook: true });
+
+			expect(promptLefthookIntegrationSpy).not.toHaveBeenCalled();
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"npm",
+				undefined,
+			);
+			expect(addLefthookScriptSpy).toHaveBeenCalledWith("/test-project");
+			expect(summary.showSetupSummary).toHaveBeenCalledWith(
+				expect.objectContaining({
+					lefthook: { status: "success", message: "created" },
+				}),
+			);
+		});
+
+		it("should prompt for lefthook integration when no flag is set", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			promptLefthookIntegrationSpy.mockResolvedValue(true);
+			detectPackageManagerSpy.mockReturnValue("pnpm");
+			createLefthookConfigSpy.mockResolvedValue({ type: "created" });
+			addLefthookScriptSpy.mockResolvedValue("success");
+
+			await initSettingsFile({});
+
+			expect(promptLefthookIntegrationSpy).toHaveBeenCalled();
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"pnpm",
+				undefined,
+			);
+			expect(summary.showSetupSummary).toHaveBeenCalledWith(
+				expect.objectContaining({
+					lefthook: { status: "success", message: "created" },
+				}),
+			);
+		});
+
+		it("should skip lefthook when user declines in prompt", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			promptLefthookIntegrationSpy.mockResolvedValue(false);
+
+			await initSettingsFile({});
+
+			expect(promptLefthookIntegrationSpy).toHaveBeenCalled();
+			expect(createLefthookConfigSpy).not.toHaveBeenCalled();
+			expect(addLefthookScriptSpy).not.toHaveBeenCalled();
+			expect(summary.showSetupSummary).toHaveBeenCalledWith(
+				expect.objectContaining({
+					lefthook: { status: "skipped", message: "skipped" },
+				}),
+			);
+		});
+
+		it("should handle lefthook config creation error", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue("yarn");
+			createLefthookConfigSpy.mockResolvedValue({
+				type: "error",
+				message: "Permission denied",
+			});
+
+			await initSettingsFile({ lefthook: true });
+
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"yarn",
+				undefined,
+			);
+			expect(addLefthookScriptSpy).not.toHaveBeenCalled();
+			expect(summary.showSetupSummary).toHaveBeenCalledWith(
+				expect.objectContaining({
+					lefthook: { status: "error", message: "failed" },
+				}),
+			);
+		});
+
+		it("should handle lefthook script addition error", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue("bun");
+			createLefthookConfigSpy.mockResolvedValue({ type: "created" });
+			addLefthookScriptSpy.mockResolvedValue("error");
+
+			await initSettingsFile({ lefthook: true });
+
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"bun",
+				undefined,
+			);
+			expect(addLefthookScriptSpy).toHaveBeenCalledWith("/test-project");
+			expect(summary.showSetupSummary).toHaveBeenCalledWith(
+				expect.objectContaining({
+					lefthook: { status: "error", message: "script failed" },
+				}),
+			);
+		});
+
+		it("should overwrite lefthook.yml with force flag", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+				"/test-project/lefthook.yml": "existing content",
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue("npm");
+			createLefthookConfigSpy.mockResolvedValue({ type: "overwritten" });
+			addLefthookScriptSpy.mockResolvedValue("success");
+
+			await initSettingsFile({ lefthook: true, force: true });
+
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"npm",
+				true,
+			);
+			expect(summary.showSetupSummary).toHaveBeenCalledWith(
+				expect.objectContaining({
+					lefthook: { status: "success", message: "overwritten" },
+				}),
+			);
+		});
+
+		it("should skip prompt when formatter flags are set", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+
+			await initSettingsFile({ biomeOnly: true });
+
+			expect(promptLefthookIntegrationSpy).not.toHaveBeenCalled();
+			expect(createLefthookConfigSpy).not.toHaveBeenCalled();
+			expect(summary.showSetupSummary).toHaveBeenCalledWith(
+				expect.objectContaining({
+					lefthook: { status: "skipped", message: "skipped" },
+				}),
+			);
+		});
+
+		it("should use default npm when package manager detection returns null", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue(null);
+			createLefthookConfigSpy.mockResolvedValue({ type: "created" });
+			addLefthookScriptSpy.mockResolvedValue("success");
+
+			await initSettingsFile({ lefthook: true });
+
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"npm",
+				undefined,
 			);
 		});
 	});
