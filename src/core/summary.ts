@@ -41,6 +41,11 @@ export const showSetupSummary = (tasks: TaskResult): void => {
 			status: tasks.settingsFile.status,
 			message: tasks.settingsFile.message,
 		},
+		{
+			name: "lefthook.yml",
+			status: tasks.lefthook.status,
+			message: tasks.lefthook.message,
+		},
 	];
 
 	// Count completed tasks

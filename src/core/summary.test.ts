@@ -51,6 +51,7 @@ describe("summary", () => {
 				biomeConfig: { status: "success", message: "created" },
 				scripts: { status: "success", message: "added" },
 				settingsFile: { status: "success", message: "created" },
+				lefthook: { status: "success", message: "created" },
 			};
 
 			showSetupSummary(tasks);
@@ -58,7 +59,7 @@ describe("summary", () => {
 			// Verify progress bar
 			expect(consoleLogSpy).toHaveBeenCalledWith(expect.stringContaining("["));
 			expect(consoleLogSpy).toHaveBeenCalledWith(
-				expect.stringContaining("4/4 completed"),
+				expect.stringContaining("5/5 completed"),
 			);
 
 			// Verify each task status
@@ -82,13 +83,14 @@ describe("summary", () => {
 				biomeConfig: { status: "error", message: "failed" },
 				scripts: { status: "success", message: "added" },
 				settingsFile: { status: "success", message: "created" },
+				lefthook: { status: "success", message: "created" },
 			};
 
 			showSetupSummary(tasks);
 
 			// Verify progress bar
 			expect(consoleLogSpy).toHaveBeenCalledWith(
-				expect.stringContaining("3/4 completed"),
+				expect.stringContaining("4/5 completed"),
 			);
 
 			// Verify error icon
@@ -103,13 +105,14 @@ describe("summary", () => {
 				biomeConfig: { status: "skipped", message: "skipped" },
 				scripts: { status: "skipped", message: "skipped" },
 				settingsFile: { status: "skipped", message: "skipped" },
+				lefthook: { status: "skipped", message: "skipped" },
 			};
 
 			showSetupSummary(tasks);
 
 			// Verify progress bar
 			expect(consoleLogSpy).toHaveBeenCalledWith(
-				expect.stringContaining("0/4 completed"),
+				expect.stringContaining("0/5 completed"),
 			);
 
 			// Verify warning icon
@@ -124,13 +127,14 @@ describe("summary", () => {
 				biomeConfig: { status: "skipped", message: "already exists" },
 				scripts: { status: "success", message: "added" },
 				settingsFile: { status: "error", message: "permission denied" },
+				lefthook: { status: "skipped", message: "skipped" },
 			};
 
 			showSetupSummary(tasks);
 
 			// Verify progress bar
 			expect(consoleLogSpy).toHaveBeenCalledWith(
-				expect.stringContaining("2/4 completed"),
+				expect.stringContaining("2/5 completed"),
 			);
 
 			// Verify various icons
@@ -151,13 +155,14 @@ describe("summary", () => {
 				biomeConfig: { status: "success" },
 				scripts: { status: "success" },
 				settingsFile: { status: "skipped" },
+				lefthook: { status: "success" },
 			};
 
 			showSetupSummary(tasks);
 
-			// 2/3 complete = approximately 66% progress bar
+			// 4/5 complete = approximately 80% progress bar
 			const calls = consoleLogSpy.mock.calls.flat().join("\n");
-			expect(calls).toContain("3/4 completed");
+			expect(calls).toContain("4/5 completed");
 			// Verify progress bar is displayed
 			expect(calls).toContain("[");
 			expect(calls).toContain("]");
@@ -169,6 +174,7 @@ describe("summary", () => {
 				biomeConfig: { status: "error", message: "failed" },
 				scripts: { status: "success", message: "added" },
 				settingsFile: { status: "skipped", message: "skipped" },
+				lefthook: { status: "skipped", message: "skipped" },
 			};
 
 			showSetupSummary(tasks);
@@ -189,6 +195,7 @@ describe("summary", () => {
 				biomeConfig: { status: "error" },
 				scripts: { status: "success" },
 				settingsFile: { status: "skipped" },
+				lefthook: { status: "skipped" },
 			};
 
 			showSetupSummary(tasks);
@@ -212,6 +219,7 @@ describe("summary", () => {
 				biomeConfig: { status: "success", message: "created" },
 				scripts: { status: "success", message: "added" },
 				settingsFile: { status: "success", message: "created" },
+				lefthook: { status: "success", message: "created" },
 			};
 
 			const mixedTasks: TaskResult = {
@@ -219,6 +227,7 @@ describe("summary", () => {
 				biomeConfig: { status: "error", message: "failed" },
 				scripts: { status: "success", message: "added" },
 				settingsFile: { status: "success", message: "created" },
+				lefthook: { status: "skipped", message: "skipped" },
 			};
 
 			showSetupSummary(successTasks);
@@ -242,6 +251,7 @@ describe("summary", () => {
 				biomeConfig: { status: "skipped", message: "skipped" },
 				scripts: { status: "skipped", message: "skipped" },
 				settingsFile: { status: "skipped", message: "skipped" },
+				lefthook: { status: "skipped", message: "skipped" },
 			};
 
 			const complexMixedTasks: TaskResult = {
@@ -249,6 +259,7 @@ describe("summary", () => {
 				biomeConfig: { status: "skipped", message: "already exists" },
 				scripts: { status: "success", message: "added" },
 				settingsFile: { status: "error", message: "permission denied" },
+				lefthook: { status: "success", message: "created" },
 			};
 
 			showSetupSummary(skippedTasks);
@@ -272,12 +283,13 @@ describe("summary", () => {
 				biomeConfig: { status: "success" },
 				scripts: { status: "success" },
 				settingsFile: { status: "success" },
+				lefthook: { status: "success" },
 			};
 
 			showSetupSummary(tasksAllSuccess);
 
 			const successCalls = consoleLogSpy.mock.calls.flat().join("\n");
-			expect(successCalls).toContain("4/4 completed");
+			expect(successCalls).toContain("5/5 completed");
 
 			// Reset
 			consoleLogSpy.mockClear();
@@ -288,12 +300,13 @@ describe("summary", () => {
 				biomeConfig: { status: "error" },
 				scripts: { status: "error" },
 				settingsFile: { status: "error" },
+				lefthook: { status: "error" },
 			};
 
 			showSetupSummary(tasksAllFailed);
 
 			const failedCalls = consoleLogSpy.mock.calls.flat().join("\n");
-			expect(failedCalls).toContain("0/4 completed");
+			expect(failedCalls).toContain("0/5 completed");
 		});
 	});
 });
