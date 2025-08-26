@@ -1,13 +1,13 @@
 import path from "node:path";
-import { MESSAGES, PATHS } from "../constants.js";
+import { MESSAGES, PATHS } from "../constants";
 import {
 	copyFile,
 	createDirectory,
 	fileExists,
 	getTemplatePath,
-} from "../utils/file.js";
-import { logger } from "../utils/logger.js";
-import { promptOverwriteConfirmation } from "../utils/prompt.js";
+} from "../utils/file";
+import { logger } from "../utils/logger";
+import { promptOverwriteConfirmation } from "../utils/prompt";
 
 type VSCodeSettingsResult =
 	| { type: "created" }

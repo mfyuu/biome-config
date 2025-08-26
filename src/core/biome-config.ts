@@ -4,15 +4,15 @@ import {
 	MESSAGES,
 	PATHS,
 	type ProjectType,
-} from "../constants.js";
-import type { InitOptions } from "../types/index.js";
-import { copyFile, findBiomeConfig, getTemplatePath } from "../utils/file.js";
-import { logger } from "../utils/logger.js";
-import { detectProjectType, readUserPackageJson } from "../utils/package.js";
+} from "../constants";
+import type { InitOptions } from "../types/index";
+import { copyFile, findBiomeConfig, getTemplatePath } from "../utils/file";
+import { logger } from "../utils/logger";
+import { detectProjectType, readUserPackageJson } from "../utils/package";
 import {
 	promptBiomeOverwriteConfirmation,
 	promptProjectType,
-} from "../utils/prompt.js";
+} from "../utils/prompt";
 
 type BiomeConfigResult =
 	| { type: "created" }

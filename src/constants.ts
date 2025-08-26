@@ -1,4 +1,4 @@
-import { highlight } from "./utils/logger.js";
+import { highlight } from "./utils/logger";
 
 export const PATHS = {
 	VSCODE_DIR: ".vscode",

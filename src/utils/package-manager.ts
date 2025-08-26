@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { promptPackageManager } from "./prompt";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
 
@@ -24,6 +25,38 @@ export const detectPackageManager = (cwd: string): PackageManager | null => {
 		}
 	}
 	return null;
+};
+
+export const detectAllPackageManagers = (cwd: string): PackageManager[] => {
+	const detected: PackageManager[] = [];
+	const seenManagers = new Set<PackageManager>();
+
+	for (const lockFile of LOCK_FILES) {
+		const lockFilePath = path.join(cwd, lockFile.name);
+		if (fs.existsSync(lockFilePath) && !seenManagers.has(lockFile.manager)) {
+			detected.push(lockFile.manager);
+			seenManagers.add(lockFile.manager);
+		}
+	}
+
+	return detected;
+};
+
+export const detectAndSelectPackageManager = async (
+	cwd: string,
+): Promise<PackageManager | null> => {
+	const detected = detectAllPackageManagers(cwd);
+
+	if (detected.length === 0) {
+		return null;
+	}
+
+	if (detected.length === 1) {
+		return detected[0];
+	}
+
+	// When multiple package managers are detected, ask user to choose
+	return await promptPackageManager(detected);
 };
 
 export const getInstallCommand = (

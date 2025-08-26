@@ -1,7 +1,7 @@
 import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
-import { PATHS } from "../constants.js";
+import { PATHS } from "../constants";
 
 export const findGitRoot = (startDir: string): string | null => {
 	let currentDir = startDir;
@@ -17,7 +17,7 @@ export const findGitRoot = (startDir: string): string | null => {
 				return currentDir;
 			}
 		} catch {
-			// .gitが存在しない場合は続行
+			// if .git is not a directory or file, continue
 		}
 
 		if (currentDir === homeDir) {

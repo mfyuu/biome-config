@@ -1,11 +1,11 @@
-import { MESSAGES } from "../constants.js";
-import { createBiomeConfig } from "../core/biome-config.js";
-import { handleDependencies } from "../core/dependencies.js";
-import { showSetupSummary } from "../core/summary.js";
-import { createVSCodeSettings } from "../core/vscode-settings.js";
-import type { InitOptions, InitResult, TaskResult } from "../types/index.js";
-import { findGitRoot } from "../utils/git.js";
-import { logger } from "../utils/logger.js";
+import { MESSAGES } from "../constants";
+import { createBiomeConfig } from "../core/biome-config";
+import { handleDependencies } from "../core/dependencies";
+import { showSetupSummary } from "../core/summary";
+import { createVSCodeSettings } from "../core/vscode-settings";
+import type { InitOptions, InitResult, TaskResult } from "../types/index";
+import { findGitRoot } from "../utils/git";
+import { logger } from "../utils/logger";
 
 const determineBaseDir = (options: InitOptions): string | null => {
 	if (options.local) {

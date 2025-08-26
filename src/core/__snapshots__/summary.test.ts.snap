@@ -1,0 +1,33 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`summary > showSetupSummary > should match snapshot for skipped/mixed status patterns > complex-mixed-status 1`] = `
+"  [███████░░░░░░░░░░░░░] 1/3 completed
+
+  ✔ Dependencies (installed)
+  ⚠ biome.json (already exists)
+  ✖ .vscode/settings.json (permission denied)"
+`;
+
+exports[`summary > showSetupSummary > should match snapshot for skipped/mixed status patterns > skipped-mixed-patterns 1`] = `
+"  [░░░░░░░░░░░░░░░░░░░░] 0/3 completed
+
+  ⚠ Dependencies (skipped)
+  ⚠ biome.json (skipped)
+  ⚠ .vscode/settings.json (skipped)"
+`;
+
+exports[`summary > showSetupSummary > should match snapshot for success/failure patterns > success-failure-mixed 1`] = `
+"  [█████████████░░░░░░░] 2/3 completed
+
+  ✔ Dependencies (installed)
+  ✖ biome.json (failed)
+  ✔ .vscode/settings.json (created)"
+`;
+
+exports[`summary > showSetupSummary > should match snapshot for success/failure patterns > success-failure-patterns 1`] = `
+"  [████████████████████] 3/3 completed
+
+  ✔ Dependencies (installed)
+  ✔ biome.json (created)
+  ✔ .vscode/settings.json (created)"
+`;

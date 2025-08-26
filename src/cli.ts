@@ -1,9 +1,9 @@
 #!/usr/bin/env node
 
 import { Command } from "commander";
-import { initSettingsFile } from "./commands/init.js";
-import { EXIT_CODES } from "./constants.js";
-import { readPackageJson } from "./utils/file.js";
+import { initSettingsFile } from "./commands/init";
+import { EXIT_CODES } from "./constants";
+import { readPackageJson } from "./utils/file";
 
 type CliOptions = {
 	force?: boolean;

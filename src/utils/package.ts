@@ -1,6 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
-import { PROJECT_TYPES, type ProjectType } from "../constants.js";
+import { PROJECT_TYPES, type ProjectType } from "../constants";
 
 type PackageJson = {
 	devDependencies?: Record<string, string>;
