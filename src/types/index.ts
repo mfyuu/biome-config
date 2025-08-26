@@ -11,6 +11,7 @@ export interface InitOptions {
 	type?: ProjectType;
 	biomeOnly?: boolean;
 	withPrettier?: boolean;
+	lefthook?: boolean;
 }
 
 export type FormatterChoice = "biome-only" | "with-prettier";
@@ -29,7 +30,7 @@ export interface InitResult {
 
 export type TaskStatus = "success" | "error" | "skipped";
 
-type TaskResultDetail = {
+export type TaskResultDetail = {
 	status: TaskStatus;
 	message?: string;
 };
@@ -39,4 +40,5 @@ export interface TaskResult {
 	biomeConfig: TaskResultDetail;
 	scripts: TaskResultDetail;
 	settingsFile: TaskResultDetail;
+	lefthook: TaskResultDetail;
 }

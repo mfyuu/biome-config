@@ -58,9 +58,11 @@ describe("dependencies", () => {
 			vi.mocked(promptUtils.promptInstallDependencies).mockResolvedValue(true);
 			execSyncMock.mockImplementation((command: string) => {
 				// Verify command format is correct
-				expect(command).toContain("pnpm add -D");
-				expect(command).toContain("@biomejs/biome@latest");
-				expect(command).toContain("@mfyuu/biome-config@latest");
+				if (command.includes("@biomejs/biome")) {
+					expect(command).toBe("pnpm add -D -E @biomejs/biome");
+				} else if (command.includes("@mfyuu/biome-config")) {
+					expect(command).toBe("pnpm add -D @mfyuu/biome-config");
+				}
 				return Buffer.from("Dependencies installed successfully\n");
 			});
 
@@ -70,7 +72,7 @@ describe("dependencies", () => {
 				DEPENDENCIES.BIOME,
 				DEPENDENCIES.CONFIG,
 			]);
-			expect(execSyncMock).toHaveBeenCalled();
+			expect(execSyncMock).toHaveBeenCalledTimes(2);
 		});
 
 		it("should install when only some packages are installed", async () => {
@@ -87,8 +89,7 @@ describe("dependencies", () => {
 			vi.mocked(promptUtils.promptInstallDependencies).mockResolvedValue(true);
 			execSyncMock.mockImplementation((command: string) => {
 				// Verify command format is correct
-				expect(command).toContain("yarn add -D");
-				expect(command).toContain("@mfyuu/biome-config@latest");
+				expect(command).toBe("yarn add -D @mfyuu/biome-config");
 				return Buffer.from("Dependencies installed successfully\n");
 			});
 
@@ -97,6 +98,7 @@ describe("dependencies", () => {
 			expect(promptUtils.promptInstallDependencies).toHaveBeenCalledWith([
 				DEPENDENCIES.CONFIG,
 			]);
+			expect(execSyncMock).toHaveBeenCalledTimes(1);
 		});
 
 		it("should auto-detect package manager", async () => {
@@ -116,6 +118,7 @@ describe("dependencies", () => {
 			});
 
 			await handleDependencies("/project", {});
+			expect(execSyncMock).toHaveBeenCalledTimes(2);
 			expect(execSyncMock).toHaveBeenCalledWith(
 				expect.stringContaining("npm"),
 				expect.any(Object),
@@ -138,6 +141,7 @@ describe("dependencies", () => {
 			});
 
 			await handleDependencies("/project", { useNpm: true });
+			expect(execSyncMock).toHaveBeenCalledTimes(2);
 			expect(execSyncMock).toHaveBeenCalledWith(
 				expect.stringContaining("npm i -D"),
 				expect.any(Object),
@@ -160,6 +164,7 @@ describe("dependencies", () => {
 			});
 
 			await handleDependencies("/project", { useYarn: true });
+			expect(execSyncMock).toHaveBeenCalledTimes(2);
 			expect(execSyncMock).toHaveBeenCalledWith(
 				expect.stringContaining("yarn add -D"),
 				expect.any(Object),
@@ -182,6 +187,7 @@ describe("dependencies", () => {
 			});
 
 			await handleDependencies("/project", { usePnpm: true });
+			expect(execSyncMock).toHaveBeenCalledTimes(2);
 			expect(execSyncMock).toHaveBeenCalledWith(
 				expect.stringContaining("pnpm add -D"),
 				expect.any(Object),
@@ -204,6 +210,7 @@ describe("dependencies", () => {
 			});
 
 			await handleDependencies("/project", { useBun: true });
+			expect(execSyncMock).toHaveBeenCalledTimes(2);
 			expect(execSyncMock).toHaveBeenCalledWith(
 				expect.stringContaining("bun add -D"),
 				expect.any(Object),
@@ -228,6 +235,7 @@ describe("dependencies", () => {
 
 			await handleDependencies("/project", {});
 			expect(promptUtils.promptPackageManager).toHaveBeenCalled();
+			expect(execSyncMock).toHaveBeenCalledTimes(2);
 		});
 
 		it("should handle install command execution error", async () => {
@@ -353,7 +361,11 @@ describe("dependencies", () => {
 			vi.mocked(promptUtils.promptInstallDependencies).mockResolvedValue(true);
 			execSyncMock.mockImplementation((command: string) => {
 				// Verify command is executed
-				expect(command).toMatch(/^(npm|yarn|pnpm|bun) (i|add) -D/);
+				if (command.includes("@biomejs/biome")) {
+					expect(command).toBe("pnpm add -D -E @biomejs/biome");
+				} else if (command.includes("@mfyuu/biome-config")) {
+					expect(command).toBe("pnpm add -D @mfyuu/biome-config");
+				}
 				return Buffer.from("Dependencies installed successfully\n");
 			});
 

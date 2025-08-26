@@ -1,13 +1,20 @@
+import { execSync } from "node:child_process";
 import { MESSAGES } from "../constants";
 import { createBiomeConfig } from "../core/biome-config";
 import { handleDependencies } from "../core/dependencies";
+import { addLefthookScript, createLefthookConfig } from "../core/lefthook";
 import { addBiomeScripts } from "../core/scripts";
 import { showSetupSummary } from "../core/summary";
 import { createVSCodeSettings } from "../core/vscode-settings";
 import type { InitOptions, InitResult, TaskResult } from "../types/index";
 import { findGitRoot } from "../utils/git";
 import { logger } from "../utils/logger";
-import { validatePackageManagerChoice } from "../utils/package-manager";
+import {
+	detectPackageManager,
+	getLefthookInstallCommand,
+	validatePackageManagerChoice,
+} from "../utils/package-manager";
+import { promptLefthookIntegration } from "../utils/prompt";
 
 const determineBaseDir = (options: InitOptions): string | null => {
 	if (options.local) {
@@ -40,6 +47,7 @@ export const initSettingsFile = async (
 		biomeConfig: { status: "skipped" },
 		scripts: { status: "skipped" },
 		settingsFile: { status: "skipped" },
+		lefthook: { status: "skipped" },
 	};
 
 	// Validate package manager choice early
@@ -138,6 +146,64 @@ export const initSettingsFile = async (
 			break;
 		default:
 			settingsResult satisfies never;
+	}
+
+	// Integrate lefthook
+	let shouldIntegrateLefthook = options.lefthook;
+	if (
+		shouldIntegrateLefthook === undefined &&
+		!options.biomeOnly &&
+		!options.withPrettier
+	) {
+		shouldIntegrateLefthook = await promptLefthookIntegration();
+	}
+
+	if (shouldIntegrateLefthook) {
+		const packageManager = detectPackageManager(baseDir) || "npm";
+
+		const lefthookResult = await createLefthookConfig(
+			baseDir,
+			packageManager,
+			options.force,
+		);
+
+		switch (lefthookResult.type) {
+			case "created":
+				tasks.lefthook = { status: "success", message: "created" };
+				break;
+			case "overwritten":
+				tasks.lefthook = { status: "success", message: "overwritten" };
+				break;
+			case "skipped":
+				tasks.lefthook = { status: "skipped", message: "skipped" };
+				break;
+			case "error":
+				tasks.lefthook = { status: "error", message: "failed" };
+				break;
+			default:
+				lefthookResult satisfies never;
+		}
+
+		if (lefthookResult.type !== "error" && lefthookResult.type !== "skipped") {
+			const scriptResult = await addLefthookScript(baseDir);
+			if (scriptResult === "error" && tasks.lefthook.status === "success") {
+				tasks.lefthook = { status: "error", message: "script failed" };
+			} else if (scriptResult === "success") {
+				// Execute lefthook install to set up Git hooks
+				try {
+					const installCommand = getLefthookInstallCommand(packageManager);
+					execSync(installCommand, {
+						cwd: baseDir,
+						stdio: "pipe",
+					});
+					logger.hooksSync();
+				} catch {
+					logger.warning("Failed to install Git hooks automatically");
+				}
+			}
+		}
+	} else {
+		tasks.lefthook = { status: "skipped", message: "skipped" };
 	}
 
 	// Show setup summary

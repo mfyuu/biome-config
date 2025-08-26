@@ -164,3 +164,22 @@ export const promptProjectType = async (): Promise<ProjectType> => {
 
 	return response.projectType || PROJECT_TYPES.BASE;
 };
+
+export const promptLefthookIntegration = async (): Promise<boolean> => {
+	const response = await prompts(
+		{
+			type: "confirm",
+			name: "integrate",
+			message: "Would you like to integrate lefthook for Git hooks?",
+			initial: true,
+		},
+		{
+			onCancel: () => {
+				console.log("\nOperation cancelled.");
+				process.exit(EXIT_CODES.FAILURE);
+			},
+		},
+	);
+
+	return response.integrate || false;
+};

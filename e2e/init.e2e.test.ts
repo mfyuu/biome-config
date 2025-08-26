@@ -379,4 +379,136 @@ describe("E2E: biome-config init", () => {
 		// Should have biome formatter
 		expect(settings["editor.defaultFormatter"]).toBe("biomejs.biome");
 	});
+
+	it("should create lefthook.yml with --lefthook flag", async () => {
+		const cliPath = path.resolve("./dist/cli");
+
+		// Execute with --lefthook flag
+		execSync(`node ${cliPath} --lefthook --skip-deps --biome-only`, {
+			cwd: tempDir,
+			encoding: "utf-8",
+		});
+
+		// Verify lefthook.yml was created
+		const lefthookPath = path.join(tempDir, "lefthook.yml");
+		const lefthookExists = await fs
+			.access(lefthookPath)
+			.then(() => true)
+			.catch(() => false);
+		expect(lefthookExists).toBe(true);
+
+		// Verify lefthook.yml contains biome check commands
+		const lefthookContent = await fs.readFile(lefthookPath, "utf-8");
+		expect(lefthookContent).toContain("pre-commit");
+		expect(lefthookContent).toContain("biome check");
+
+		// Verify package.json has prepare script
+		const packageJsonPath = path.join(tempDir, "package.json");
+		const packageJsonContent = await fs.readFile(packageJsonPath, "utf-8");
+		const packageJson = JSON.parse(packageJsonContent);
+		expect(packageJson.scripts?.prepare).toBe("lefthook install");
+	});
+
+	it("should use correct package manager template for lefthook", async () => {
+		const cliPath = path.resolve("./dist/cli");
+
+		// Create pnpm-lock.yaml to indicate pnpm usage
+		await fs.writeFile(path.join(tempDir, "pnpm-lock.yaml"), "");
+
+		// Execute with --lefthook flag
+		execSync(`node ${cliPath} --lefthook --skip-deps --biome-only`, {
+			cwd: tempDir,
+			encoding: "utf-8",
+		});
+
+		// Check lefthook.yml uses pnpm commands
+		const lefthookPath = path.join(tempDir, "lefthook.yml");
+		const lefthookContent = await fs.readFile(lefthookPath, "utf-8");
+		expect(lefthookContent).toContain("pnpm exec biome check");
+	});
+
+	it("should overwrite existing lefthook.yml with --force flag", async () => {
+		const cliPath = path.resolve("./dist/cli");
+
+		// Create existing lefthook.yml
+		const lefthookPath = path.join(tempDir, "lefthook.yml");
+		await fs.writeFile(lefthookPath, "# Custom lefthook config\n");
+
+		// Execute with --force and --lefthook flags
+		execSync(`node ${cliPath} --force --lefthook --skip-deps --biome-only`, {
+			cwd: tempDir,
+			encoding: "utf-8",
+		});
+
+		// Verify file was overwritten
+		const newContent = await fs.readFile(lefthookPath, "utf-8");
+		expect(newContent).not.toContain("# Custom lefthook config");
+		expect(newContent).toContain("pre-commit");
+		expect(newContent).toContain("biome check");
+	});
+
+	it("should not prompt for lefthook when formatter flags are present", async () => {
+		const cliPath = path.resolve("./dist/cli");
+
+		// Execute with formatter flag (should not create lefthook without explicit --lefthook)
+		execSync(`node ${cliPath} --biome-only --skip-deps`, {
+			cwd: tempDir,
+			encoding: "utf-8",
+		});
+
+		// Verify lefthook.yml was NOT created
+		const lefthookPath = path.join(tempDir, "lefthook.yml");
+		const lefthookExists = await fs
+			.access(lefthookPath)
+			.then(() => true)
+			.catch(() => false);
+		expect(lefthookExists).toBe(false);
+
+		// Verify package.json does not have prepare script
+		const packageJsonPath = path.join(tempDir, "package.json");
+		const packageJsonContent = await fs.readFile(packageJsonPath, "utf-8");
+		const packageJson = JSON.parse(packageJsonContent);
+		expect(packageJson.scripts?.prepare).toBeUndefined();
+	});
+
+	it("should show hooks sync message when lefthook installation succeeds", async () => {
+		const cliPath = path.resolve("./dist/cli");
+
+		// Install lefthook dependency first to enable actual installation
+		await fs.writeFile(
+			path.join(tempDir, "package.json"),
+			JSON.stringify(
+				{
+					name: "test-project",
+					version: "1.0.0",
+					devDependencies: {
+						lefthook: "^1.5.0",
+					},
+				},
+				null,
+				2,
+			),
+		);
+
+		// Execute with --lefthook and --biome-only flags (this should install actual hooks)
+		const output = execSync(
+			`node ${cliPath} --lefthook --biome-only --skip-deps`,
+			{
+				cwd: tempDir,
+				encoding: "utf-8",
+			},
+		);
+
+		// Verify output contains hooks sync message
+		expect(output).toContain("sync hooks:");
+		expect(output).toContain("(pre-commit, pre-push)");
+
+		// Also verify lefthook.yml was created
+		const lefthookPath = path.join(tempDir, "lefthook.yml");
+		const lefthookExists = await fs
+			.access(lefthookPath)
+			.then(() => true)
+			.catch(() => false);
+		expect(lefthookExists).toBe(true);
+	});
 });
