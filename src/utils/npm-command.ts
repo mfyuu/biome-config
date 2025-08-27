@@ -9,7 +9,9 @@ export function runNpmPkgSet(cwd: string, kv: string): Promise<void> {
 	return new Promise((resolve, reject) => {
 		const isWindows = process.platform === "win32";
 		const npmCmd = isWindows ? "npm.cmd" : "npm";
-		const child = spawn(npmCmd, ["pkg", "set", kv], {
+		// Windows requires the argument to be quoted when using shell
+		const args = isWindows ? ["pkg", "set", `"${kv}"`] : ["pkg", "set", kv];
+		const child = spawn(npmCmd, args, {
 			cwd,
 			stdio: "pipe",
 			shell: isWindows, // Windows requires shell for .cmd files

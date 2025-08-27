@@ -57,9 +57,12 @@ describe("npm-command", () => {
 			await expect(promise).resolves.toBeUndefined();
 
 			const isWindows = process.platform === "win32";
+			const expectedArgs = isWindows
+				? ["pkg", "set", '"scripts.test=vitest"']
+				: ["pkg", "set", "scripts.test=vitest"];
 			expect(spawnMock).toHaveBeenCalledWith(
 				isWindows ? "npm.cmd" : "npm",
-				["pkg", "set", "scripts.test=vitest"],
+				expectedArgs,
 				{
 					cwd: "/test/dir",
 					stdio: "pipe",
@@ -117,7 +120,7 @@ describe("npm-command", () => {
 			await expect(promise).rejects.toThrow("spawn npm ENOENT");
 		});
 
-		it("should use npm.cmd on Windows", async () => {
+		it("should use npm.cmd on Windows with quoted argument", async () => {
 			const originalPlatform = Object.getOwnPropertyDescriptor(
 				process,
 				"platform",
@@ -139,7 +142,7 @@ describe("npm-command", () => {
 
 			expect(spawnMock).toHaveBeenCalledWith(
 				"npm.cmd",
-				["pkg", "set", "scripts.test=vitest"],
+				["pkg", "set", '"scripts.test=vitest"'],
 				{
 					cwd: "/test/dir",
 					stdio: "pipe",
