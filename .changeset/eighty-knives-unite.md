@@ -3,6 +3,8 @@
 ---
 
 - Improved formatter choice implementation and message consistency
+  - Improve project type detection logic for better accuracy
+  - Refactor parameter passing between components for consistency and maintainability
   - Preserve formatter choice even when installation errors occur
   - Add PRETTIER constant and use it consistently throughout codebase
   - Unify prompt messages with casual "Pick a" format
