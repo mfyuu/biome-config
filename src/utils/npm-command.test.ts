@@ -56,13 +56,14 @@ describe("npm-command", () => {
 
 			await expect(promise).resolves.toBeUndefined();
 
+			const isWindows = process.platform === "win32";
 			expect(spawnMock).toHaveBeenCalledWith(
-				process.platform === "win32" ? "npm.cmd" : "npm",
+				isWindows ? "npm.cmd" : "npm",
 				["pkg", "set", "scripts.test=vitest"],
 				{
 					cwd: "/test/dir",
 					stdio: "pipe",
-					shell: false,
+					shell: isWindows,
 					windowsHide: true,
 				},
 			);
@@ -139,7 +140,12 @@ describe("npm-command", () => {
 			expect(spawnMock).toHaveBeenCalledWith(
 				"npm.cmd",
 				["pkg", "set", "scripts.test=vitest"],
-				expect.any(Object),
+				{
+					cwd: "/test/dir",
+					stdio: "pipe",
+					shell: true, // Windows requires shell
+					windowsHide: true,
+				},
 			);
 
 			// Restore original platform
@@ -171,7 +177,12 @@ describe("npm-command", () => {
 			expect(spawnMock).toHaveBeenCalledWith(
 				"npm",
 				["pkg", "set", "scripts.test=vitest"],
-				expect.any(Object),
+				{
+					cwd: "/test/dir",
+					stdio: "pipe",
+					shell: false, // Non-Windows doesn't need shell
+					windowsHide: true,
+				},
 			);
 
 			// Restore original platform

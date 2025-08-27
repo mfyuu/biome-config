@@ -7,11 +7,12 @@ import ora from "ora";
 export function runNpmPkgSet(cwd: string, kv: string): Promise<void> {
 	// npm pkg set <key>=<value>
 	return new Promise((resolve, reject) => {
-		const npmCmd = process.platform === "win32" ? "npm.cmd" : "npm";
+		const isWindows = process.platform === "win32";
+		const npmCmd = isWindows ? "npm.cmd" : "npm";
 		const child = spawn(npmCmd, ["pkg", "set", kv], {
 			cwd,
 			stdio: "pipe",
-			shell: false,
+			shell: isWindows, // Windows requires shell for .cmd files
 			windowsHide: true,
 		});
 
