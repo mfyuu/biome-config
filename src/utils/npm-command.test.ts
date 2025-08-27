@@ -215,7 +215,7 @@ describe("npm-command", () => {
 	});
 
 	describe("createSpinner", () => {
-		it("should create spinner with line style on Windows", () => {
+		it("should create spinner with dots style on Windows", () => {
 			const originalPlatform = Object.getOwnPropertyDescriptor(
 				process,
 				"platform",
@@ -228,7 +228,7 @@ describe("npm-command", () => {
 
 			expect(spinner).toMatchObject({
 				text: "Loading...",
-				spinner: "line",
+				spinner: "dots",
 			});
 
 			// Restore original platform

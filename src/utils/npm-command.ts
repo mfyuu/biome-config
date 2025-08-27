@@ -38,6 +38,6 @@ export function runNpmPkgSet(cwd: string, kv: string): Promise<void> {
 export function createSpinner(text = "Working...") {
 	return ora({
 		text,
-		spinner: process.platform === "win32" ? "line" : "dots",
+		spinner: "dots",
 	});
 }
