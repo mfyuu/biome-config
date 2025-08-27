@@ -67,6 +67,7 @@ export const MESSAGES = {
 export const DEPENDENCIES = {
 	BIOME: "@biomejs/biome",
 	CONFIG: "@mfyuu/biome-config",
+	PRETTIER: "prettier",
 } as const;
 
 export const PROJECT_TYPES = {
