@@ -185,3 +185,21 @@ export const promptLefthookIntegration = async (): Promise<boolean> => {
 
 	return response.integrate || false;
 };
+export const promptOverwriteLefthook = async (): Promise<boolean> => {
+	const response = await prompts(
+		{
+			type: "confirm",
+			name: "overwrite",
+			message: "lefthook.yml already exists. Overwrite it?",
+			initial: false,
+		},
+		{
+			onCancel: () => {
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
+				process.exit(EXIT_CODES.FAILURE);
+			},
+		},
+	);
+
+	return response.overwrite || false;
+};

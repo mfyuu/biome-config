@@ -16,6 +16,7 @@ import {
 	promptInstallDependencies,
 	promptLefthookIntegration,
 	promptOverwriteConfirmation,
+	promptOverwriteLefthook,
 	promptPackageManager,
 	promptProjectType,
 } from "./prompt";
@@ -485,6 +486,51 @@ describe("prompt", () => {
 				}),
 				expect.any(Object),
 			);
+		});
+	});
+
+	describe("promptOverwriteLefthook", () => {
+		it("should return true when yes is selected in confirmation prompt", async () => {
+			vi.mocked(prompts).mockResolvedValue({ overwrite: true });
+
+			const result = await promptOverwriteLefthook();
+			expect(result).toBe(true);
+			expect(prompts).toHaveBeenCalledWith(
+				expect.objectContaining({
+					type: "confirm",
+					name: "overwrite",
+					message: "lefthook.yml already exists. Overwrite it?",
+					initial: false,
+				}),
+				expect.any(Object),
+			);
+		});
+
+		it("should return false when no is selected in confirmation prompt", async () => {
+			vi.mocked(prompts).mockResolvedValue({ overwrite: false });
+
+			const result = await promptOverwriteLefthook();
+			expect(result).toBe(false);
+		});
+
+		it("should exit when prompt is cancelled", async () => {
+			vi.mocked(prompts).mockImplementation((_question, options) => {
+				if (options?.onCancel) {
+					options.onCancel({} as never, {} as never);
+				}
+				return Promise.resolve({});
+			});
+
+			await expect(promptOverwriteLefthook()).rejects.toThrow("Process exit");
+			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
+		});
+
+		it("should return false when response is empty", async () => {
+			vi.mocked(prompts).mockResolvedValue({});
+
+			const result = await promptOverwriteLefthook();
+			expect(result).toBe(false);
 		});
 	});
 });

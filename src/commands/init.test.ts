@@ -1136,5 +1136,69 @@ describe("init", () => {
 				stdio: "pipe",
 			});
 		});
+
+		it("should prompt for lefthook overwrite when file exists and no force flag", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+				"/test-project/lefthook.yml": "existing content",
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue("npm");
+			createLefthookConfigSpy.mockResolvedValue({ type: "overwritten" });
+			addLefthookScriptSpy.mockResolvedValue("success");
+
+			await initSettingsFile({ lefthook: true });
+
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"npm",
+				undefined,
+			);
+			expect(summary.showSetupSummary).toHaveBeenCalledWith(
+				expect.objectContaining({
+					lefthook: { status: "success", message: "overwritten" },
+				}),
+			);
+		});
+
+		it("should skip lefthook when user declines overwrite prompt", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
+				"/test-project/lefthook.yml": "existing content",
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue("npm");
+			createLefthookConfigSpy.mockResolvedValue({ type: "skipped" });
+
+			await initSettingsFile({ lefthook: true });
+
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"npm",
+				undefined,
+			);
+			expect(addLefthookScriptSpy).not.toHaveBeenCalled();
+			expect(summary.showSetupSummary).toHaveBeenCalledWith(
+				expect.objectContaining({
+					lefthook: { status: "skipped", message: "skipped" },
+				}),
+			);
+		});
 	});
 });

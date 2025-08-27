@@ -3,6 +3,7 @@ import path from "node:path";
 import { copyFile, fileExists, getTemplatePath } from "../utils/file";
 import { logger } from "../utils/logger";
 import type { PackageManager } from "../utils/package-manager";
+import { promptOverwriteLefthook } from "../utils/prompt";
 
 export type LefthookResult =
 	| { type: "created" }
@@ -19,8 +20,11 @@ export const createLefthookConfig = async (
 		const lefthookPath = path.join(baseDir, "lefthook.yml");
 
 		if (fileExists(lefthookPath) && !force) {
-			logger.warning("lefthook.yml already exists. Use --force to overwrite");
-			return { type: "skipped" };
+			const shouldOverwrite = await promptOverwriteLefthook();
+			if (!shouldOverwrite) {
+				return { type: "skipped" };
+			}
+			// Proceed with overwrite
 		}
 
 		const templateFile = `lefthook/${packageManager}.yml`;
