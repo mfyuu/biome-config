@@ -27,19 +27,19 @@ export const MESSAGES = {
 		INSTALLING_DEPS: (deps: string[]) =>
 			`Installing dependencies: ${deps.map((d) => highlight.package(d)).join(", ")}...`,
 		DEPS_INSTALLED_SUCCESS: "Dependencies installed successfully!",
-		RUN_INSTALL_MANUALLY: "Please run the following command manually:",
+		RUN_INSTALL_MANUALLY: "Run manually:",
 		PACKAGE_MANAGER_DETECTED: (manager: string) =>
-			`Detected package manager: ${highlight.package(manager)}`,
+			`Found package manager: ${highlight.package(manager)}`,
 		NO_PACKAGE_JSON: "No package.json found. Initialize it with:",
 		SKIP_DEPS: `Skipping dependency installation (${highlight.option("--skip-deps")} option)`,
 		BIOME_CREATE_SUCCESS: `${highlight.file("biome.json(c)")} created successfully!`,
 		BIOME_OVERWRITE_SUCCESS: `${highlight.file("biome.json(c)")} overwritten successfully!`,
 		PROJECT_TYPE_DETECTED: (type: string) =>
-			`Detected project type: ${highlight.package(type)}`,
+			`Found project type: ${highlight.package(type)}`,
 		PROJECT_TYPE_SELECTED: (type: string) =>
 			`Selected project type: ${highlight.package(type)}`,
 		FORMATTER_SELECTED: (choice: string) =>
-			`Selected formatter configuration: ${highlight.package(choice)}`,
+			`Selected formatter template: ${highlight.package(choice)}`,
 		SETUP_COMPLETE: "Biome configuration setup completed.",
 	},
 	WARNING: {
@@ -47,15 +47,14 @@ export const MESSAGES = {
 		USE_FORCE: `Use ${highlight.option("--force")} to overwrite the existing file`,
 		PACKAGE_JSON_NOT_FOUND: `${highlight.file("package.json")} not found. Skipping dependency installation.`,
 		MULTIPLE_PACKAGE_MANAGERS:
-			"Multiple package managers specified. Please choose only one.",
+			"Multiple package managers specified, choose only one.",
 		BIOME_FILE_EXISTS: `${highlight.file("biome.json(c)")} already exists!`,
 		CONFLICTING_FORMATTER_FLAGS:
 			"Cannot use both --biome-only and --with-prettier flags together.",
 	},
 	ERROR: {
-		NOT_IN_GIT: "Not in a git repository!",
-		GIT_ROOT_NOT_FOUND:
-			"Git repository root not found from current directory to home directory.",
+		NOT_IN_GIT: "Not in a git repository.",
+		GIT_ROOT_NOT_FOUND: "Git repository not found.",
 		USE_LOCAL_OPTION: `Use ${highlight.option("--local")} option to create in the current directory instead.`,
 		CREATE_FAILED: `Failed to create ${highlight.file(".vscode/settings.json")}:`,
 		DEPS_INSTALL_FAILED: `Failed to add dependencies to ${highlight.file("package.json")}:`,
