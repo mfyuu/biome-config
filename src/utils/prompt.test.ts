@@ -346,7 +346,7 @@ describe("prompt", () => {
 				expect.objectContaining({
 					type: "select",
 					name: "projectType",
-					message: "Which type of project is this?",
+					message: "Pick a project type:",
 					choices: expect.arrayContaining([
 						expect.objectContaining({
 							title: "Base (Node.js/TypeScript)",
@@ -377,7 +377,7 @@ describe("prompt", () => {
 				expect.objectContaining({
 					type: "select",
 					name: "formatter",
-					message: "Which formatter configuration would you like to use?",
+					message: "Pick a formatter template:",
 					choices: [
 						{
 							title: "Biome + Prettier (for Markdown)",
@@ -441,7 +441,7 @@ describe("prompt", () => {
 				expect.objectContaining({
 					type: "confirm",
 					name: "integrate",
-					message: "Would you like to integrate lefthook for Git hooks?",
+					message: "Use lefthook for Git hooks?",
 					initial: true,
 				}),
 				expect.any(Object),

@@ -83,7 +83,7 @@ export const promptPackageManager = async (
 
 	const message = availableManagers
 		? "Multiple package managers detected. Choose one:"
-		: "Which package manager do you want to use?";
+		: "Pick a package manager:";
 
 	const response = await prompts(
 		{
@@ -108,7 +108,7 @@ export const promptFormatterChoice = async (): Promise<FormatterChoice> => {
 		{
 			type: "select",
 			name: "formatter",
-			message: "Which formatter configuration would you like to use?",
+			message: "Pick a formatter template:",
 			choices: [
 				{
 					title: "Biome + Prettier (for Markdown)",
@@ -134,7 +134,7 @@ export const promptProjectType = async (): Promise<ProjectType> => {
 		{
 			type: "select",
 			name: "projectType",
-			message: "Which type of project is this?",
+			message: "Pick a project type:",
 			choices: [
 				{
 					title: "Base (Node.js/TypeScript)",
@@ -170,7 +170,7 @@ export const promptLefthookIntegration = async (): Promise<boolean> => {
 		{
 			type: "confirm",
 			name: "integrate",
-			message: "Would you like to integrate lefthook for Git hooks?",
+			message: "Use lefthook for Git hooks?",
 			initial: true,
 		},
 		{
