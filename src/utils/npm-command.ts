@@ -5,16 +5,18 @@ import ora from "ora";
  * Run npm pkg set command with proper Windows support
  */
 export function runNpmPkgSet(cwd: string, kv: string): Promise<void> {
-	// npm pkg set <key>=<value>
 	return new Promise((resolve, reject) => {
 		const isWindows = process.platform === "win32";
 		const npmCmd = isWindows ? "npm.cmd" : "npm";
-		// Windows requires the argument to be quoted when using shell
-		const args = isWindows ? ["pkg", "set", `"${kv}"`] : ["pkg", "set", kv];
+
+		// No additional quoting needed with shell:false
+		// Values with spaces or '=' are safely passed as single argument
+		const args = ["pkg", "set", kv];
+
 		const child = spawn(npmCmd, args, {
 			cwd,
 			stdio: "pipe",
-			shell: isWindows, // Windows requires shell for .cmd files
+			shell: false,
 			windowsHide: true,
 		});
 
@@ -33,7 +35,7 @@ export function runNpmPkgSet(cwd: string, kv: string): Promise<void> {
 }
 
 /**
- * Create a spinner with OS-specific settings
+ * Create a spinner with unified style across all platforms
  */
 export function createSpinner(text = "Working...") {
 	return ora({

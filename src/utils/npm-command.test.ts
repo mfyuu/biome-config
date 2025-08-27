@@ -57,16 +57,13 @@ describe("npm-command", () => {
 			await expect(promise).resolves.toBeUndefined();
 
 			const isWindows = process.platform === "win32";
-			const expectedArgs = isWindows
-				? ["pkg", "set", '"scripts.test=vitest"']
-				: ["pkg", "set", "scripts.test=vitest"];
 			expect(spawnMock).toHaveBeenCalledWith(
 				isWindows ? "npm.cmd" : "npm",
-				expectedArgs,
+				["pkg", "set", "scripts.test=vitest"],
 				{
 					cwd: "/test/dir",
 					stdio: "pipe",
-					shell: isWindows,
+					shell: false,
 					windowsHide: true,
 				},
 			);
@@ -120,7 +117,7 @@ describe("npm-command", () => {
 			await expect(promise).rejects.toThrow("spawn npm ENOENT");
 		});
 
-		it("should use npm.cmd on Windows with quoted argument", async () => {
+		it("should use npm.cmd on Windows", async () => {
 			const originalPlatform = Object.getOwnPropertyDescriptor(
 				process,
 				"platform",
@@ -142,11 +139,11 @@ describe("npm-command", () => {
 
 			expect(spawnMock).toHaveBeenCalledWith(
 				"npm.cmd",
-				["pkg", "set", '"scripts.test=vitest"'],
+				["pkg", "set", "scripts.test=vitest"],
 				{
 					cwd: "/test/dir",
 					stdio: "pipe",
-					shell: true, // Windows requires shell
+					shell: false,
 					windowsHide: true,
 				},
 			);
@@ -183,7 +180,7 @@ describe("npm-command", () => {
 				{
 					cwd: "/test/dir",
 					stdio: "pipe",
-					shell: false, // Non-Windows doesn't need shell
+					shell: false,
 					windowsHide: true,
 				},
 			);
