@@ -65,26 +65,54 @@ export const getInstallCommand = (
 ): string[] => {
 	const commands: string[] = [];
 
-	for (const pkg of packages) {
+	// Split packages into exact and non-exact groups
+	const exactPackages = packages.filter(
+		(pkg) => pkg === "@biomejs/biome" || pkg === "prettier",
+	);
+	const nonExactPackages = packages.filter(
+		(pkg) => pkg !== "@biomejs/biome" && pkg !== "prettier",
+	);
+
+	// Install exact packages together
+	if (exactPackages.length > 0) {
 		let command = "";
-		const isExactPackage = pkg === "@biomejs/biome";
+		const packageList = exactPackages.join(" ");
 
 		switch (manager) {
 			case "npm":
-				command = isExactPackage ? `npm i -D -E ${pkg}` : `npm i -D ${pkg}`;
+				command = `npm i --save-dev --save-exact ${packageList}`;
 				break;
 			case "yarn":
-				command = isExactPackage
-					? `yarn add -D -E ${pkg}`
-					: `yarn add -D ${pkg}`;
+				command = `yarn add --dev --exact ${packageList}`;
 				break;
 			case "pnpm":
-				command = isExactPackage
-					? `pnpm add -D -E ${pkg}`
-					: `pnpm add -D ${pkg}`;
+				command = `pnpm add --save-dev --save-exact ${packageList}`;
 				break;
 			case "bun":
-				command = isExactPackage ? `bun add -D -E ${pkg}` : `bun add -D ${pkg}`;
+				command = `bun add --dev --exact ${packageList}`;
+				break;
+			default:
+				return manager satisfies never;
+		}
+		commands.push(command);
+	}
+
+	// Install non-exact packages separately
+	for (const pkg of nonExactPackages) {
+		let command = "";
+
+		switch (manager) {
+			case "npm":
+				command = `npm i --save-dev ${pkg}`;
+				break;
+			case "yarn":
+				command = `yarn add --dev ${pkg}`;
+				break;
+			case "pnpm":
+				command = `pnpm add --save-dev ${pkg}`;
+				break;
+			case "bun":
+				command = `bun add --dev ${pkg}`;
 				break;
 			default:
 				return manager satisfies never;
