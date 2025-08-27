@@ -13,3 +13,5 @@
   - Simplify verbose messages (e.g., "Run manually:" instead of "Please run the following command manually:")
   - Change "Detected" to "Found" for more casual and friendly tone
   - Use long-form package manager flags consistently (--save-dev, --dev instead of -D)
+  - Add interactive overwrite prompt for existing lefthook.yml files
+  - Improve consistency of lefthook integration with other starter wizard features
