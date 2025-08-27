@@ -20,8 +20,31 @@ type BiomeConfigResult =
 	| { type: "skipped" }
 	| { type: "error"; message: string };
 
+export const detectOrSelectProjectType = async (
+	baseDir: string,
+	options: InitOptions,
+): Promise<ProjectType> => {
+	if (options.type) {
+		// Use explicitly specified type
+		return options.type;
+	}
+
+	// Auto-detect or prompt for project type
+	const packageJson = readUserPackageJson(baseDir);
+	const detectedType = detectProjectType(packageJson);
+
+	if (detectedType) {
+		return detectedType;
+	}
+
+	// No package.json or couldn't detect, prompt user
+	const projectType = await promptProjectType();
+	return projectType;
+};
+
 export const createBiomeConfig = async (
 	baseDir: string,
+	projectType: ProjectType,
 	options: InitOptions,
 ): Promise<BiomeConfigResult> => {
 	// Check if biome.json or biome.jsonc already exists
@@ -31,27 +54,6 @@ export const createBiomeConfig = async (
 	// If existing file found, use its path; otherwise create biome.jsonc
 	const biomeFilePath =
 		existingBiomeConfig || path.join(baseDir, PATHS.BIOME_FILE_JSONC);
-
-	// Determine project type
-	let projectType: ProjectType;
-	if (options.type) {
-		// Use explicitly specified type
-		projectType = options.type;
-		logger.info(MESSAGES.INFO.PROJECT_TYPE_SELECTED(projectType));
-	} else {
-		// Auto-detect or prompt for project type
-		const packageJson = readUserPackageJson(baseDir);
-		const detectedType = detectProjectType(packageJson);
-
-		if (detectedType) {
-			projectType = detectedType;
-			logger.info(MESSAGES.INFO.PROJECT_TYPE_DETECTED(projectType));
-		} else {
-			// No package.json or couldn't detect, prompt user
-			projectType = await promptProjectType();
-			logger.info(MESSAGES.INFO.PROJECT_TYPE_SELECTED(projectType));
-		}
-	}
 
 	// Check if biome config already exists
 	if (existingBiomeConfig && !options.force) {

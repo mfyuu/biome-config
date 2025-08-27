@@ -9,6 +9,7 @@ import {
 	type MockInstance,
 	vi,
 } from "vitest";
+import type { ProjectType } from "../constants";
 import * as biomeConfig from "../core/biome-config";
 import * as dependencies from "../core/dependencies";
 import * as lefthook from "../core/lefthook";
@@ -64,14 +65,21 @@ describe("init", () => {
 		(
 			baseDir: string,
 			options: InitOptions,
-			formatterChoice?: "biome-only" | "with-prettier",
+			projectType?: ProjectType,
 		) => Promise<unknown>
 	>;
 	let promptFormatterChoiceSpy: MockInstance<
 		() => Promise<"biome-only" | "with-prettier">
 	>;
 	let createBiomeConfigSpy: MockInstance<
-		(baseDir: string, options: InitOptions) => Promise<unknown>
+		(
+			baseDir: string,
+			projectType: ProjectType,
+			options: InitOptions,
+		) => Promise<unknown>
+	>;
+	let detectOrSelectProjectTypeSpy: MockInstance<
+		(baseDir: string, options: InitOptions) => Promise<ProjectType>
 	>;
 	let createVSCodeSettingsSpy: MockInstance<
 		(baseDir: string, force?: boolean) => Promise<unknown>
@@ -99,6 +107,9 @@ describe("init", () => {
 		findGitRootSpy = vi.spyOn(git, "findGitRoot");
 		handleDependenciesSpy = vi.spyOn(dependencies, "handleDependencies");
 		createBiomeConfigSpy = vi.spyOn(biomeConfig, "createBiomeConfig");
+		detectOrSelectProjectTypeSpy = vi
+			.spyOn(biomeConfig, "detectOrSelectProjectType")
+			.mockResolvedValue("base");
 		addBiomeScriptsSpy = vi
 			.spyOn(scripts, "addBiomeScripts")
 			.mockResolvedValue("success");
@@ -147,8 +158,16 @@ describe("init", () => {
 			const result = await initSettingsFile({});
 
 			expect(result).toEqual({ success: true });
-			expect(handleDependenciesSpy).toHaveBeenCalledWith("/test-project", {});
-			expect(createBiomeConfigSpy).toHaveBeenCalledWith("/test-project", {});
+			expect(handleDependenciesSpy).toHaveBeenCalledWith(
+				"/test-project",
+				{},
+				"base",
+			);
+			expect(createBiomeConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"base",
+				{},
+			);
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				undefined,
@@ -181,9 +200,13 @@ describe("init", () => {
 
 			expect(result).toEqual({ success: true });
 			expect(findGitRootSpy).not.toHaveBeenCalled();
-			expect(handleDependenciesSpy).toHaveBeenCalledWith("/current", {
-				local: true,
-			});
+			expect(handleDependenciesSpy).toHaveBeenCalledWith(
+				"/current",
+				{
+					local: true,
+				},
+				"base",
+			);
 		});
 
 		it("should fail when Git repository is not found", async () => {
@@ -221,9 +244,13 @@ describe("init", () => {
 			const result = await initSettingsFile({ skipDeps: true });
 
 			expect(result).toEqual({ success: true });
-			expect(handleDependenciesSpy).toHaveBeenCalledWith("/test-project", {
-				skipDeps: true,
-			});
+			expect(handleDependenciesSpy).toHaveBeenCalledWith(
+				"/test-project",
+				{
+					skipDeps: true,
+				},
+				"base",
+			);
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
 					dependencies: { status: "skipped", message: "skipped" },
@@ -360,9 +387,13 @@ describe("init", () => {
 			const result = await initSettingsFile({ force: true });
 
 			expect(result).toEqual({ success: true });
-			expect(createBiomeConfigSpy).toHaveBeenCalledWith("/test-project", {
-				force: true,
-			});
+			expect(createBiomeConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"base",
+				{
+					force: true,
+				},
+			);
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				true,
@@ -386,9 +417,13 @@ describe("init", () => {
 
 			await initSettingsFile({ useNpm: true });
 
-			expect(handleDependenciesSpy).toHaveBeenCalledWith("/test-project", {
-				useNpm: true,
-			});
+			expect(handleDependenciesSpy).toHaveBeenCalledWith(
+				"/test-project",
+				{
+					useNpm: true,
+				},
+				"base",
+			);
 		});
 
 		it("should handle React project type", async () => {
@@ -405,11 +440,21 @@ describe("init", () => {
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
+			detectOrSelectProjectTypeSpy.mockResolvedValue("react");
+
 			await initSettingsFile({ type: "react" });
 
-			expect(createBiomeConfigSpy).toHaveBeenCalledWith("/test-project", {
-				type: "react",
-			});
+			expect(detectOrSelectProjectTypeSpy).toHaveBeenCalledWith(
+				"/test-project",
+				{ type: "react" },
+			);
+			expect(createBiomeConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"react",
+				{
+					type: "react",
+				},
+			);
 		});
 
 		it("should handle Next.js project type", async () => {
@@ -426,11 +471,21 @@ describe("init", () => {
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
+			detectOrSelectProjectTypeSpy.mockResolvedValue("next");
+
 			await initSettingsFile({ type: "next" });
 
-			expect(createBiomeConfigSpy).toHaveBeenCalledWith("/test-project", {
-				type: "next",
-			});
+			expect(detectOrSelectProjectTypeSpy).toHaveBeenCalledWith(
+				"/test-project",
+				{ type: "next" },
+			);
+			expect(createBiomeConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"next",
+				{
+					type: "next",
+				},
+			);
 		});
 
 		it("should handle all options combined", async () => {
@@ -446,6 +501,8 @@ describe("init", () => {
 			createBiomeConfigSpy.mockResolvedValue({ type: "overwritten" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "overwritten" });
 
+			detectOrSelectProjectTypeSpy.mockResolvedValue("next");
+
 			const result = await initSettingsFile({
 				local: true,
 				force: true,
@@ -454,18 +511,26 @@ describe("init", () => {
 			});
 
 			expect(result).toEqual({ success: true });
-			expect(handleDependenciesSpy).toHaveBeenCalledWith("/test-project", {
-				local: true,
-				force: true,
-				type: "next",
-				usePnpm: true,
-			});
-			expect(createBiomeConfigSpy).toHaveBeenCalledWith("/test-project", {
-				local: true,
-				force: true,
-				type: "next",
-				usePnpm: true,
-			});
+			expect(handleDependenciesSpy).toHaveBeenCalledWith(
+				"/test-project",
+				{
+					local: true,
+					force: true,
+					type: "next",
+					usePnpm: true,
+				},
+				"next",
+			);
+			expect(createBiomeConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"next",
+				{
+					local: true,
+					force: true,
+					type: "next",
+					usePnpm: true,
+				},
+			);
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				true,
@@ -492,6 +557,8 @@ describe("init", () => {
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
+			detectOrSelectProjectTypeSpy.mockResolvedValue("react");
+
 			const result = await initSettingsFile({
 				force: true,
 				type: "react",
@@ -500,11 +567,15 @@ describe("init", () => {
 			expect(result).toEqual({ success: true });
 
 			// Verify calls are made in correct order
-			expect(handleDependenciesSpy).toHaveBeenCalledWith("/project", {
-				force: true,
-				type: "react",
-			});
-			expect(createBiomeConfigSpy).toHaveBeenCalledWith("/project", {
+			expect(handleDependenciesSpy).toHaveBeenCalledWith(
+				"/project",
+				{
+					force: true,
+					type: "react",
+				},
+				"react",
+			);
+			expect(createBiomeConfigSpy).toHaveBeenCalledWith("/project", "react", {
 				force: true,
 				type: "react",
 			});
@@ -544,10 +615,14 @@ describe("init", () => {
 			expect(result).toEqual({ success: true });
 
 			// Verify force overwrite is configured correctly
-			expect(createBiomeConfigSpy).toHaveBeenCalledWith("/existing-project", {
-				local: true,
-				force: true,
-			});
+			expect(createBiomeConfigSpy).toHaveBeenCalledWith(
+				"/existing-project",
+				"base",
+				{
+					local: true,
+					force: true,
+				},
+			);
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/existing-project",
 				true,
@@ -578,9 +653,13 @@ describe("init", () => {
 			// Should not call promptFormatterChoice when flag is set
 			expect(promptFormatterChoiceSpy).not.toHaveBeenCalled();
 			// Should pass biome-only to handleDependencies
-			expect(handleDependenciesSpy).toHaveBeenCalledWith("/test-project", {
-				biomeOnly: true,
-			});
+			expect(handleDependenciesSpy).toHaveBeenCalledWith(
+				"/test-project",
+				{
+					biomeOnly: true,
+				},
+				"base",
+			);
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				undefined,
@@ -609,9 +688,13 @@ describe("init", () => {
 			// Should not call promptFormatterChoice when flag is set
 			expect(promptFormatterChoiceSpy).not.toHaveBeenCalled();
 			// Should pass with-prettier to handleDependencies
-			expect(handleDependenciesSpy).toHaveBeenCalledWith("/test-project", {
-				withPrettier: true,
-			});
+			expect(handleDependenciesSpy).toHaveBeenCalledWith(
+				"/test-project",
+				{
+					withPrettier: true,
+				},
+				"base",
+			);
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				undefined,
@@ -636,7 +719,11 @@ describe("init", () => {
 			await initSettingsFile({});
 
 			// Should call handleDependencies without formatter flags
-			expect(handleDependenciesSpy).toHaveBeenCalledWith("/test-project", {});
+			expect(handleDependenciesSpy).toHaveBeenCalledWith(
+				"/test-project",
+				{},
+				"base",
+			);
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				undefined,

@@ -1,9 +1,11 @@
+import { red } from "kleur/colors";
 import prompts from "prompts";
 import {
 	EXIT_CODES,
 	PROJECT_TYPES,
 	PROMPT_DEFAULTS,
 	type ProjectType,
+	UI_MESSAGES,
 } from "../constants";
 import type { FormatterChoice } from "../types";
 import type { PackageManager } from "./package-manager";
@@ -18,7 +20,7 @@ export const promptOverwriteConfirmation = async (): Promise<boolean> => {
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -37,7 +39,7 @@ export const promptBiomeOverwriteConfirmation = async (): Promise<boolean> => {
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -58,7 +60,7 @@ export const promptInstallDependencies = async (
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -95,7 +97,7 @@ export const promptPackageManager = async (
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -120,7 +122,7 @@ export const promptFormatterChoice = async (): Promise<FormatterChoice> => {
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -156,7 +158,7 @@ export const promptProjectType = async (): Promise<ProjectType> => {
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -175,7 +177,7 @@ export const promptLefthookIntegration = async (): Promise<boolean> => {
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},

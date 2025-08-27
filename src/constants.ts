@@ -34,10 +34,10 @@ export const MESSAGES = {
 		SKIP_DEPS: `Skipping dependency installation (${highlight.option("--skip-deps")} option)`,
 		BIOME_CREATE_SUCCESS: `${highlight.file("biome.json(c)")} created successfully!`,
 		BIOME_OVERWRITE_SUCCESS: `${highlight.file("biome.json(c)")} overwritten successfully!`,
-		PROJECT_TYPE_DETECTED: (type: string) =>
-			`Found project type: ${highlight.package(type)}`,
-		PROJECT_TYPE_SELECTED: (type: string) =>
-			`Selected project type: ${highlight.package(type)}`,
+		PROJECT_TYPE_DETECTED: (type: string, description: string) =>
+			`Found project type: ${highlight.package(type)} ${highlight.dim(`(${description})`)}`,
+		PROJECT_TYPE_SELECTED: (type: string, description: string) =>
+			`Selected project type: ${highlight.package(type)} ${highlight.dim(`(${description})`)}`,
 		FORMATTER_SELECTED: (choice: string) =>
 			`Selected formatter template: ${highlight.package(choice)}`,
 		SETUP_COMPLETE: "Biome configuration setup completed.",
@@ -77,6 +77,12 @@ export const PROJECT_TYPES = {
 
 export type ProjectType = (typeof PROJECT_TYPES)[keyof typeof PROJECT_TYPES];
 
+export const PROJECT_TYPE_DESCRIPTIONS: Record<ProjectType, string> = {
+	[PROJECT_TYPES.BASE]: "Standard JavaScript/TypeScript projects",
+	[PROJECT_TYPES.REACT]: "React applications and libraries",
+	[PROJECT_TYPES.NEXT]: "Next.js applications",
+} as const;
+
 const FILE_EXTENSIONS = {
 	JSON: ".json",
 	JSONC: ".jsonc",
@@ -87,6 +93,10 @@ export const DEFAULT_BIOME_EXTENSION = FILE_EXTENSIONS.JSONC;
 export const EXIT_CODES = {
 	SUCCESS: 0,
 	FAILURE: 1,
+} as const;
+
+export const UI_MESSAGES = {
+	OPERATION_CANCELLED: "\nOperation cancelled.",
 } as const;
 
 export const PROMPT_DEFAULTS = {

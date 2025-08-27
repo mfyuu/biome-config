@@ -1,8 +1,17 @@
 import { grey } from "kleur/colors";
-import { DEPENDENCIES, MESSAGES } from "../constants";
+import {
+	DEPENDENCIES,
+	MESSAGES,
+	PROJECT_TYPE_DESCRIPTIONS,
+	type ProjectType,
+} from "../constants";
 import type { FormatterChoice, InitOptions } from "../types/index";
 import { logger } from "../utils/logger";
-import { hasDependency, readUserPackageJson } from "../utils/package";
+import {
+	detectProjectType,
+	hasDependency,
+	readUserPackageJson,
+} from "../utils/package";
 import {
 	detectPackageManager,
 	getInstallCommand,
@@ -13,6 +22,7 @@ import {
 	promptFormatterChoice,
 	promptInstallDependencies,
 	promptPackageManager,
+	promptProjectType,
 } from "../utils/prompt";
 
 type DependencyResult =
@@ -25,6 +35,7 @@ type DependencyResult =
 export const handleDependencies = async (
 	baseDir: string,
 	options: InitOptions,
+	projectType?: ProjectType,
 ): Promise<DependencyResult> => {
 	if (options.skipDeps) {
 		logger.info(MESSAGES.INFO.SKIP_DEPS);
@@ -84,7 +95,67 @@ export const handleDependencies = async (
 		}
 	}
 
-	// Determine formatter choice after showing package manager info
+	// Detect and display project type after package manager info
+	if (!projectType) {
+		// If not provided, detect it here
+		if (options.type) {
+			projectType = options.type;
+			logger.info(
+				MESSAGES.INFO.PROJECT_TYPE_SELECTED(
+					projectType,
+					PROJECT_TYPE_DESCRIPTIONS[projectType],
+				),
+			);
+		} else {
+			const detectedType = detectProjectType(packageJson);
+			if (detectedType) {
+				projectType = detectedType;
+				logger.info(
+					MESSAGES.INFO.PROJECT_TYPE_DETECTED(
+						projectType,
+						PROJECT_TYPE_DESCRIPTIONS[projectType],
+					),
+				);
+			} else {
+				projectType = await promptProjectType();
+				logger.info(
+					MESSAGES.INFO.PROJECT_TYPE_SELECTED(
+						projectType,
+						PROJECT_TYPE_DESCRIPTIONS[projectType],
+					),
+				);
+			}
+		}
+	} else {
+		// Project type was already detected, just display it
+		if (options.type) {
+			logger.info(
+				MESSAGES.INFO.PROJECT_TYPE_SELECTED(
+					projectType,
+					PROJECT_TYPE_DESCRIPTIONS[projectType],
+				),
+			);
+		} else {
+			const detectedType = detectProjectType(packageJson);
+			if (detectedType) {
+				logger.info(
+					MESSAGES.INFO.PROJECT_TYPE_DETECTED(
+						projectType,
+						PROJECT_TYPE_DESCRIPTIONS[projectType],
+					),
+				);
+			} else {
+				logger.info(
+					MESSAGES.INFO.PROJECT_TYPE_SELECTED(
+						projectType,
+						PROJECT_TYPE_DESCRIPTIONS[projectType],
+					),
+				);
+			}
+		}
+	}
+
+	// Determine formatter choice after showing package manager and project type info
 	let formatterChoice: FormatterChoice;
 	if (options.biomeOnly) {
 		formatterChoice = "biome-only";
@@ -123,6 +194,7 @@ export const handleDependencies = async (
 
 		if (shouldInstall) {
 			logger.info(MESSAGES.INFO.INSTALLING_DEPS(missingPackages));
+			console.log();
 
 			try {
 				const { execSync } = await import("node:child_process");
@@ -133,6 +205,7 @@ export const handleDependencies = async (
 						stdio: "inherit",
 					});
 				}
+				console.log();
 				logger.success(MESSAGES.INFO.DEPS_INSTALLED_SUCCESS);
 				return { type: "installed", formatterChoice };
 			} catch (execError) {

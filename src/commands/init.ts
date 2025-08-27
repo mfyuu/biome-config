@@ -1,6 +1,9 @@
 import { execSync } from "node:child_process";
 import { MESSAGES } from "../constants";
-import { createBiomeConfig } from "../core/biome-config";
+import {
+	createBiomeConfig,
+	detectOrSelectProjectType,
+} from "../core/biome-config";
 import { handleDependencies } from "../core/dependencies";
 import { addLefthookScript, createLefthookConfig } from "../core/lefthook";
 import { addBiomeScripts } from "../core/scripts";
@@ -73,8 +76,12 @@ export const initSettingsFile = async (
 		return { success: false, error: "Conflicting formatter flags" };
 	}
 
+	// Detect or select project type early (but don't display yet)
+	const projectType = await detectOrSelectProjectType(baseDir, options);
+
 	// Always handle dependencies first (unless skipped)
-	const depResult = await handleDependencies(baseDir, options);
+	// Project type will be displayed after package manager detection inside handleDependencies
+	const depResult = await handleDependencies(baseDir, options, projectType);
 
 	// Extract formatter choice from depResult
 	let formatterChoice: "biome-only" | "with-prettier" | undefined;
@@ -105,7 +112,7 @@ export const initSettingsFile = async (
 	}
 
 	// Create biome.json
-	const biomeResult = await createBiomeConfig(baseDir, options);
+	const biomeResult = await createBiomeConfig(baseDir, projectType, options);
 	switch (biomeResult.type) {
 		case "created":
 			tasks.biomeConfig = { status: "success", message: "created" };
