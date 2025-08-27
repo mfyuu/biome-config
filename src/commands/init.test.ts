@@ -364,7 +364,7 @@ describe("init", () => {
 			expect(summary.showSetupSummary).toHaveBeenCalledWith({
 				dependencies: { status: "skipped", message: "skipped" },
 				biomeConfig: { status: "error", message: "failed" },
-				scripts: { status: "error", message: "failed" },
+				scripts: { status: "skipped", message: "package.json not found" },
 				settingsFile: { status: "error", message: "failed" },
 				lefthook: { status: "skipped", message: "skipped" },
 			});

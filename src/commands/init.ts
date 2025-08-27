@@ -1,4 +1,5 @@
 import { execSync } from "node:child_process";
+import path from "node:path";
 import { MESSAGES } from "../constants";
 import {
 	createBiomeConfig,
@@ -10,6 +11,7 @@ import { addBiomeScripts } from "../core/scripts";
 import { showSetupSummary } from "../core/summary";
 import { createVSCodeSettings } from "../core/vscode-settings";
 import type { InitOptions, InitResult, TaskResult } from "../types/index";
+import { fileExists } from "../utils/file";
 import { findGitRoot } from "../utils/git";
 import { logger } from "../utils/logger";
 import {
@@ -130,12 +132,20 @@ export const initSettingsFile = async (
 			biomeResult satisfies never;
 	}
 
-	// Add Biome scripts to package.json
-	const scriptsResult = await addBiomeScripts(baseDir);
-	tasks.scripts = {
-		status: scriptsResult === "success" ? "success" : "error",
-		message: scriptsResult === "success" ? "added" : "failed",
-	};
+	// Add Biome scripts to package.json (only if package.json exists)
+	const packageJsonPath = path.join(baseDir, "package.json");
+	if (fileExists(packageJsonPath)) {
+		const scriptsResult = await addBiomeScripts(baseDir);
+		tasks.scripts = {
+			status: scriptsResult === "success" ? "success" : "error",
+			message: scriptsResult === "success" ? "added" : "failed",
+		};
+	} else {
+		tasks.scripts = {
+			status: "skipped",
+			message: "package.json not found",
+		};
+	}
 
 	// Create .vscode/settings.json
 	const settingsResult = await createVSCodeSettings(
@@ -197,20 +207,23 @@ export const initSettingsFile = async (
 		}
 
 		if (lefthookResult.type !== "error" && lefthookResult.type !== "skipped") {
-			const scriptResult = await addLefthookScript(baseDir);
-			if (scriptResult === "error" && tasks.lefthook.status === "success") {
-				tasks.lefthook = { status: "error", message: "script failed" };
-			} else if (scriptResult === "success") {
-				// Execute lefthook install to set up Git hooks
-				try {
-					const installCommand = getLefthookInstallCommand(packageManager);
-					execSync(installCommand, {
-						cwd: baseDir,
-						stdio: "pipe",
-					});
-					logger.hooksSync();
-				} catch {
-					logger.warning("Failed to install Git hooks automatically");
+			// Only add lefthook script if package.json exists
+			if (fileExists(packageJsonPath)) {
+				const scriptResult = await addLefthookScript(baseDir);
+				if (scriptResult === "error" && tasks.lefthook.status === "success") {
+					tasks.lefthook = { status: "error", message: "script failed" };
+				} else if (scriptResult === "success") {
+					// Execute lefthook install to set up Git hooks
+					try {
+						const installCommand = getLefthookInstallCommand(packageManager);
+						execSync(installCommand, {
+							cwd: baseDir,
+							stdio: "pipe",
+						});
+						logger.hooksSync();
+					} catch {
+						logger.warning("Failed to install Git hooks automatically");
+					}
 				}
 			}
 		}
