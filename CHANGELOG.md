@@ -1,5 +1,16 @@
 # @mfyuu/biome-config
 
+## 1.3.2
+
+### Patch Changes
+
+- [#32](https://github.com/mfyuu/biome-config/pull/32) [`7cd3a27`](https://github.com/mfyuu/biome-config/commit/7cd3a2750d586832e4ce44fec66320315d1a716e) Thanks [@mfyuu](https://github.com/mfyuu)! - - Update documentation to match actual CLI implementation and add Japanese support
+  - Fix outdated "This command will" section with complete feature list
+  - Add missing CLI features: package.json scripts, Lefthook integration, formatter choices
+  - Create comprehensive Japanese documentation (README.ja.md)
+  - Add language switcher between English and Japanese versions
+  - Keep technical section headers in English for developer consistency
+
 ## 1.3.1
 
 ### Patch Changes
