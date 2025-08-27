@@ -2,12 +2,14 @@ import path from "node:path";
 import { vol } from "memfs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as fileUtils from "../utils/file";
+import * as promptUtils from "../utils/prompt";
 import { addLefthookScript, createLefthookConfig } from "./lefthook";
 
 // Mock setup
 vi.mock("node:fs");
 vi.mock("node:fs/promises");
 vi.mock("../utils/logger");
+vi.mock("../utils/prompt");
 
 // Mock child_process
 vi.mock("node:child_process", () => ({
@@ -94,27 +96,49 @@ describe("lefthook", () => {
 			expect(fileUtils.fileExists("/project/lefthook.yml")).toBe(true);
 		});
 
-		it("should skip when lefthook.yml already exists", async () => {
+		it("should skip when lefthook.yml already exists and user declines overwrite", async () => {
 			vol.fromJSON({
 				"/project/lefthook.yml": "existing content",
 				"/templates/lefthook/npm.yml": "new content",
 			});
 
+			vi.spyOn(promptUtils, "promptOverwriteLefthook").mockResolvedValue(false);
+
 			const result = await createLefthookConfig("/project", "npm");
 			expect(result).toEqual({ type: "skipped" });
+			expect(promptUtils.promptOverwriteLefthook).toHaveBeenCalled();
 			// Verify file content unchanged
 			const content = vol.readFileSync("/project/lefthook.yml", "utf8");
 			expect(content).toBe("existing content");
 		});
 
-		it("should overwrite with force option", async () => {
+		it("should overwrite when lefthook.yml already exists and user confirms overwrite", async () => {
 			vol.fromJSON({
 				"/project/lefthook.yml": "existing content",
 				"/templates/lefthook/npm.yml": "new content",
 			});
 
+			vi.spyOn(promptUtils, "promptOverwriteLefthook").mockResolvedValue(true);
+
+			const result = await createLefthookConfig("/project", "npm");
+			expect(result).toEqual({ type: "overwritten" });
+			expect(promptUtils.promptOverwriteLefthook).toHaveBeenCalled();
+			// Verify file content changed
+			const content = vol.readFileSync("/project/lefthook.yml", "utf8");
+			expect(content).toBe("new content");
+		});
+
+		it("should overwrite with force option without prompting", async () => {
+			vol.fromJSON({
+				"/project/lefthook.yml": "existing content",
+				"/templates/lefthook/npm.yml": "new content",
+			});
+
+			const promptSpy = vi.spyOn(promptUtils, "promptOverwriteLefthook");
+
 			const result = await createLefthookConfig("/project", "npm", true);
 			expect(result).toEqual({ type: "overwritten" });
+			expect(promptSpy).not.toHaveBeenCalled();
 			// Verify file content changed
 			const content = vol.readFileSync("/project/lefthook.yml", "utf8");
 			expect(content).toBe("new content");

@@ -1,6 +1,9 @@
 import { execSync } from "node:child_process";
 import { MESSAGES } from "../constants";
-import { createBiomeConfig } from "../core/biome-config";
+import {
+	createBiomeConfig,
+	detectOrSelectProjectType,
+} from "../core/biome-config";
 import { handleDependencies } from "../core/dependencies";
 import { addLefthookScript, createLefthookConfig } from "../core/lefthook";
 import { addBiomeScripts } from "../core/scripts";
@@ -65,8 +68,31 @@ export const initSettingsFile = async (
 		return { success: false, error: errorMessage };
 	}
 
+	// Check for conflicting formatter flags early
+	if (options.biomeOnly && options.withPrettier) {
+		logger.error(
+			"Cannot use both --biome-only and --with-prettier flags together",
+		);
+		return { success: false, error: "Conflicting formatter flags" };
+	}
+
+	// Detect or select project type early (but don't display yet)
+	const projectType = await detectOrSelectProjectType(baseDir, options);
+
 	// Always handle dependencies first (unless skipped)
-	const depResult = await handleDependencies(baseDir, options);
+	// Project type will be displayed after package manager detection inside handleDependencies
+	const depResult = await handleDependencies(baseDir, options, projectType);
+
+	// Extract formatter choice from depResult
+	let formatterChoice: "biome-only" | "with-prettier" | undefined;
+	if (
+		depResult.type === "already-installed" ||
+		depResult.type === "installed" ||
+		(depResult.type === "skipped" && depResult.formatterChoice)
+	) {
+		formatterChoice = depResult.formatterChoice ?? undefined;
+	}
+
 	switch (depResult.type) {
 		case "already-installed":
 			tasks.dependencies = { status: "success", message: "already installed" };
@@ -86,7 +112,7 @@ export const initSettingsFile = async (
 	}
 
 	// Create biome.json
-	const biomeResult = await createBiomeConfig(baseDir, options);
+	const biomeResult = await createBiomeConfig(baseDir, projectType, options);
 	switch (biomeResult.type) {
 		case "created":
 			tasks.biomeConfig = { status: "success", message: "created" };
@@ -110,20 +136,6 @@ export const initSettingsFile = async (
 		status: scriptsResult === "success" ? "success" : "error",
 		message: scriptsResult === "success" ? "added" : "failed",
 	};
-
-	// Determine formatter choice from CLI flags
-	let formatterChoice: "biome-only" | "with-prettier" | undefined;
-	if (options.biomeOnly && options.withPrettier) {
-		logger.error(
-			"Cannot use both --biome-only and --with-prettier flags together",
-		);
-		return { success: false, error: "Conflicting formatter flags" };
-	}
-	if (options.biomeOnly) {
-		formatterChoice = "biome-only";
-	} else if (options.withPrettier) {
-		formatterChoice = "with-prettier";
-	}
 
 	// Create .vscode/settings.json
 	const settingsResult = await createVSCodeSettings(

@@ -107,58 +107,87 @@ describe("package-manager", () => {
 	});
 
 	describe("getInstallCommand", () => {
-		it("should generate npm commands with correct flags", () => {
+		it("should generate npm commands with grouped exact packages", () => {
 			const result = getInstallCommand("npm", [
 				"@biomejs/biome",
 				"@mfyuu/biome-config",
 			]);
 			expect(result).toEqual([
-				"npm i -D -E @biomejs/biome",
-				"npm i -D @mfyuu/biome-config",
+				"npm i --save-dev --save-exact @biomejs/biome",
+				"npm i --save-dev @mfyuu/biome-config",
 			]);
 		});
 
-		it("should generate yarn commands with correct flags", () => {
+		it("should generate yarn commands with grouped exact packages", () => {
 			const result = getInstallCommand("yarn", [
 				"@biomejs/biome",
 				"@mfyuu/biome-config",
 			]);
 			expect(result).toEqual([
-				"yarn add -D -E @biomejs/biome",
-				"yarn add -D @mfyuu/biome-config",
+				"yarn add --dev --exact @biomejs/biome",
+				"yarn add --dev @mfyuu/biome-config",
 			]);
 		});
 
-		it("should generate pnpm commands with correct flags", () => {
+		it("should generate pnpm commands with grouped exact packages", () => {
 			const result = getInstallCommand("pnpm", [
 				"@biomejs/biome",
 				"@mfyuu/biome-config",
 			]);
 			expect(result).toEqual([
-				"pnpm add -D -E @biomejs/biome",
-				"pnpm add -D @mfyuu/biome-config",
+				"pnpm add --save-dev --save-exact @biomejs/biome",
+				"pnpm add --save-dev @mfyuu/biome-config",
 			]);
 		});
 
-		it("should generate bun commands with correct flags", () => {
+		it("should generate bun commands with grouped exact packages", () => {
 			const result = getInstallCommand("bun", [
 				"@biomejs/biome",
 				"@mfyuu/biome-config",
 			]);
 			expect(result).toEqual([
-				"bun add -D -E @biomejs/biome",
-				"bun add -D @mfyuu/biome-config",
+				"bun add --dev --exact @biomejs/biome",
+				"bun add --dev @mfyuu/biome-config",
 			]);
 		});
 
 		it("should handle single biome package with exact flag", () => {
 			const result = getInstallCommand("npm", ["@biomejs/biome"]);
-			expect(result).toEqual(["npm i -D -E @biomejs/biome"]);
+			expect(result).toEqual(["npm i --save-dev --save-exact @biomejs/biome"]);
 		});
 
 		it("should handle single config package without exact flag", () => {
 			const result = getInstallCommand("npm", ["@mfyuu/biome-config"]);
-			expect(result).toEqual(["npm i -D @mfyuu/biome-config"]);
+			expect(result).toEqual(["npm i --save-dev @mfyuu/biome-config"]);
+		});
+
+		it("should group biome and prettier with exact flag", () => {
+			const result = getInstallCommand("npm", [
+				"@biomejs/biome",
+				"prettier",
+				"@mfyuu/biome-config",
+			]);
+			expect(result).toEqual([
+				"npm i --save-dev --save-exact @biomejs/biome prettier",
+				"npm i --save-dev @mfyuu/biome-config",
+			]);
+		});
+
+		it("should handle prettier only with exact flag", () => {
+			const result = getInstallCommand("yarn", ["prettier"]);
+			expect(result).toEqual(["yarn add --dev --exact prettier"]);
+		});
+
+		it("should group all exact packages together", () => {
+			const result = getInstallCommand("pnpm", ["@biomejs/biome", "prettier"]);
+			expect(result).toEqual([
+				"pnpm add --save-dev --save-exact @biomejs/biome prettier",
+			]);
+		});
+
+		it("should handle empty package list", () => {
+			const result = getInstallCommand("npm", []);
+			expect(result).toEqual([]);
 		});
 	});
 

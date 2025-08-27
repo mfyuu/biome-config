@@ -1,9 +1,11 @@
+import { red } from "kleur/colors";
 import prompts from "prompts";
 import {
 	EXIT_CODES,
 	PROJECT_TYPES,
 	PROMPT_DEFAULTS,
 	type ProjectType,
+	UI_MESSAGES,
 } from "../constants";
 import type { FormatterChoice } from "../types";
 import type { PackageManager } from "./package-manager";
@@ -18,7 +20,7 @@ export const promptOverwriteConfirmation = async (): Promise<boolean> => {
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -37,7 +39,7 @@ export const promptBiomeOverwriteConfirmation = async (): Promise<boolean> => {
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -58,7 +60,7 @@ export const promptInstallDependencies = async (
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -83,7 +85,7 @@ export const promptPackageManager = async (
 
 	const message = availableManagers
 		? "Multiple package managers detected. Choose one:"
-		: "Which package manager do you want to use?";
+		: "Pick a package manager:";
 
 	const response = await prompts(
 		{
@@ -95,7 +97,7 @@ export const promptPackageManager = async (
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -108,7 +110,7 @@ export const promptFormatterChoice = async (): Promise<FormatterChoice> => {
 		{
 			type: "select",
 			name: "formatter",
-			message: "Which formatter configuration would you like to use?",
+			message: "Pick a formatter template:",
 			choices: [
 				{
 					title: "Biome + Prettier (for Markdown)",
@@ -120,7 +122,7 @@ export const promptFormatterChoice = async (): Promise<FormatterChoice> => {
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -134,7 +136,7 @@ export const promptProjectType = async (): Promise<ProjectType> => {
 		{
 			type: "select",
 			name: "projectType",
-			message: "Which type of project is this?",
+			message: "Pick a project type:",
 			choices: [
 				{
 					title: "Base (Node.js/TypeScript)",
@@ -156,7 +158,7 @@ export const promptProjectType = async (): Promise<ProjectType> => {
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
@@ -170,16 +172,34 @@ export const promptLefthookIntegration = async (): Promise<boolean> => {
 		{
 			type: "confirm",
 			name: "integrate",
-			message: "Would you like to integrate lefthook for Git hooks?",
+			message: "Use lefthook for Git hooks?",
 			initial: true,
 		},
 		{
 			onCancel: () => {
-				console.log("\nOperation cancelled.");
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
 				process.exit(EXIT_CODES.FAILURE);
 			},
 		},
 	);
 
 	return response.integrate || false;
+};
+export const promptOverwriteLefthook = async (): Promise<boolean> => {
+	const response = await prompts(
+		{
+			type: "confirm",
+			name: "overwrite",
+			message: "lefthook.yml already exists. Overwrite it?",
+			initial: false,
+		},
+		{
+			onCancel: () => {
+				console.log(red(UI_MESSAGES.OPERATION_CANCELLED));
+				process.exit(EXIT_CODES.FAILURE);
+			},
+		},
+	);
+
+	return response.overwrite || false;
 };

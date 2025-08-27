@@ -4,7 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { PROJECT_TYPES } from "../constants";
 import * as fileUtils from "../utils/file";
 import * as promptUtils from "../utils/prompt";
-import { createBiomeConfig } from "./biome-config";
+import { createBiomeConfig, detectOrSelectProjectType } from "./biome-config";
 
 // Mock fs modules using memfs
 vi.mock("node:fs");
@@ -64,7 +64,11 @@ describe("biome-config", () => {
 				)}\n// Next.js-specific comments`,
 			});
 
-			const result = await createBiomeConfig("/project", {});
+			const result = await createBiomeConfig(
+				"/project",
+				PROJECT_TYPES.BASE,
+				{},
+			);
 			expect(result).toEqual({ type: "created" });
 			expect(fileUtils.fileExists("/project/biome.jsonc")).toBe(true);
 		});
@@ -89,7 +93,11 @@ describe("biome-config", () => {
 				true,
 			);
 
-			const result = await createBiomeConfig("/project", {});
+			const result = await createBiomeConfig(
+				"/project",
+				PROJECT_TYPES.BASE,
+				{},
+			);
 			expect(result).toEqual({ type: "overwritten" });
 			expect(promptUtils.promptBiomeOverwriteConfirmation).toHaveBeenCalled();
 		});
@@ -103,7 +111,11 @@ describe("biome-config", () => {
 				false,
 			);
 
-			const result = await createBiomeConfig("/project", {});
+			const result = await createBiomeConfig(
+				"/project",
+				PROJECT_TYPES.BASE,
+				{},
+			);
 			expect(result).toEqual({ type: "skipped" });
 		});
 
@@ -123,14 +135,16 @@ describe("biome-config", () => {
 				),
 			});
 
-			const result = await createBiomeConfig("/project", { force: true });
+			const result = await createBiomeConfig("/project", PROJECT_TYPES.BASE, {
+				force: true,
+			});
 			expect(result).toEqual({ type: "overwritten" });
 			expect(
 				promptUtils.promptBiomeOverwriteConfirmation,
 			).not.toHaveBeenCalled();
 		});
 
-		it("should auto-detect project type", async () => {
+		it("should use React project type", async () => {
 			vol.fromJSON({
 				"/project/package.json": JSON.stringify({
 					name: "test-project",
@@ -149,7 +163,11 @@ describe("biome-config", () => {
 				)}\n// React-specific comments`,
 			});
 
-			const result = await createBiomeConfig("/project", {});
+			const result = await createBiomeConfig(
+				"/project",
+				PROJECT_TYPES.REACT,
+				{},
+			);
 			expect(result).toEqual({ type: "created" });
 			expect(fileUtils.fileExists("/project/biome.jsonc")).toBe(true);
 		});
@@ -169,14 +187,14 @@ describe("biome-config", () => {
 				)}\n// Next.js-specific comments`,
 			});
 
-			const result = await createBiomeConfig("/project", {
+			const result = await createBiomeConfig("/project", PROJECT_TYPES.NEXT, {
 				type: PROJECT_TYPES.NEXT,
 			});
 			expect(result).toEqual({ type: "created" });
 			expect(promptUtils.promptProjectType).not.toHaveBeenCalled();
 		});
 
-		it("should prompt for project type when package.json is missing", async () => {
+		it("should create config with base project type when package.json is missing", async () => {
 			vol.fromJSON({
 				"/project": null,
 				"/templates/biome/base.jsonc": `${JSON.stringify(
@@ -189,16 +207,15 @@ describe("biome-config", () => {
 				)}\n// Customization comments`,
 			});
 
-			vi.mocked(promptUtils.promptProjectType).mockResolvedValue(
+			const result = await createBiomeConfig(
+				"/project",
 				PROJECT_TYPES.BASE,
+				{},
 			);
-
-			const result = await createBiomeConfig("/project", {});
 			expect(result).toEqual({ type: "created" });
-			expect(promptUtils.promptProjectType).toHaveBeenCalled();
 		});
 
-		it("should prompt when package.json has invalid format", async () => {
+		it("should handle when package.json has invalid format", async () => {
 			vol.fromJSON({
 				"/project/package.json": "{ invalid json",
 				"/templates/biome/base.jsonc": `${JSON.stringify(
@@ -211,13 +228,12 @@ describe("biome-config", () => {
 				)}\n// Customization comments`,
 			});
 
-			vi.mocked(promptUtils.promptProjectType).mockResolvedValue(
+			const result = await createBiomeConfig(
+				"/project",
 				PROJECT_TYPES.BASE,
+				{},
 			);
-
-			const result = await createBiomeConfig("/project", {});
 			expect(result).toEqual({ type: "created" });
-			expect(promptUtils.promptProjectType).toHaveBeenCalled();
 		});
 
 		it("should use BASE when no framework is detected", async () => {
@@ -239,7 +255,11 @@ describe("biome-config", () => {
 				)}\n// Customization comments`,
 			});
 
-			const result = await createBiomeConfig("/project", {});
+			const result = await createBiomeConfig(
+				"/project",
+				PROJECT_TYPES.BASE,
+				{},
+			);
 			expect(result).toEqual({ type: "created" });
 			expect(promptUtils.promptProjectType).not.toHaveBeenCalled();
 			expect(fileUtils.getTemplatePath).toHaveBeenCalledWith(
@@ -260,12 +280,16 @@ describe("biome-config", () => {
 				true,
 			);
 
-			const result = await createBiomeConfig("/project", {});
+			const result = await createBiomeConfig(
+				"/project",
+				PROJECT_TYPES.BASE,
+				{},
+			);
 			expect(result).toEqual({ type: "overwritten" });
 			expect(fileUtils.fileExists("/project/biome.jsonc")).toBe(true);
 		});
 
-		it("should detect and configure Next.js project", async () => {
+		it("should configure Next.js project", async () => {
 			vol.fromJSON({
 				"/project/package.json": JSON.stringify({
 					name: "test-project",
@@ -284,7 +308,11 @@ describe("biome-config", () => {
 				)}\n// Next.js-specific comments`,
 			});
 
-			const result = await createBiomeConfig("/project", {});
+			const result = await createBiomeConfig(
+				"/project",
+				PROJECT_TYPES.NEXT,
+				{},
+			);
 			expect(result).toEqual({ type: "created" });
 			expect(fileUtils.getTemplatePath).toHaveBeenCalledWith(
 				expect.stringContaining("next"),
@@ -299,7 +327,11 @@ describe("biome-config", () => {
 				"/templates/biome": null,
 			});
 
-			const result = await createBiomeConfig("/project", {});
+			const result = await createBiomeConfig(
+				"/project",
+				PROJECT_TYPES.BASE,
+				{},
+			);
 			expect(result.type).toBe("error");
 			expect(result).toHaveProperty("message");
 		});
@@ -324,12 +356,85 @@ describe("biome-config", () => {
 				throw new Error("Permission denied");
 			});
 
-			const result = await createBiomeConfig("/project", {});
+			const result = await createBiomeConfig(
+				"/project",
+				PROJECT_TYPES.BASE,
+				{},
+			);
 			expect(result.type).toBe("error");
 			expect(result).toMatchObject({
 				type: "error",
 				message: "Permission denied",
 			});
+		});
+	});
+
+	describe("detectOrSelectProjectType", () => {
+		it("should return explicitly specified type from options", async () => {
+			const result = await detectOrSelectProjectType("/project", {
+				type: PROJECT_TYPES.REACT,
+			});
+			expect(result).toBe(PROJECT_TYPES.REACT);
+		});
+
+		it("should detect React project from package.json", async () => {
+			vol.fromJSON({
+				"/project/package.json": JSON.stringify({
+					name: "test-project",
+					dependencies: {
+						react: "^18.0.0",
+						"react-dom": "^18.0.0",
+					},
+				}),
+			});
+
+			const result = await detectOrSelectProjectType("/project", {});
+			expect(result).toBe(PROJECT_TYPES.REACT);
+		});
+
+		it("should detect Next.js project from package.json", async () => {
+			vol.fromJSON({
+				"/project/package.json": JSON.stringify({
+					name: "test-project",
+					dependencies: {
+						next: "^14.0.0",
+						react: "^18.0.0",
+					},
+				}),
+			});
+
+			const result = await detectOrSelectProjectType("/project", {});
+			expect(result).toBe(PROJECT_TYPES.NEXT);
+		});
+
+		it("should prompt when package.json is missing", async () => {
+			vol.fromJSON({
+				"/project": null,
+			});
+
+			vi.mocked(promptUtils.promptProjectType).mockResolvedValue(
+				PROJECT_TYPES.BASE,
+			);
+
+			const result = await detectOrSelectProjectType("/project", {});
+			expect(result).toBe(PROJECT_TYPES.BASE);
+			expect(promptUtils.promptProjectType).toHaveBeenCalled();
+		});
+
+		it("should return BASE when no framework is detected", async () => {
+			vol.fromJSON({
+				"/project/package.json": JSON.stringify({
+					name: "test-project",
+					dependencies: {
+						express: "^4.0.0",
+					},
+				}),
+			});
+
+			const result = await detectOrSelectProjectType("/project", {});
+			expect(result).toBe(PROJECT_TYPES.BASE);
+			// Should not prompt when BASE is auto-detected
+			expect(promptUtils.promptProjectType).not.toHaveBeenCalled();
 		});
 	});
 });

@@ -1,41 +1,41 @@
 // Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
 
 exports[`summary > showSetupSummary > should match snapshot for skipped/mixed status patterns > complex-mixed-status 1`] = `
-"  [████████████░░░░░░░░] 3/5 completed
+"[████████████░░░░░░░░] 3/5 completed
 
-  ✔ Dependencies (installed)
-  ⚠ Biome Config (already exists)
-  ✔ Package Scripts (added)
-  ✖ VS Code Settings (permission denied)
-  ✔ Git Hooks (lefthook) (created)"
+✔ Dependencies (installed)
+⚠ Biome Config (already exists)
+✔ Package Scripts (added)
+✖ VS Code Settings (permission denied)
+✔ Git Hooks (lefthook) (created)"
 `;
 
 exports[`summary > showSetupSummary > should match snapshot for skipped/mixed status patterns > skipped-mixed-patterns 1`] = `
-"  [░░░░░░░░░░░░░░░░░░░░] 0/5 completed
+"[░░░░░░░░░░░░░░░░░░░░] 0/5 completed
 
-  ⚠ Dependencies (skipped)
-  ⚠ Biome Config (skipped)
-  ⚠ Package Scripts (skipped)
-  ⚠ VS Code Settings (skipped)
-  ⚠ Git Hooks (lefthook) (skipped)"
+⚠ Dependencies (skipped)
+⚠ Biome Config (skipped)
+⚠ Package Scripts (skipped)
+⚠ VS Code Settings (skipped)
+⚠ Git Hooks (lefthook) (skipped)"
 `;
 
 exports[`summary > showSetupSummary > should match snapshot for success/failure patterns > success-failure-mixed 1`] = `
-"  [████████████░░░░░░░░] 3/5 completed
+"[████████████░░░░░░░░] 3/5 completed
 
-  ✔ Dependencies (installed)
-  ✖ Biome Config (failed)
-  ✔ Package Scripts (added)
-  ✔ VS Code Settings (created)
-  ⚠ Git Hooks (lefthook) (skipped)"
+✔ Dependencies (installed)
+✖ Biome Config (failed)
+✔ Package Scripts (added)
+✔ VS Code Settings (created)
+⚠ Git Hooks (lefthook) (skipped)"
 `;
 
 exports[`summary > showSetupSummary > should match snapshot for success/failure patterns > success-failure-patterns 1`] = `
-"  [████████████████████] 5/5 completed
+"[████████████████████] 5/5 completed
 
-  ✔ Dependencies (installed)
-  ✔ Biome Config (created)
-  ✔ Package Scripts (added)
-  ✔ VS Code Settings (created)
-  ✔ Git Hooks (lefthook) (created)"
+✔ Dependencies (installed)
+✔ Biome Config (created)
+✔ Package Scripts (added)
+✔ VS Code Settings (created)
+✔ Git Hooks (lefthook) (created)"
 `;

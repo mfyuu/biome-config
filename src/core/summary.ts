@@ -61,7 +61,7 @@ export const showSetupSummary = (tasks: TaskResult): void => {
 	const progressBar = `[${green("█".repeat(filledWidth))}${"░".repeat(emptyWidth)}]`;
 
 	// Create summary header with progress
-	console.log(`  ${progressBar} ${completedCount}/${totalCount} completed`);
+	console.log(`${progressBar} ${completedCount}/${totalCount} completed`);
 	console.log();
 
 	// List items with their status
@@ -75,6 +75,6 @@ export const showSetupSummary = (tasks: TaskResult): void => {
 					: green(`(${item.message})`)
 			: "";
 
-		console.log(`  ${icon} ${item.name} ${statusText}`);
+		console.log(`${icon} ${item.name} ${statusText}`);
 	}
 };

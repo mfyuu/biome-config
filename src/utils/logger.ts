@@ -40,4 +40,5 @@ export const highlight = {
 	package: (text: string): string => cyan(text),
 	path: (text: string): string => green(text),
 	option: (text: string): string => grey(text),
+	dim: (text: string): string => grey(text),
 } as const;

@@ -129,7 +129,7 @@ describe("E2E: biome-config init", () => {
 		const cliPath = path.resolve("./dist/cli");
 
 		// Execute command with React configuration
-		execSync(`node ${cliPath} --type react --skip-deps`, {
+		execSync(`node ${cliPath} --type react --skip-deps --biome-only`, {
 			cwd: tempDir,
 			encoding: "utf-8",
 		});
@@ -210,7 +210,7 @@ describe("E2E: biome-config init", () => {
 		const cliPath = path.resolve("./dist/cli");
 
 		// Execute with --local option
-		execSync(`node ${cliPath} --local --skip-deps`, {
+		execSync(`node ${cliPath} --local --skip-deps --biome-only`, {
 			cwd: subDir,
 			encoding: "utf-8",
 		});
@@ -261,7 +261,7 @@ describe("E2E: biome-config init", () => {
 		const cliPath = path.resolve("./dist/cli");
 
 		// Execute command with Next.js configuration
-		execSync(`node ${cliPath} --type next --skip-deps`, {
+		execSync(`node ${cliPath} --type next --skip-deps --biome-only`, {
 			cwd: tempDir,
 			encoding: "utf-8",
 		});
