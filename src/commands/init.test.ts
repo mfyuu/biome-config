@@ -61,7 +61,14 @@ describe("init", () => {
 	let originalCwd: string;
 	let findGitRootSpy: MockInstance<(startDir: string) => string | null>;
 	let handleDependenciesSpy: MockInstance<
-		(baseDir: string, options: InitOptions) => Promise<unknown>
+		(
+			baseDir: string,
+			options: InitOptions,
+			formatterChoice?: "biome-only" | "with-prettier",
+		) => Promise<unknown>
+	>;
+	let promptFormatterChoiceSpy: MockInstance<
+		() => Promise<"biome-only" | "with-prettier">
 	>;
 	let createBiomeConfigSpy: MockInstance<
 		(baseDir: string, options: InitOptions) => Promise<unknown>
@@ -96,6 +103,9 @@ describe("init", () => {
 			.spyOn(scripts, "addBiomeScripts")
 			.mockResolvedValue("success");
 		createVSCodeSettingsSpy = vi.spyOn(vscodeSettings, "createVSCodeSettings");
+		promptFormatterChoiceSpy = vi
+			.spyOn(prompt, "promptFormatterChoice")
+			.mockResolvedValue("with-prettier");
 		createLefthookConfigSpy = vi
 			.spyOn(lefthook, "createLefthookConfig")
 			.mockResolvedValue({ type: "skipped" });
@@ -126,7 +136,10 @@ describe("init", () => {
 			vi.spyOn(process, "cwd").mockReturnValue("/test-project");
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			addBiomeScriptsSpy.mockResolvedValue("success");
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
@@ -139,7 +152,7 @@ describe("init", () => {
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				undefined,
-				undefined,
+				"with-prettier",
 			);
 			expect(summary.showSetupSummary).toHaveBeenCalledWith({
 				dependencies: { status: "success", message: "installed" },
@@ -156,7 +169,10 @@ describe("init", () => {
 			});
 
 			vi.spyOn(process, "cwd").mockReturnValue("/current");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			addBiomeScriptsSpy.mockResolvedValue("success");
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
@@ -195,7 +211,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "skipped" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "skipped",
+				formatterChoice: null,
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -222,7 +241,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "overwritten" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -244,7 +266,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "skipped" });
 
@@ -325,7 +350,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "overwritten" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "overwritten" });
 
@@ -338,7 +366,7 @@ describe("init", () => {
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				true,
-				undefined,
+				"with-prettier",
 			);
 		});
 
@@ -349,7 +377,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -367,7 +398,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -385,7 +419,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -402,7 +439,10 @@ describe("init", () => {
 			});
 
 			vi.spyOn(process, "cwd").mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "overwritten" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "overwritten" });
 
@@ -429,7 +469,7 @@ describe("init", () => {
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				true,
-				undefined,
+				"with-prettier",
 			);
 		});
 	});
@@ -445,7 +485,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/project");
-			handleDependenciesSpy.mockResolvedValue({ type: "installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -468,7 +511,7 @@ describe("init", () => {
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/project",
 				true,
-				undefined,
+				"with-prettier",
 			);
 		});
 
@@ -486,7 +529,10 @@ describe("init", () => {
 			vi.spyOn(process, "cwd").mockReturnValue("/existing-project");
 
 			findGitRootSpy.mockReturnValue("/existing-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "overwritten" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "overwritten" });
 
@@ -505,7 +551,7 @@ describe("init", () => {
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/existing-project",
 				true,
-				undefined,
+				"with-prettier",
 			);
 		});
 	});
@@ -518,7 +564,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "biome-only",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -526,6 +575,12 @@ describe("init", () => {
 				biomeOnly: true,
 			});
 
+			// Should not call promptFormatterChoice when flag is set
+			expect(promptFormatterChoiceSpy).not.toHaveBeenCalled();
+			// Should pass biome-only to handleDependencies
+			expect(handleDependenciesSpy).toHaveBeenCalledWith("/test-project", {
+				biomeOnly: true,
+			});
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				undefined,
@@ -540,7 +595,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -548,6 +606,12 @@ describe("init", () => {
 				withPrettier: true,
 			});
 
+			// Should not call promptFormatterChoice when flag is set
+			expect(promptFormatterChoiceSpy).not.toHaveBeenCalled();
+			// Should pass with-prettier to handleDependencies
+			expect(handleDependenciesSpy).toHaveBeenCalledWith("/test-project", {
+				withPrettier: true,
+			});
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				undefined,
@@ -555,23 +619,28 @@ describe("init", () => {
 			);
 		});
 
-		it("should pass undefined when no formatter flags are set", async () => {
+		it("should prompt for formatter choice when no flags are set", async () => {
 			vol.fromJSON({
 				"/test-project/.git": null,
 				"/test-project/package.json": JSON.stringify({ name: "test-project" }),
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
 			await initSettingsFile({});
 
+			// Should call handleDependencies without formatter flags
+			expect(handleDependenciesSpy).toHaveBeenCalledWith("/test-project", {});
 			expect(createVSCodeSettingsSpy).toHaveBeenCalledWith(
 				"/test-project",
 				undefined,
-				undefined,
+				"with-prettier",
 			);
 		});
 
@@ -582,7 +651,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -605,7 +677,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "biome-only",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -630,7 +705,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 			detectPackageManagerSpy.mockReturnValue("npm");
@@ -665,7 +743,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 			promptLefthookIntegrationSpy.mockResolvedValue(true);
@@ -700,7 +781,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 			promptLefthookIntegrationSpy.mockResolvedValue(false);
@@ -724,7 +808,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 			detectPackageManagerSpy.mockReturnValue("yarn");
@@ -755,7 +842,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 			detectPackageManagerSpy.mockReturnValue("bun");
@@ -785,7 +875,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 			detectPackageManagerSpy.mockReturnValue("npm");
@@ -818,7 +911,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 
@@ -840,7 +936,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 			detectPackageManagerSpy.mockReturnValue(null);
@@ -868,7 +967,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 			detectPackageManagerSpy.mockReturnValue("yarn");
@@ -895,7 +997,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 			detectPackageManagerSpy.mockReturnValue("pnpm");
@@ -922,7 +1027,10 @@ describe("init", () => {
 			});
 
 			findGitRootSpy.mockReturnValue("/test-project");
-			handleDependenciesSpy.mockResolvedValue({ type: "already-installed" });
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
 			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
 			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
 			detectPackageManagerSpy.mockReturnValue("bun");
