@@ -7,7 +7,7 @@ Fix npm errors and add spinner for better UX
 - Prevent ENOENT errors when package.json is missing
 - Add spinner animation during command execution
 - Use non-blocking spawn instead of blocking execSync
-- Show platform-specific spinner styles (Windows/Unix)
+- Use unified dots spinner style across all platforms
 - Capture stderr for detailed error messages
 - Extract reusable npm-command utility module
-- Fix Windows compatibility by using shell option for .cmd files
+- Fix Windows compatibility with proper shell option and argument quoting for .cmd files
