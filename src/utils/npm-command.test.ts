@@ -209,6 +209,72 @@ describe("npm-command", () => {
 
 			await expect(promise).rejects.toThrow("Error: Invalid JSON");
 		});
+
+		describe("input validation", () => {
+			it("should reject when kv has no equals sign", async () => {
+				const promise = runNpmPkgSet("/test/dir", "scripts.test");
+				await expect(promise).rejects.toThrow(
+					'Invalid format: "scripts.test". Expected "key=value".',
+				);
+				expect(spawnMock).not.toHaveBeenCalled();
+			});
+
+			it("should reject when kv starts with equals sign", async () => {
+				const promise = runNpmPkgSet("/test/dir", "=value");
+				await expect(promise).rejects.toThrow(
+					'Invalid format: "=value". Expected "key=value".',
+				);
+				expect(spawnMock).not.toHaveBeenCalled();
+			});
+
+			it("should accept kv with empty value", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runNpmPkgSet("/test/dir", "key=");
+
+				setImmediate(() => {
+					mockChild.emit("close", 0);
+				});
+
+				await expect(promise).resolves.toBeUndefined();
+				expect(spawnMock).toHaveBeenCalled();
+			});
+
+			it("should accept kv with multiple equals signs", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runNpmPkgSet(
+					"/test/dir",
+					"scripts.test=NODE_ENV=test vitest",
+				);
+
+				setImmediate(() => {
+					mockChild.emit("close", 0);
+				});
+
+				await expect(promise).resolves.toBeUndefined();
+				expect(spawnMock).toHaveBeenCalled();
+			});
+
+			it("should accept kv with special characters", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runNpmPkgSet(
+					"/test/dir",
+					'scripts.test=echo "hello world"',
+				);
+
+				setImmediate(() => {
+					mockChild.emit("close", 0);
+				});
+
+				await expect(promise).resolves.toBeUndefined();
+				expect(spawnMock).toHaveBeenCalled();
+			});
+		});
 	});
 
 	describe("createSpinner", () => {

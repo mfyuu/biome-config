@@ -5,6 +5,14 @@ import ora from "ora";
  * Run npm pkg set command with proper Windows support
  */
 export function runNpmPkgSet(cwd: string, kv: string): Promise<void> {
+	// Minimal validation for early error detection
+	const eqIndex = kv.indexOf("=");
+	if (eqIndex <= 0) {
+		return Promise.reject(
+			new Error(`Invalid format: "${kv}". Expected "key=value".`),
+		);
+	}
+
 	return new Promise((resolve, reject) => {
 		const isWindows = process.platform === "win32";
 		const npmCmd = isWindows ? "npm.cmd" : "npm";
