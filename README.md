@@ -1,5 +1,7 @@
 # @mfyuu/biome-config
 
+English | [Japanese](./README.ja.md)
+
 Shareable Biome configuration package for JavaScript/TypeScript projects by [@mfyuu](https://github.com/mfyuu).
 
 Choose from three configurations based on your project type: base, React, or Next.js.
@@ -19,7 +21,12 @@ This command will:
 - Detect your project type (base, React, or Next.js)
 - Install required dependencies (`@biomejs/biome` and `@mfyuu/biome-config`)
 - Create `biome.json` or `biome.jsonc` with the appropriate configuration
+- Add Biome scripts to your `package.json` (`format`, `lint`, `lint-fix`, `check`)
 - Set up VS Code integration with `.vscode/settings.json`
+  - Choose between Biome-only formatting or Biome with Prettier for Markdown files
+- Optionally integrate Lefthook for Git hooks automation
+  - Creates lefthook configuration file
+  - Adds `prepare` script for automatic Git hooks installation
 
 For all available options:
 
