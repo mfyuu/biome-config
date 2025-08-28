@@ -27,8 +27,6 @@ export const createVSCodeSettings = async (
 		// Ask user if they want to overwrite
 		const shouldOverwrite = await promptOverwriteConfirmation();
 		if (!shouldOverwrite) {
-			logger.warning(MESSAGES.WARNING.FILE_EXISTS);
-			logger.warning(MESSAGES.WARNING.USE_FORCE);
 			return { type: "skipped" };
 		}
 		// User chose to overwrite, continue with the file creation

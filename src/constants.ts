@@ -47,12 +47,9 @@ export const MESSAGES = {
 		LEFTHOOK_INSTALLED_SUCCESS: `${highlight.package("lefthook")} installed successfully!`,
 	},
 	WARNING: {
-		FILE_EXISTS: `${highlight.file(".vscode/settings.json")} already exists!`,
-		USE_FORCE: `Use ${highlight.option("--force")} to overwrite the existing file`,
 		PACKAGE_JSON_NOT_FOUND: `${highlight.file("package.json")} not found. Skipping dependency installation.`,
 		MULTIPLE_PACKAGE_MANAGERS:
 			"Multiple package managers specified, choose only one.",
-		BIOME_FILE_EXISTS: `${highlight.file("biome.json(c)")} already exists!`,
 		CONFLICTING_FORMATTER_FLAGS:
 			"Cannot use both --biome-only and --with-prettier flags together.",
 	},
@@ -115,7 +112,7 @@ export const PROJECT_TYPE_DESCRIPTIONS: Record<ProjectType, string> = {
 	[PROJECT_TYPES.NEXT]: "Next.js applications",
 } as const;
 
-export const FILE_EXTENSIONS = {
+const FILE_EXTENSIONS = {
 	JSON: ".json",
 	JSONC: ".jsonc",
 } as const;

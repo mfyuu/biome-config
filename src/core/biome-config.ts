@@ -60,8 +60,6 @@ export const createBiomeConfig = async (
 		// Ask user if they want to overwrite
 		const shouldOverwrite = await promptBiomeOverwriteConfirmation();
 		if (!shouldOverwrite) {
-			logger.warning(MESSAGES.WARNING.BIOME_FILE_EXISTS);
-			logger.warning(MESSAGES.WARNING.USE_FORCE);
 			return { type: "skipped" };
 		}
 	}
