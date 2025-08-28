@@ -1,5 +1,14 @@
 # @mfyuu/biome-config
 
+## 1.3.4
+
+### Patch Changes
+
+- [`2675a30`](https://github.com/mfyuu/biome-config/commit/2675a30e9595b8e70c47a8c48169ec19a1a8ec9f) Thanks [@mfyuu](https://github.com/mfyuu)! - - Documentation update only for README.md and README.ja.md
+  - Added mention of lefthook dependency installation in Starter Wizard section
+  - Patch release to reflect accurate and up-to-date README content on npm registry
+  - No functional or code changes
+
 ## 1.3.3
 
 ### Patch Changes
