@@ -42,6 +42,9 @@ export const MESSAGES = {
 		FORMATTER_SELECTED: (choice: string) =>
 			`Selected formatter template: ${highlight.package(choice)}`,
 		SETUP_COMPLETE: "Biome configuration setup completed.",
+		LEFTHOOK_ALREADY_INSTALLED: `${highlight.package("lefthook")} is already installed.`,
+		INSTALLING_LEFTHOOK: `Installing ${highlight.package("lefthook")}...`,
+		LEFTHOOK_INSTALLED_SUCCESS: `${highlight.package("lefthook")} installed successfully!`,
 	},
 	WARNING: {
 		FILE_EXISTS: `${highlight.file(".vscode/settings.json")} already exists!`,
@@ -61,6 +64,7 @@ export const MESSAGES = {
 		DEPS_INSTALL_FAILED: `Failed to add dependencies to ${highlight.file("package.json")}:`,
 		DEPS_INSTALL_EXEC_FAILED: "Failed to install dependencies:",
 		BIOME_CREATE_FAILED: `Failed to create ${highlight.file("biome.json(c)")}:`,
+		LEFTHOOK_INSTALL_FAILED: `Failed to install ${highlight.package("lefthook")}:`,
 	},
 } as const;
 
@@ -68,6 +72,7 @@ export const DEPENDENCIES = {
 	BIOME: "@biomejs/biome",
 	CONFIG: "@mfyuu/biome-config",
 	PRETTIER: "prettier",
+	LEFTHOOK: "lefthook",
 } as const;
 export const PACKAGE_MANAGERS = {
 	NPM: "npm",
