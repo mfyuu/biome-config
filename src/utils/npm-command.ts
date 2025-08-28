@@ -14,6 +14,7 @@ type CommandOptions = {
 /**
  * Run npm pkg set command (cross-platform, CI-friendly).
  * - Uses cross-spawn to avoid Windows .cmd quirks and quoting issues.
+ * - Uses spawn instead of execSync for better error handling and timeout control
  */
 export function runNpmPkgSet(cwd: string, kv: string): Promise<void> {
 	// Minimal-but-safe validation
@@ -81,6 +82,11 @@ export function createSpinner(text = "Working...") {
 /**
  * Run a command using cross-spawn (cross-platform, CI-friendly).
  * This is a generic version for running any command.
+ *
+ * Uses spawn instead of execSync to provide:
+ * - Custom loading UI (spinner) for better UX on slow operations
+ * - Timeout control to prevent hanging
+ * - Flexible stdio handling (silent vs verbose modes)
  *
  * @param command - The command to execute
  * @param args - Arguments for the command
