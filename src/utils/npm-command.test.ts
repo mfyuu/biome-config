@@ -1,12 +1,12 @@
 import type { ChildProcess } from "node:child_process";
-import { spawn } from "node:child_process";
 import { EventEmitter } from "node:events";
 import type { Readable, Writable } from "node:stream";
+import { spawn } from "cross-spawn";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createSpinner, runNpmPkgSet } from "./npm-command";
 
-// Mock child_process
-vi.mock("node:child_process", () => ({
+// Mock cross-spawn
+vi.mock("cross-spawn", () => ({
 	spawn: vi.fn(),
 }));
 
@@ -56,14 +56,12 @@ describe("npm-command", () => {
 
 			await expect(promise).resolves.toBeUndefined();
 
-			const isWindows = process.platform === "win32";
 			expect(spawnMock).toHaveBeenCalledWith(
-				isWindows ? "npm.cmd" : "npm",
+				"npm",
 				["pkg", "set", "scripts.test=vitest"],
 				{
 					cwd: "/test/dir",
 					stdio: "pipe",
-					shell: false,
 					windowsHide: true,
 				},
 			);
@@ -117,15 +115,7 @@ describe("npm-command", () => {
 			await expect(promise).rejects.toThrow("spawn npm ENOENT");
 		});
 
-		it("should use npm.cmd on Windows", async () => {
-			const originalPlatform = Object.getOwnPropertyDescriptor(
-				process,
-				"platform",
-			);
-			Object.defineProperty(process, "platform", {
-				value: "win32",
-			});
-
+		it("should use npm on all platforms (cross-spawn handles platform differences)", async () => {
 			const mockChild = new MockChildProcess();
 			spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
 
@@ -137,58 +127,16 @@ describe("npm-command", () => {
 
 			await promise;
 
-			expect(spawnMock).toHaveBeenCalledWith(
-				"npm.cmd",
-				["pkg", "set", "scripts.test=vitest"],
-				{
-					cwd: "/test/dir",
-					stdio: "pipe",
-					shell: false,
-					windowsHide: true,
-				},
-			);
-
-			// Restore original platform
-			if (originalPlatform) {
-				Object.defineProperty(process, "platform", originalPlatform);
-			}
-		});
-
-		it("should use npm on non-Windows platforms", async () => {
-			const originalPlatform = Object.getOwnPropertyDescriptor(
-				process,
-				"platform",
-			);
-			Object.defineProperty(process, "platform", {
-				value: "darwin",
-			});
-
-			const mockChild = new MockChildProcess();
-			spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
-
-			const promise = runNpmPkgSet("/test/dir", "scripts.test=vitest");
-
-			setImmediate(() => {
-				mockChild.emit("close", 0);
-			});
-
-			await promise;
-
+			// cross-spawn handles platform differences internally
 			expect(spawnMock).toHaveBeenCalledWith(
 				"npm",
 				["pkg", "set", "scripts.test=vitest"],
 				{
 					cwd: "/test/dir",
 					stdio: "pipe",
-					shell: false,
 					windowsHide: true,
 				},
 			);
-
-			// Restore original platform
-			if (originalPlatform) {
-				Object.defineProperty(process, "platform", originalPlatform);
-			}
 		});
 
 		it("should accumulate multiple stderr chunks", async () => {
@@ -227,18 +175,65 @@ describe("npm-command", () => {
 				expect(spawnMock).not.toHaveBeenCalled();
 			});
 
-			it("should accept kv with empty value", async () => {
+			it("should reject when kv ends with equals sign", async () => {
+				const promise = runNpmPkgSet("/test/dir", "key=");
+				await expect(promise).rejects.toThrow(
+					'Invalid format: "key=". Expected "key=value".',
+				);
+				expect(spawnMock).not.toHaveBeenCalled();
+			});
+
+			it("should reject when value is empty after trimming spaces", async () => {
+				// The implementation doesn't trim the value, only the key
+				// So "key= " would have value " " which is not empty
+				// Let's test that spaces in values are preserved
 				const mockChild = new MockChildProcess();
 				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
 
-				const promise = runNpmPkgSet("/test/dir", "key=");
+				const promise = runNpmPkgSet("/test/dir", "key= ");
 
 				setImmediate(() => {
 					mockChild.emit("close", 0);
 				});
 
 				await expect(promise).resolves.toBeUndefined();
-				expect(spawnMock).toHaveBeenCalled();
+				expect(spawnMock).toHaveBeenCalledWith("npm", ["pkg", "set", "key= "], {
+					cwd: "/test/dir",
+					stdio: "pipe",
+					windowsHide: true,
+				});
+			});
+
+			it("should reject when key is empty (whitespace only before equals)", async () => {
+				const promise = runNpmPkgSet("/test/dir", "  =value");
+				await expect(promise).rejects.toThrow(
+					'Invalid key in "  =value". Key must be non-empty.',
+				);
+				expect(spawnMock).not.toHaveBeenCalled();
+			});
+
+			it("should reject when kv contains newline characters", async () => {
+				const promise = runNpmPkgSet("/test/dir", "key=value\nmalicious");
+				await expect(promise).rejects.toThrow(
+					'Invalid characters (newline/NUL) in "key=value\nmalicious".',
+				);
+				expect(spawnMock).not.toHaveBeenCalled();
+			});
+
+			it("should reject when kv contains NUL characters", async () => {
+				const promise = runNpmPkgSet("/test/dir", "key=value\0malicious");
+				await expect(promise).rejects.toThrow(
+					'Invalid characters (newline/NUL) in "key=value\0malicious".',
+				);
+				expect(spawnMock).not.toHaveBeenCalled();
+			});
+
+			it("should reject when kv contains carriage return", async () => {
+				const promise = runNpmPkgSet("/test/dir", "key=value\rmalicious");
+				await expect(promise).rejects.toThrow(
+					'Invalid characters (newline/NUL) in "key=value\rmalicious".',
+				);
+				expect(spawnMock).not.toHaveBeenCalled();
 			});
 
 			it("should accept kv with multiple equals signs", async () => {

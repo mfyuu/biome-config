@@ -1,36 +1,52 @@
-import { spawn } from "node:child_process";
+import { spawn } from "cross-spawn";
 import ora from "ora";
 
 /**
- * Run npm pkg set command with proper Windows support
+ * Run npm pkg set command (cross-platform, CI-friendly).
+ * - Uses cross-spawn to avoid Windows .cmd quirks and quoting issues.
  */
 export function runNpmPkgSet(cwd: string, kv: string): Promise<void> {
-	// Minimal validation for early error detection
-	const eqIndex = kv.indexOf("=");
-	if (eqIndex <= 0) {
+	// Minimal-but-safe validation
+	const firstEq = kv.indexOf("=");
+	if (firstEq <= 0 || firstEq === kv.length - 1) {
 		return Promise.reject(
 			new Error(`Invalid format: "${kv}". Expected "key=value".`),
 		);
 	}
 
+	const key = kv.slice(0, firstEq).trim(); // prevent accidental " key"
+	const value = kv.slice(firstEq + 1); // keep as-is (spaces may be intentional)
+	if (key.length === 0) {
+		return Promise.reject(
+			new Error(`Invalid key in "${kv}". Key must be non-empty.`),
+		);
+	}
+	if (value.length === 0) {
+		return Promise.reject(
+			new Error(
+				`Invalid value in "${kv}". Value must be non-empty. If you meant to remove a field, use "npm pkg delete <key>".`,
+			),
+		);
+	}
+	// Hard block newline/NUL for safety across shells/CI
+	if (/[\r\n\0]/.test(kv)) {
+		return Promise.reject(
+			new Error(`Invalid characters (newline/NUL) in "${kv}".`),
+		);
+	}
+
+	// npm pkg set <key>=<value>
 	return new Promise((resolve, reject) => {
-		const isWindows = process.platform === "win32";
-		const npmCmd = isWindows ? "npm.cmd" : "npm";
-
-		// No additional quoting needed with shell:false
-		// Values with spaces or '=' are safely passed as single argument
-		const args = ["pkg", "set", kv];
-
-		const child = spawn(npmCmd, args, {
+		// cross-spawn handles npm(.cmd) resolution & quoting for us
+		const child = spawn("npm", ["pkg", "set", kv], {
 			cwd,
 			stdio: "pipe",
-			shell: false,
 			windowsHide: true,
 		});
 
 		let stderr = "";
 		child.stderr.on("data", (d) => {
-			stderr += d.toString();
+			stderr += String(d);
 		});
 
 		child.on("close", (code) => {
