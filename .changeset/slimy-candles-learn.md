@@ -2,19 +2,17 @@
 "@mfyuu/biome-config": patch
 ---
 
-Fix npm errors and enhance cross-platform compatibility
+Fix npm errors and enhance cross-platform compatibility with improved type safety
 
-- Prevent ENOENT errors when package.json is missing
+- Migrate from execSync to cross-spawn for reliable cross-platform execution
 - Add spinner animation during command execution with unified dots style
-- Switch to cross-spawn for reliable cross-platform support
-  - Automatically handles npm vs npm.cmd on Windows
-  - Proper argument escaping and quoting across all platforms
-  - Eliminates shell injection vulnerabilities
-- Add comprehensive input validation:
-  - Reject empty keys (after trimming)
-  - Reject commands ending with `=` (format validation)
-  - Block newline/carriage return/NUL characters for security
-  - Preserve intentional spaces in values
-- Use String() for safer Buffer-to-string conversion
+- Add comprehensive input validation for npm pkg set commands
+- Block newline/carriage return/NUL characters for security
+- Prevent ENOENT errors when package.json is missing
 - Capture stderr for detailed error messages
+- Add timeout support with graceful and forceful kill options
+- Remove all `any` type usage across the codebase
+- Add proper PackageJson interface with well-known fields
+- Implement type guards for ProjectType validation
+- Centralize package manager constants and options
 - Extract reusable npm-command utility module
