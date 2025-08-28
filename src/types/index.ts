@@ -14,6 +14,31 @@ export interface InitOptions {
 	lefthook?: boolean;
 }
 
+export interface PackageJson {
+	name?: string;
+	version?: string;
+	scripts?: Record<string, string>;
+	devDependencies?: Record<string, string>;
+	dependencies?: Record<string, string>;
+	type?: string;
+	main?: string;
+	bin?: string;
+	// Well-known package.json fields - add more as needed
+	description?: string;
+	keywords?: string[];
+	author?: string;
+	license?: string;
+	repository?: {
+		type: string;
+		url: string;
+	};
+	homepage?: string;
+	bugs?: {
+		url: string;
+		email?: string;
+	};
+}
+
 export type FormatterChoice = "biome-only" | "with-prettier";
 
 export type VSCodeSettingsResult =
@@ -30,7 +55,7 @@ export interface InitResult {
 
 export type TaskStatus = "success" | "error" | "skipped";
 
-export type TaskResultDetail = {
+type TaskResultDetail = {
 	status: TaskStatus;
 	message?: string;
 };

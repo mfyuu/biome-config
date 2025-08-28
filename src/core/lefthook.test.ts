@@ -2,6 +2,7 @@ import path from "node:path";
 import { vol } from "memfs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import * as fileUtils from "../utils/file";
+import * as npmCommand from "../utils/npm-command";
 import * as promptUtils from "../utils/prompt";
 import { addLefthookScript, createLefthookConfig } from "./lefthook";
 
@@ -11,12 +12,19 @@ vi.mock("node:fs/promises");
 vi.mock("../utils/logger");
 vi.mock("../utils/prompt");
 
-// Mock child_process
-vi.mock("node:child_process", () => ({
-	execSync: vi.fn(),
+// Mock npm-command module
+vi.mock("../utils/npm-command", () => ({
+	runNpmPkgSet: vi.fn(),
+	createSpinner: vi.fn(() => ({
+		start: vi.fn().mockReturnThis(),
+		succeed: vi.fn().mockReturnThis(),
+		fail: vi.fn().mockReturnThis(),
+	})),
 }));
 
 describe("lefthook", () => {
+	const runNpmPkgSetMock = vi.mocked(npmCommand.runNpmPkgSet);
+
 	beforeEach(() => {
 		// Mock getTemplatePath to return mock paths
 		vi.spyOn(fileUtils, "getTemplatePath").mockImplementation(
@@ -24,6 +32,7 @@ describe("lefthook", () => {
 				return path.join("/templates", templateName);
 			},
 		);
+		vi.clearAllMocks();
 	});
 
 	afterEach(() => {
@@ -193,48 +202,31 @@ describe("lefthook", () => {
 
 	describe("addLefthookScript", () => {
 		it("should add prepare script successfully", async () => {
-			const { execSync } = await import("node:child_process");
-			const execSyncMock = vi.mocked(execSync);
-
-			execSyncMock.mockReturnValue(Buffer.from(""));
+			runNpmPkgSetMock.mockResolvedValue(undefined);
 
 			const result = await addLefthookScript("/project");
 			expect(result).toBe("success");
-			expect(execSyncMock).toHaveBeenCalledWith(
-				'npm pkg set scripts.prepare="lefthook install"',
-				{
-					cwd: "/project",
-					stdio: "pipe",
-				},
+			expect(runNpmPkgSetMock).toHaveBeenCalledWith(
+				"/project",
+				"scripts.prepare=lefthook install",
 			);
 		});
 
-		it("should handle execSync error", async () => {
-			const { execSync } = await import("node:child_process");
-			const execSyncMock = vi.mocked(execSync);
-
-			execSyncMock.mockImplementation(() => {
-				throw new Error("Command failed");
-			});
+		it("should handle npm command error", async () => {
+			runNpmPkgSetMock.mockRejectedValue(new Error("Command failed"));
 
 			const result = await addLefthookScript("/project");
 			expect(result).toBe("error");
 		});
 
 		it("should work with nested directory structure", async () => {
-			const { execSync } = await import("node:child_process");
-			const execSyncMock = vi.mocked(execSync);
-
-			execSyncMock.mockReturnValue(Buffer.from(""));
+			runNpmPkgSetMock.mockResolvedValue(undefined);
 
 			const result = await addLefthookScript("/workspace/projects/myapp");
 			expect(result).toBe("success");
-			expect(execSyncMock).toHaveBeenCalledWith(
-				'npm pkg set scripts.prepare="lefthook install"',
-				{
-					cwd: "/workspace/projects/myapp",
-					stdio: "pipe",
-				},
+			expect(runNpmPkgSetMock).toHaveBeenCalledWith(
+				"/workspace/projects/myapp",
+				"scripts.prepare=lefthook install",
 			);
 		});
 	});

@@ -1,5 +1,5 @@
 import path from "node:path";
-import { MESSAGES, PATHS } from "../constants";
+import { MESSAGES, PATHS, VSCODE_SETTINGS_TEMPLATES } from "../constants";
 import type { FormatterChoice, VSCodeSettingsResult } from "../types";
 import {
 	copyFile,
@@ -27,8 +27,6 @@ export const createVSCodeSettings = async (
 		// Ask user if they want to overwrite
 		const shouldOverwrite = await promptOverwriteConfirmation();
 		if (!shouldOverwrite) {
-			logger.warning(MESSAGES.WARNING.FILE_EXISTS);
-			logger.warning(MESSAGES.WARNING.USE_FORCE);
 			return { type: "skipped" };
 		}
 		// User chose to overwrite, continue with the file creation
@@ -44,8 +42,8 @@ export const createVSCodeSettings = async (
 		// Select template based on formatter choice
 		const templateFileName =
 			selectedFormatter === "biome-only"
-				? "biome-only.json"
-				: "with-prettier.json";
+				? VSCODE_SETTINGS_TEMPLATES.BIOME_ONLY
+				: VSCODE_SETTINGS_TEMPLATES.WITH_PRETTIER;
 		const templatePath = getTemplatePath(
 			path.join(PATHS.VSCODE_DIR, templateFileName),
 		);

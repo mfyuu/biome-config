@@ -197,6 +197,8 @@ export const handleDependencies = async (
 			console.log();
 
 			try {
+				// Use execSync for package installation to preserve native package manager output
+				// (progress bars, colors, etc.) which users expect to see during installation
 				const { execSync } = await import("node:child_process");
 				// Execute each install command
 				for (const command of installCommands) {

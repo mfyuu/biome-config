@@ -9,9 +9,10 @@ export const PATHS = {
 	BIOME_FILE_JSONC: "biome.jsonc",
 	BIOME_TEMPLATES_DIR: "biome",
 } as const;
+
 export const VSCODE_SETTINGS_TEMPLATES = {
 	BIOME_ONLY: "biome-only.json",
-	WITH_PRETTIER: "biome-prettier.json",
+	WITH_PRETTIER: "with-prettier.json",
 } as const;
 
 export const MESSAGES = {
@@ -41,14 +42,14 @@ export const MESSAGES = {
 		FORMATTER_SELECTED: (choice: string) =>
 			`Selected formatter template: ${highlight.package(choice)}`,
 		SETUP_COMPLETE: "Biome configuration setup completed.",
+		LEFTHOOK_ALREADY_INSTALLED: `${highlight.package("lefthook")} is already installed.`,
+		INSTALLING_LEFTHOOK: `Installing ${highlight.package("lefthook")}...`,
+		LEFTHOOK_INSTALLED_SUCCESS: `${highlight.package("lefthook")} installed successfully!`,
 	},
 	WARNING: {
-		FILE_EXISTS: `${highlight.file(".vscode/settings.json")} already exists!`,
-		USE_FORCE: `Use ${highlight.option("--force")} to overwrite the existing file`,
 		PACKAGE_JSON_NOT_FOUND: `${highlight.file("package.json")} not found. Skipping dependency installation.`,
 		MULTIPLE_PACKAGE_MANAGERS:
 			"Multiple package managers specified, choose only one.",
-		BIOME_FILE_EXISTS: `${highlight.file("biome.json(c)")} already exists!`,
 		CONFLICTING_FORMATTER_FLAGS:
 			"Cannot use both --biome-only and --with-prettier flags together.",
 	},
@@ -60,6 +61,7 @@ export const MESSAGES = {
 		DEPS_INSTALL_FAILED: `Failed to add dependencies to ${highlight.file("package.json")}:`,
 		DEPS_INSTALL_EXEC_FAILED: "Failed to install dependencies:",
 		BIOME_CREATE_FAILED: `Failed to create ${highlight.file("biome.json(c)")}:`,
+		LEFTHOOK_INSTALL_FAILED: `Failed to install ${highlight.package("lefthook")}:`,
 	},
 } as const;
 
@@ -67,6 +69,33 @@ export const DEPENDENCIES = {
 	BIOME: "@biomejs/biome",
 	CONFIG: "@mfyuu/biome-config",
 	PRETTIER: "prettier",
+	LEFTHOOK: "lefthook",
+} as const;
+export const PACKAGE_MANAGERS = {
+	NPM: "npm",
+	YARN: "yarn",
+	PNPM: "pnpm",
+	BUN: "bun",
+} as const;
+
+export type PackageManager =
+	(typeof PACKAGE_MANAGERS)[keyof typeof PACKAGE_MANAGERS];
+
+export const LOCK_FILES = {
+	NPM: "package-lock.json",
+	YARN: "yarn.lock",
+	PNPM: "pnpm-lock.yaml",
+	BUN: "bun.lockb",
+} as const;
+
+export const INSTALL_OPTIONS = {
+	SAVE_DEV: "--save-dev",
+	SAVE_EXACT: "--save-exact",
+	DEV: "--dev",
+	EXACT: "--exact",
+	ADD: "add",
+	INSTALL: "install",
+	EXEC: "exec",
 } as const;
 
 export const PROJECT_TYPES = {

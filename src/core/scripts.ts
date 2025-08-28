@@ -1,29 +1,27 @@
-import { logger } from "../utils/logger";
+import { createSpinner, runNpmPkgSet } from "../utils/npm-command";
 
 export const addBiomeScripts = async (
 	baseDir: string,
 ): Promise<"success" | "error"> => {
-	try {
-		const { execSync } = await import("node:child_process");
+	const spinner = createSpinner().start();
 
+	try {
 		const scripts = [
-			'scripts.format="biome format --write"',
-			'scripts.lint="biome lint"',
-			'scripts.lint-fix="biome lint --write"',
-			'scripts.check="biome check --write"',
+			"scripts.format=biome format --write",
+			"scripts.lint=biome lint",
+			"scripts.lint-fix=biome lint --write",
+			"scripts.check=biome check --write",
 		];
 
-		for (const script of scripts) {
-			execSync(`npm pkg set ${script}`, {
-				cwd: baseDir,
-				stdio: "pipe",
-			});
+		for (const kv of scripts) {
+			await runNpmPkgSet(baseDir, kv);
 		}
 
-		logger.success("Added Biome dev scripts.");
+		spinner.succeed("Added Biome dev scripts.");
 		return "success";
-	} catch {
-		logger.warning("Failed to add Biome scripts to package.json.");
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : String(err);
+		spinner.fail(`Failed to add Biome scripts to package.json. ${msg}`);
 		return "error";
 	}
 };

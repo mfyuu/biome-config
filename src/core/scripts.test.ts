@@ -1,5 +1,6 @@
 import { vol } from "memfs";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import * as npmCommand from "../utils/npm-command";
 import { addBiomeScripts } from "./scripts";
 
 // Mock fs modules using memfs
@@ -9,15 +10,22 @@ vi.mock("node:fs/promises");
 // Mock logger
 vi.mock("../utils/logger");
 
-const execSyncMock = vi.fn();
-vi.mock("node:child_process", () => ({
-	execSync: execSyncMock,
+// Mock npm-command module
+vi.mock("../utils/npm-command", () => ({
+	runNpmPkgSet: vi.fn(),
+	createSpinner: vi.fn(() => ({
+		start: vi.fn().mockReturnThis(),
+		succeed: vi.fn().mockReturnThis(),
+		fail: vi.fn().mockReturnThis(),
+	})),
 }));
 
 describe("scripts", () => {
+	const runNpmPkgSetMock = vi.mocked(npmCommand.runNpmPkgSet);
+
 	beforeEach(() => {
 		vi.spyOn(console, "log").mockImplementation(() => {});
-		execSyncMock.mockReset();
+		vi.clearAllMocks();
 	});
 
 	afterEach(() => {
@@ -34,40 +42,30 @@ describe("scripts", () => {
 				}),
 			});
 
+			runNpmPkgSetMock.mockResolvedValue(undefined);
+
 			await addBiomeScripts("/project");
 
-			expect(execSyncMock).toHaveBeenCalledTimes(4);
-			expect(execSyncMock).toHaveBeenCalledWith(
-				'npm pkg set scripts.format="biome format --write"',
-				{
-					cwd: "/project",
-					stdio: "pipe",
-				},
+			expect(runNpmPkgSetMock).toHaveBeenCalledTimes(4);
+			expect(runNpmPkgSetMock).toHaveBeenCalledWith(
+				"/project",
+				"scripts.format=biome format --write",
 			);
-			expect(execSyncMock).toHaveBeenCalledWith(
-				'npm pkg set scripts.lint="biome lint"',
-				{
-					cwd: "/project",
-					stdio: "pipe",
-				},
+			expect(runNpmPkgSetMock).toHaveBeenCalledWith(
+				"/project",
+				"scripts.lint=biome lint",
 			);
-			expect(execSyncMock).toHaveBeenCalledWith(
-				'npm pkg set scripts.lint-fix="biome lint --write"',
-				{
-					cwd: "/project",
-					stdio: "pipe",
-				},
+			expect(runNpmPkgSetMock).toHaveBeenCalledWith(
+				"/project",
+				"scripts.lint-fix=biome lint --write",
 			);
-			expect(execSyncMock).toHaveBeenCalledWith(
-				'npm pkg set scripts.check="biome check --write"',
-				{
-					cwd: "/project",
-					stdio: "pipe",
-				},
+			expect(runNpmPkgSetMock).toHaveBeenCalledWith(
+				"/project",
+				"scripts.check=biome check --write",
 			);
 		});
 
-		it("should handle execSync errors gracefully", async () => {
+		it("should handle errors gracefully", async () => {
 			vol.fromJSON({
 				"/project/package.json": JSON.stringify({
 					name: "test-project",
@@ -75,12 +73,11 @@ describe("scripts", () => {
 				}),
 			});
 
-			execSyncMock.mockImplementation(() => {
-				throw new Error("Command failed");
-			});
+			runNpmPkgSetMock.mockRejectedValue(new Error("Command failed"));
 
-			// Should not throw
-			await expect(addBiomeScripts("/project")).resolves.not.toThrow();
+			// Should return "error" instead of throwing
+			const result = await addBiomeScripts("/project");
+			expect(result).toBe("error");
 		});
 
 		it("should work with existing scripts", async () => {
@@ -94,9 +91,11 @@ describe("scripts", () => {
 				}),
 			});
 
+			runNpmPkgSetMock.mockResolvedValue(undefined);
+
 			await addBiomeScripts("/project");
 
-			expect(execSyncMock).toHaveBeenCalledTimes(4);
+			expect(runNpmPkgSetMock).toHaveBeenCalledTimes(4);
 		});
 
 		it("should work when package.json does not exist", async () => {
@@ -104,11 +103,13 @@ describe("scripts", () => {
 				"/project/.gitignore": "node_modules",
 			});
 
+			runNpmPkgSetMock.mockResolvedValue(undefined);
+
 			// Should not throw even if package.json doesn't exist
 			await expect(addBiomeScripts("/project")).resolves.not.toThrow();
 
 			// Should still attempt to run commands
-			expect(execSyncMock).toHaveBeenCalledTimes(4);
+			expect(runNpmPkgSetMock).toHaveBeenCalledTimes(4);
 		});
 	});
 });

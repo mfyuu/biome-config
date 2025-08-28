@@ -1,12 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { PROJECT_TYPES, type ProjectType } from "../constants";
-
-type PackageJson = {
-	devDependencies?: Record<string, string>;
-	dependencies?: Record<string, string>;
-	[key: string]: unknown;
-};
+import type { PackageJson } from "../types";
 
 export const readUserPackageJson = (cwd: string): PackageJson | null => {
 	const packageJsonPath = path.join(cwd, "package.json");
@@ -15,7 +10,8 @@ export const readUserPackageJson = (cwd: string): PackageJson | null => {
 	}
 	try {
 		const content = fs.readFileSync(packageJsonPath, "utf-8");
-		return JSON.parse(content) as PackageJson;
+		const parsed: PackageJson = JSON.parse(content);
+		return parsed;
 	} catch {
 		return null;
 	}

@@ -1,7 +1,7 @@
-import { execSync } from "node:child_process";
 import path from "node:path";
 import { copyFile, fileExists, getTemplatePath } from "../utils/file";
 import { logger } from "../utils/logger";
+import { createSpinner, runNpmPkgSet } from "../utils/npm-command";
 import type { PackageManager } from "../utils/package-manager";
 import { promptOverwriteLefthook } from "../utils/prompt";
 
@@ -51,16 +51,16 @@ export const createLefthookConfig = async (
 export const addLefthookScript = async (
 	baseDir: string,
 ): Promise<"success" | "error"> => {
-	try {
-		execSync('npm pkg set scripts.prepare="lefthook install"', {
-			cwd: baseDir,
-			stdio: "pipe",
-		});
+	const spinner = createSpinner().start();
 
-		logger.success("Added lefthook prepare script");
+	try {
+		await runNpmPkgSet(baseDir, "scripts.prepare=lefthook install");
+
+		spinner.succeed("Added lefthook prepare script");
 		return "success";
-	} catch {
-		logger.warning("Failed to add lefthook script to package.json");
+	} catch (err) {
+		const msg = err instanceof Error ? err.message : String(err);
+		spinner.fail(`Failed to add lefthook script to package.json. ${msg}`);
 		return "error";
 	}
 };
