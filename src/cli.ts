@@ -2,7 +2,7 @@
 
 import { Command } from "commander";
 import { initSettingsFile } from "./commands/init";
-import { EXIT_CODES } from "./constants";
+import { EXIT_CODES, PROJECT_TYPES, type ProjectType } from "./constants";
 import { readPackageJson } from "./utils/file";
 
 type CliOptions = {
@@ -13,13 +13,17 @@ type CliOptions = {
 	useYarn?: boolean;
 	usePnpm?: boolean;
 	useBun?: boolean;
-	type?: "base" | "react" | "next";
+	type?: ProjectType;
 	biomeOnly?: boolean;
 	withPrettier?: boolean;
 	lefthook?: boolean;
 };
 
-const packageJson = readPackageJson() as { version: string };
+const packageJson = readPackageJson();
+
+if (!packageJson.version) {
+	throw new Error("Package version is missing in package.json");
+}
 
 const program = new Command();
 
@@ -41,10 +45,15 @@ program
 		"--type <type>",
 		"configuration type (base, react, next)",
 		(value) => {
-			if (!["base", "react", "next"].includes(value)) {
+			const validTypes = Object.values(PROJECT_TYPES);
+			// Type guard function
+			const isProjectType = (val: string): val is ProjectType =>
+				validTypes.includes(val as ProjectType);
+
+			if (!isProjectType(value)) {
 				throw new Error(`Invalid type: ${value}`);
 			}
-			return value as "base" | "react" | "next";
+			return value;
 		},
 	)
 	.action(async (options: CliOptions) => {

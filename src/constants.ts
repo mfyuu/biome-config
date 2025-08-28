@@ -9,9 +9,10 @@ export const PATHS = {
 	BIOME_FILE_JSONC: "biome.jsonc",
 	BIOME_TEMPLATES_DIR: "biome",
 } as const;
+
 export const VSCODE_SETTINGS_TEMPLATES = {
 	BIOME_ONLY: "biome-only.json",
-	WITH_PRETTIER: "biome-prettier.json",
+	WITH_PRETTIER: "with-prettier.json",
 } as const;
 
 export const MESSAGES = {
@@ -68,6 +69,32 @@ export const DEPENDENCIES = {
 	CONFIG: "@mfyuu/biome-config",
 	PRETTIER: "prettier",
 } as const;
+export const PACKAGE_MANAGERS = {
+	NPM: "npm",
+	YARN: "yarn",
+	PNPM: "pnpm",
+	BUN: "bun",
+} as const;
+
+export type PackageManager =
+	(typeof PACKAGE_MANAGERS)[keyof typeof PACKAGE_MANAGERS];
+
+export const LOCK_FILES = {
+	NPM: "package-lock.json",
+	YARN: "yarn.lock",
+	PNPM: "pnpm-lock.yaml",
+	BUN: "bun.lockb",
+} as const;
+
+export const INSTALL_OPTIONS = {
+	SAVE_DEV: "--save-dev",
+	SAVE_EXACT: "--save-exact",
+	DEV: "--dev",
+	EXACT: "--exact",
+	ADD: "add",
+	INSTALL: "install",
+	EXEC: "exec",
+} as const;
 
 export const PROJECT_TYPES = {
 	BASE: "base",
@@ -83,7 +110,7 @@ export const PROJECT_TYPE_DESCRIPTIONS: Record<ProjectType, string> = {
 	[PROJECT_TYPES.NEXT]: "Next.js applications",
 } as const;
 
-const FILE_EXTENSIONS = {
+export const FILE_EXTENSIONS = {
 	JSON: ".json",
 	JSONC: ".jsonc",
 } as const;

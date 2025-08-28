@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { PATHS } from "../constants";
+import type { PackageJson } from "../types";
 
 const getRootDir = (): string => {
 	const currentFileUrl = import.meta.url;
@@ -11,13 +12,15 @@ const getRootDir = (): string => {
 	return path.resolve(currentDir, "..");
 };
 
-export const readPackageJson = (): unknown => {
+export const readPackageJson = (): PackageJson => {
 	const packageJsonPath = path.join(getRootDir(), "package.json");
-	return JSON.parse(fs.readFileSync(packageJsonPath, "utf-8"));
+	const content = fs.readFileSync(packageJsonPath, "utf-8");
+	const parsed: PackageJson = JSON.parse(content);
+	return parsed;
 };
 
 export const getTemplatePath = (templateName: string): string => {
-	return path.join(getRootDir(), "templates", templateName);
+	return path.join(getRootDir(), PATHS.TEMPLATES_DIR, templateName);
 };
 
 export const fileExists = (filePath: string): boolean => {
