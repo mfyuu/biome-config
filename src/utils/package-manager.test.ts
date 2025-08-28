@@ -5,6 +5,7 @@ import {
 	detectAndSelectPackageManager,
 	detectPackageManager,
 	getInstallCommand,
+	getLefthookInstallCommand,
 	validatePackageManagerChoice,
 } from "./package-manager";
 import { promptPackageManager } from "./prompt";
@@ -188,6 +189,40 @@ describe("package-manager", () => {
 		it("should handle empty package list", () => {
 			const result = getInstallCommand("npm", []);
 			expect(result).toEqual([]);
+		});
+	});
+
+	describe("getLefthookInstallCommand", () => {
+		it("should return correct command structure for npm", () => {
+			const result = getLefthookInstallCommand("npm");
+			expect(result).toEqual({
+				command: "npx",
+				args: ["lefthook", "install"],
+			});
+		});
+
+		it("should return correct command structure for yarn", () => {
+			const result = getLefthookInstallCommand("yarn");
+			expect(result).toEqual({
+				command: "yarn",
+				args: ["exec", "lefthook", "install"],
+			});
+		});
+
+		it("should return correct command structure for pnpm", () => {
+			const result = getLefthookInstallCommand("pnpm");
+			expect(result).toEqual({
+				command: "pnpm",
+				args: ["exec", "lefthook", "install"],
+			});
+		});
+
+		it("should return correct command structure for bun", () => {
+			const result = getLefthookInstallCommand("bun");
+			expect(result).toEqual({
+				command: "bunx",
+				args: ["--bun", "lefthook", "install"],
+			});
 		});
 	});
 

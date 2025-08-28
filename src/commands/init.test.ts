@@ -1,4 +1,3 @@
-import { execSync } from "node:child_process";
 import { vol } from "memfs";
 import {
 	afterEach,
@@ -19,6 +18,7 @@ import * as vscodeSettings from "../core/vscode-settings";
 import type { InitOptions } from "../types/index";
 import * as git from "../utils/git";
 import { logger } from "../utils/logger";
+import { runCommand } from "../utils/npm-command";
 import * as packageManager from "../utils/package-manager";
 import * as prompt from "../utils/prompt";
 import { initSettingsFile } from "./init";
@@ -42,9 +42,14 @@ vi.mock("../utils/logger", () => ({
 	},
 }));
 
-// Mock execSync for lefthook install
-vi.mock("node:child_process", () => ({
-	execSync: vi.fn(),
+// Mock npm-command utilities
+vi.mock("../utils/npm-command", () => ({
+	runCommand: vi.fn().mockResolvedValue(undefined),
+	createSpinner: vi.fn(() => ({
+		start: vi.fn(),
+		succeed: vi.fn(),
+		fail: vi.fn(),
+	})),
 }));
 
 vi.mock("../core/summary", () => ({
@@ -811,10 +816,11 @@ describe("init", () => {
 				undefined,
 			);
 			expect(addLefthookScriptSpy).toHaveBeenCalledWith("/test-project");
-			expect(execSync).toHaveBeenCalledWith("npx lefthook install", {
-				cwd: "/test-project",
-				stdio: "pipe",
-			});
+			expect(runCommand).toHaveBeenCalledWith(
+				"npx",
+				["lefthook", "install"],
+				"/test-project",
+			);
 			expect(logger.hooksSync).toHaveBeenCalled();
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -849,10 +855,11 @@ describe("init", () => {
 				"pnpm",
 				undefined,
 			);
-			expect(execSync).toHaveBeenCalledWith("pnpm exec lefthook install", {
-				cwd: "/test-project",
-				stdio: "pipe",
-			});
+			expect(runCommand).toHaveBeenCalledWith(
+				"pnpm",
+				["exec", "lefthook", "install"],
+				"/test-project",
+			);
 			expect(logger.hooksSync).toHaveBeenCalled();
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -979,10 +986,11 @@ describe("init", () => {
 				"npm",
 				true,
 			);
-			expect(execSync).toHaveBeenCalledWith("npx lefthook install", {
-				cwd: "/test-project",
-				stdio: "pipe",
-			});
+			expect(runCommand).toHaveBeenCalledWith(
+				"npx",
+				["lefthook", "install"],
+				"/test-project",
+			);
 			expect(logger.hooksSync).toHaveBeenCalled();
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
 				expect.objectContaining({
@@ -1040,10 +1048,11 @@ describe("init", () => {
 				"npm",
 				undefined,
 			);
-			expect(execSync).toHaveBeenCalledWith("npx lefthook install", {
-				cwd: "/test-project",
-				stdio: "pipe",
-			});
+			expect(runCommand).toHaveBeenCalledWith(
+				"npx",
+				["lefthook", "install"],
+				"/test-project",
+			);
 			expect(logger.hooksSync).toHaveBeenCalled();
 		});
 
@@ -1071,10 +1080,11 @@ describe("init", () => {
 				"yarn",
 				undefined,
 			);
-			expect(execSync).toHaveBeenCalledWith("yarn exec lefthook install", {
-				cwd: "/test-project",
-				stdio: "pipe",
-			});
+			expect(runCommand).toHaveBeenCalledWith(
+				"yarn",
+				["exec", "lefthook", "install"],
+				"/test-project",
+			);
 		});
 
 		it("should use pnpm exec for pnpm package manager", async () => {
@@ -1101,10 +1111,11 @@ describe("init", () => {
 				"pnpm",
 				undefined,
 			);
-			expect(execSync).toHaveBeenCalledWith("pnpm exec lefthook install", {
-				cwd: "/test-project",
-				stdio: "pipe",
-			});
+			expect(runCommand).toHaveBeenCalledWith(
+				"pnpm",
+				["exec", "lefthook", "install"],
+				"/test-project",
+			);
 		});
 
 		it("should use bunx for bun package manager", async () => {
@@ -1131,10 +1142,11 @@ describe("init", () => {
 				"bun",
 				undefined,
 			);
-			expect(execSync).toHaveBeenCalledWith("bunx --bun lefthook install", {
-				cwd: "/test-project",
-				stdio: "pipe",
-			});
+			expect(runCommand).toHaveBeenCalledWith(
+				"bunx",
+				["--bun", "lefthook", "install"],
+				"/test-project",
+			);
 		});
 
 		it("should prompt for lefthook overwrite when file exists and no force flag", async () => {

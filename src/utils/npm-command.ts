@@ -2,6 +2,16 @@ import { spawn } from "cross-spawn";
 import ora from "ora";
 
 /**
+ * Options for running a command
+ */
+type CommandOptions = {
+	/** Timeout in milliseconds (default: 30000) */
+	timeout?: number;
+	/** Whether to suppress stdout output (default: true) */
+	silent?: boolean;
+};
+
+/**
  * Run npm pkg set command (cross-platform, CI-friendly).
  * - Uses cross-spawn to avoid Windows .cmd quirks and quoting issues.
  */
@@ -65,5 +75,108 @@ export function createSpinner(text = "Working...") {
 	return ora({
 		text,
 		spinner: "dots",
+	});
+}
+
+/**
+ * Run a command using cross-spawn (cross-platform, CI-friendly).
+ * This is a generic version for running any command.
+ *
+ * @param command - The command to execute
+ * @param args - Arguments for the command
+ * @param cwd - Working directory
+ * @param options - Optional configuration for timeout and output handling
+ */
+export function runCommand(
+	command: string,
+	args: string[],
+	cwd: string,
+	options?: CommandOptions,
+): Promise<void> {
+	const { timeout = 30000, silent = true } = options || {};
+
+	return new Promise((resolve, reject) => {
+		const child = spawn(command, args, {
+			cwd,
+			stdio: silent ? "pipe" : ["inherit", "inherit", "pipe"],
+			windowsHide: true,
+		});
+
+		let stderr = "";
+		let timeoutId: NodeJS.Timeout | undefined;
+		let forceKillTimeoutId: NodeJS.Timeout | undefined;
+		let isSettled = false;
+		let timedOut = false;
+
+		const cleanup = () => {
+			if (timeoutId) {
+				clearTimeout(timeoutId);
+				timeoutId = undefined;
+			}
+			if (forceKillTimeoutId) {
+				clearTimeout(forceKillTimeoutId);
+				forceKillTimeoutId = undefined;
+			}
+		};
+
+		const settle = (settler: () => void) => {
+			if (!isSettled) {
+				isSettled = true;
+				cleanup();
+				settler();
+			}
+		};
+
+		// Set up timeout
+		if (timeout > 0) {
+			timeoutId = setTimeout(() => {
+				if (isSettled) return; // Already completed
+
+				timedOut = true;
+				child.kill("SIGTERM");
+				// Force kill if it doesn't terminate gracefully
+				forceKillTimeoutId = setTimeout(() => {
+					if (!isSettled && child.exitCode === null) {
+						child.kill("SIGKILL");
+					}
+				}, 5000);
+			}, timeout);
+		}
+
+		// Only capture stderr since stdout might be inherited
+		if (child.stderr) {
+			child.stderr.on("data", (d) => {
+				stderr += String(d);
+			});
+		}
+
+		child.on("close", (code) => {
+			if (timedOut) {
+				settle(() =>
+					reject(
+						new Error(
+							`Command timed out after ${timeout}ms: ${command} ${args.join(" ")}`,
+						),
+					),
+				);
+			} else if (code === 0) {
+				settle(() => resolve());
+			} else {
+				settle(() =>
+					reject(
+						new Error(
+							stderr.trim() ||
+								`Command failed with exit code ${code}: ${command} ${args.join(" ")}`,
+						),
+					),
+				);
+			}
+		});
+
+		child.on("error", (err) => {
+			if (!timedOut) {
+				settle(() => reject(err));
+			}
+		});
 	});
 }

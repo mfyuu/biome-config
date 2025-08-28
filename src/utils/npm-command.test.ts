@@ -3,7 +3,7 @@ import { EventEmitter } from "node:events";
 import type { Readable, Writable } from "node:stream";
 import { spawn } from "cross-spawn";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { createSpinner, runNpmPkgSet } from "./npm-command";
+import { createSpinner, runCommand, runNpmPkgSet } from "./npm-command";
 
 // Mock cross-spawn
 vi.mock("cross-spawn", () => ({
@@ -29,6 +29,7 @@ class MockChildProcess extends EventEmitter {
 	killed = false;
 	exitCode: number | null = null;
 	signalCode: NodeJS.Signals | null = null;
+	kill = vi.fn(() => true);
 }
 
 describe("npm-command", () => {
@@ -268,6 +269,328 @@ describe("npm-command", () => {
 
 				await expect(promise).resolves.toBeUndefined();
 				expect(spawnMock).toHaveBeenCalled();
+			});
+		});
+	});
+
+	describe("runCommand", () => {
+		it("should execute command successfully", async () => {
+			const mockChild = new MockChildProcess();
+			spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+			const promise = runCommand("echo", ["test"], "/test");
+
+			// Simulate successful completion
+			setImmediate(() => {
+				mockChild.emit("close", 0);
+			});
+
+			await expect(promise).resolves.toBeUndefined();
+
+			expect(spawnMock).toHaveBeenCalledWith("echo", ["test"], {
+				cwd: "/test",
+				stdio: "pipe",
+				windowsHide: true,
+			});
+		});
+
+		it("should reject on non-zero exit code with stderr", async () => {
+			const mockChild = new MockChildProcess();
+			spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+			const promise = runCommand("failing-cmd", ["arg"], "/test");
+
+			// Simulate stderr and failure
+			setImmediate(() => {
+				(mockChild.stderr as EventEmitter).emit(
+					"data",
+					Buffer.from("error message"),
+				);
+				mockChild.emit("close", 1);
+			});
+
+			await expect(promise).rejects.toThrow("error message");
+		});
+
+		it("should reject with fallback message when stderr is empty", async () => {
+			const mockChild = new MockChildProcess();
+			spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+			const promise = runCommand("cmd", ["arg1", "arg2"], "/test");
+
+			// Simulate failure without stderr
+			setImmediate(() => {
+				mockChild.emit("close", 1);
+			});
+
+			await expect(promise).rejects.toThrow(
+				"Command failed with exit code 1: cmd arg1 arg2",
+			);
+		});
+
+		it("should reject on spawn error", async () => {
+			const mockChild = new MockChildProcess();
+			spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+			const promise = runCommand("bad-cmd", [], "/test");
+
+			// Simulate spawn error
+			setImmediate(() => {
+				mockChild.emit("error", new Error("spawn error"));
+			});
+
+			await expect(promise).rejects.toThrow("spawn error");
+		});
+
+		it("should accumulate multiple stderr chunks", async () => {
+			const mockChild = new MockChildProcess();
+			spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+			const promise = runCommand("cmd", [], "/test");
+
+			setImmediate(() => {
+				(mockChild.stderr as EventEmitter).emit("data", Buffer.from("Error: "));
+				(mockChild.stderr as EventEmitter).emit(
+					"data",
+					Buffer.from("Command "),
+				);
+				(mockChild.stderr as EventEmitter).emit("data", Buffer.from("failed"));
+				mockChild.emit("close", 1);
+			});
+
+			await expect(promise).rejects.toThrow("Error: Command failed");
+		});
+
+		it("should handle commands with complex arguments", async () => {
+			const mockChild = new MockChildProcess();
+			spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+			const promise = runCommand(
+				"git",
+				["commit", "-m", "feat: add new feature with spaces"],
+				"/test",
+			);
+
+			setImmediate(() => {
+				mockChild.emit("close", 0);
+			});
+
+			await expect(promise).resolves.toBeUndefined();
+
+			expect(spawnMock).toHaveBeenCalledWith(
+				"git",
+				["commit", "-m", "feat: add new feature with spaces"],
+				{
+					cwd: "/test",
+					stdio: "pipe",
+					windowsHide: true,
+				},
+			);
+		});
+
+		describe("with timeout option", () => {
+			beforeEach(() => {
+				vi.useFakeTimers();
+			});
+
+			afterEach(() => {
+				vi.clearAllTimers();
+				vi.useRealTimers();
+			});
+
+			it("should timeout after specified duration", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runCommand("slow-cmd", [], "/test", { timeout: 1000 });
+
+				// Fast-forward time to trigger timeout
+				await vi.advanceTimersByTimeAsync(1000);
+
+				// Simulate process termination after being killed
+				mockChild.emit("close", -1);
+
+				await expect(promise).rejects.toThrow(
+					"Command timed out after 1000ms: slow-cmd",
+				);
+
+				expect(mockChild.kill).toHaveBeenCalledWith("SIGTERM");
+			});
+
+			it("should force kill if process doesn't terminate gracefully", async () => {
+				const mockChild = new MockChildProcess();
+				mockChild.exitCode = null; // Process still running
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runCommand("stubborn-cmd", [], "/test", {
+					timeout: 1000,
+				});
+
+				// Fast-forward to trigger timeout
+				await vi.advanceTimersByTimeAsync(1000);
+				expect(mockChild.kill).toHaveBeenCalledWith("SIGTERM");
+
+				// Fast-forward to trigger force kill
+				await vi.advanceTimersByTimeAsync(5000);
+				expect(mockChild.kill).toHaveBeenCalledWith("SIGKILL");
+
+				// Simulate process finally terminating after SIGKILL
+				mockChild.emit("close", -1);
+
+				await expect(promise).rejects.toThrow(
+					"Command timed out after 1000ms: stubborn-cmd",
+				);
+			});
+
+			it("should clear timeout on successful completion", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runCommand("fast-cmd", [], "/test", { timeout: 5000 });
+
+				// Complete before timeout
+				process.nextTick(() => {
+					mockChild.emit("close", 0);
+				});
+
+				await expect(promise).resolves.toBeUndefined();
+				expect(mockChild.kill).not.toHaveBeenCalled();
+			});
+
+			it("should clear timeout on error", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runCommand("error-cmd", [], "/test", { timeout: 5000 });
+
+				// Error before timeout
+				process.nextTick(() => {
+					mockChild.emit("error", new Error("spawn error"));
+				});
+
+				await expect(promise).rejects.toThrow("spawn error");
+				expect(mockChild.kill).not.toHaveBeenCalled();
+			});
+
+			it("should work with timeout disabled (0 or negative)", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runCommand("cmd", [], "/test", { timeout: 0 });
+
+				// Wait longer than default timeout
+				await vi.advanceTimersByTimeAsync(60000);
+
+				// Should still be pending, complete it
+				process.nextTick(() => {
+					mockChild.emit("close", 0);
+				});
+				await vi.runOnlyPendingTimersAsync();
+
+				await expect(promise).resolves.toBeUndefined();
+				expect(mockChild.kill).not.toHaveBeenCalled();
+			});
+		});
+
+		describe("with silent option", () => {
+			it("should use pipe stdio when silent is true", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runCommand("cmd", [], "/test", { silent: true });
+
+				setImmediate(() => {
+					mockChild.emit("close", 0);
+				});
+
+				await expect(promise).resolves.toBeUndefined();
+
+				expect(spawnMock).toHaveBeenCalledWith("cmd", [], {
+					cwd: "/test",
+					stdio: "pipe",
+					windowsHide: true,
+				});
+			});
+
+			it("should inherit stdout/stdin when silent is false", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runCommand("cmd", [], "/test", { silent: false });
+
+				setImmediate(() => {
+					mockChild.emit("close", 0);
+				});
+
+				await expect(promise).resolves.toBeUndefined();
+
+				expect(spawnMock).toHaveBeenCalledWith("cmd", [], {
+					cwd: "/test",
+					stdio: ["inherit", "inherit", "pipe"],
+					windowsHide: true,
+				});
+			});
+
+			it("should use default silent value (true) when not specified", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runCommand("cmd", [], "/test");
+
+				setImmediate(() => {
+					mockChild.emit("close", 0);
+				});
+
+				await expect(promise).resolves.toBeUndefined();
+
+				expect(spawnMock).toHaveBeenCalledWith("cmd", [], {
+					cwd: "/test",
+					stdio: "pipe",
+					windowsHide: true,
+				});
+			});
+
+			it("should still capture stderr when silent is false", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runCommand("failing-cmd", [], "/test", {
+					silent: false,
+				});
+
+				setImmediate(() => {
+					(mockChild.stderr as EventEmitter).emit(
+						"data",
+						Buffer.from("error output"),
+					);
+					mockChild.emit("close", 1);
+				});
+
+				await expect(promise).rejects.toThrow("error output");
+			});
+		});
+
+		describe("with combined options", () => {
+			it("should work with both timeout and silent options", async () => {
+				const mockChild = new MockChildProcess();
+				spawnMock.mockReturnValue(mockChild as unknown as ChildProcess);
+
+				const promise = runCommand("cmd", ["arg"], "/test", {
+					timeout: 2000,
+					silent: false,
+				});
+
+				setImmediate(() => {
+					mockChild.emit("close", 0);
+				});
+
+				await expect(promise).resolves.toBeUndefined();
+
+				expect(spawnMock).toHaveBeenCalledWith("cmd", ["arg"], {
+					cwd: "/test",
+					stdio: ["inherit", "inherit", "pipe"],
+					windowsHide: true,
+				});
 			});
 		});
 	});

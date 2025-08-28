@@ -30,7 +30,7 @@ export interface InitResult {
 
 export type TaskStatus = "success" | "error" | "skipped";
 
-export type TaskResultDetail = {
+type TaskResultDetail = {
 	status: TaskStatus;
 	message?: string;
 };

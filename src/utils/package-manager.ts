@@ -3,6 +3,10 @@ import path from "node:path";
 import { promptPackageManager } from "./prompt";
 
 export type PackageManager = "npm" | "yarn" | "pnpm" | "bun";
+type CommandStructure = {
+	command: string;
+	args: string[];
+};
 
 type LockFile = {
 	name: string;
@@ -123,20 +127,18 @@ export const getInstallCommand = (
 	return commands;
 };
 
-const LEFTHOOK_INSTALL_COMMAND = "lefthook install";
-
 export const getLefthookInstallCommand = (
 	packageManager: PackageManager,
-): string => {
+): CommandStructure => {
 	switch (packageManager) {
 		case "npm":
-			return `npx ${LEFTHOOK_INSTALL_COMMAND}`;
+			return { command: "npx", args: ["lefthook", "install"] };
 		case "yarn":
-			return `yarn exec ${LEFTHOOK_INSTALL_COMMAND}`;
+			return { command: "yarn", args: ["exec", "lefthook", "install"] };
 		case "pnpm":
-			return `pnpm exec ${LEFTHOOK_INSTALL_COMMAND}`;
+			return { command: "pnpm", args: ["exec", "lefthook", "install"] };
 		case "bun":
-			return `bunx --bun ${LEFTHOOK_INSTALL_COMMAND}`;
+			return { command: "bunx", args: ["--bun", "lefthook", "install"] };
 		default:
 			return packageManager satisfies never;
 	}

@@ -1,4 +1,3 @@
-import { execSync } from "node:child_process";
 import path from "node:path";
 import { MESSAGES } from "../constants";
 import {
@@ -14,6 +13,7 @@ import type { InitOptions, InitResult, TaskResult } from "../types/index";
 import { fileExists } from "../utils/file";
 import { findGitRoot } from "../utils/git";
 import { logger } from "../utils/logger";
+import { createSpinner, runCommand } from "../utils/npm-command";
 import {
 	detectPackageManager,
 	getLefthookInstallCommand,
@@ -214,15 +214,22 @@ export const initSettingsFile = async (
 					tasks.lefthook = { status: "error", message: "script failed" };
 				} else if (scriptResult === "success") {
 					// Execute lefthook install to set up Git hooks
+					const spinner = createSpinner("Installing Git hooks...");
 					try {
-						const installCommand = getLefthookInstallCommand(packageManager);
-						execSync(installCommand, {
-							cwd: baseDir,
-							stdio: "pipe",
-						});
+						const { command, args } = getLefthookInstallCommand(packageManager);
+
+						spinner.start();
+						await runCommand(command, args, baseDir);
+						spinner.succeed("Git hooks installed");
 						logger.hooksSync();
-					} catch {
-						logger.warning("Failed to install Git hooks automatically");
+					} catch (error) {
+						spinner.fail("Failed to install Git hooks");
+						logger.warning(
+							"Please run 'lefthook install' manually to set up Git hooks",
+						);
+						if (error instanceof Error) {
+							logger.warning(`Details: ${error.message}`);
+						}
 					}
 				}
 			}
