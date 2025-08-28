@@ -19,6 +19,7 @@ import type { InitOptions } from "../types/index";
 import * as git from "../utils/git";
 import { logger } from "../utils/logger";
 import { runCommand } from "../utils/npm-command";
+import * as packageUtils from "../utils/package";
 import * as packageManager from "../utils/package-manager";
 import * as prompt from "../utils/prompt";
 import { initSettingsFile } from "./init";
@@ -58,6 +59,12 @@ vi.mock("../core/summary", () => ({
 
 vi.mock("../utils/prompt");
 vi.mock("../core/lefthook");
+
+// Mock child_process for lefthook installation
+const execSyncMock = vi.fn();
+vi.mock("node:child_process", () => ({
+	execSync: execSyncMock,
+}));
 
 // Mock fs modules using memfs
 vi.mock("node:fs");
@@ -108,6 +115,7 @@ describe("init", () => {
 	beforeEach(() => {
 		originalCwd = process.cwd();
 		vi.spyOn(console, "log").mockImplementation(() => {});
+		execSyncMock.mockReset();
 
 		findGitRootSpy = vi.spyOn(git, "findGitRoot");
 		handleDependenciesSpy = vi.spyOn(dependencies, "handleDependencies");
@@ -135,6 +143,13 @@ describe("init", () => {
 			.spyOn(packageManager, "detectPackageManager")
 			.mockReturnValue("npm");
 		vi.spyOn(packageManager, "getLefthookInstallCommand");
+		vi.spyOn(packageManager, "getInstallCommand").mockReturnValue([
+			"npm i --save-dev lefthook",
+		]);
+		vi.spyOn(packageUtils, "readUserPackageJson").mockReturnValue({
+			name: "test-project",
+		});
+		vi.spyOn(packageUtils, "hasDependency").mockReturnValue(false);
 	});
 
 	afterEach(() => {
@@ -810,10 +825,26 @@ describe("init", () => {
 			await initSettingsFile({ lefthook: true });
 
 			expect(promptLefthookIntegrationSpy).not.toHaveBeenCalled();
+			// Verify lefthook package installation happens first
+			expect(packageUtils.hasDependency).toHaveBeenCalledWith(
+				{ name: "test-project" },
+				"lefthook",
+			);
+			expect(execSyncMock).toHaveBeenCalledWith(
+				"npm i --save-dev lefthook",
+				expect.objectContaining({
+					cwd: "/test-project",
+					stdio: "inherit",
+				}),
+			);
+			expect(logger.success).toHaveBeenCalledWith(
+				"lefthook installed successfully!",
+			);
+			// Then verify lefthook.yml was created (with force=true since it didn't exist before)
 			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
 				"/test-project",
 				"npm",
-				undefined,
+				true, // force=true because file didn't exist before install
 			);
 			expect(addLefthookScriptSpy).toHaveBeenCalledWith("/test-project");
 			expect(runCommand).toHaveBeenCalledWith(
@@ -853,7 +884,7 @@ describe("init", () => {
 			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
 				"/test-project",
 				"pnpm",
-				undefined,
+				true,
 			);
 			expect(runCommand).toHaveBeenCalledWith(
 				"pnpm",
@@ -919,7 +950,7 @@ describe("init", () => {
 			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
 				"/test-project",
 				"yarn",
-				undefined,
+				true,
 			);
 			expect(addLefthookScriptSpy).not.toHaveBeenCalled();
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
@@ -951,7 +982,7 @@ describe("init", () => {
 			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
 				"/test-project",
 				"bun",
-				undefined,
+				true,
 			);
 			expect(addLefthookScriptSpy).toHaveBeenCalledWith("/test-project");
 			expect(summary.showSetupSummary).toHaveBeenCalledWith(
@@ -996,6 +1027,51 @@ describe("init", () => {
 				expect.objectContaining({
 					lefthook: { status: "success", message: "overwritten" },
 				}),
+			);
+		});
+
+		it("should skip lefthook package install when already installed", async () => {
+			vol.fromJSON({
+				"/test-project/.git": null,
+				"/test-project/package.json": JSON.stringify({
+					name: "test-project",
+					devDependencies: { lefthook: "^1.5.0" },
+				}),
+			});
+
+			findGitRootSpy.mockReturnValue("/test-project");
+			handleDependenciesSpy.mockResolvedValue({
+				type: "already-installed",
+				formatterChoice: "with-prettier",
+			});
+			createBiomeConfigSpy.mockResolvedValue({ type: "created" });
+			createVSCodeSettingsSpy.mockResolvedValue({ type: "created" });
+			detectPackageManagerSpy.mockReturnValue("npm");
+			createLefthookConfigSpy.mockResolvedValue({ type: "created" });
+			addLefthookScriptSpy.mockResolvedValue("success");
+			// Mock that lefthook is already installed
+			vi.spyOn(packageUtils, "hasDependency").mockReturnValue(true);
+
+			await initSettingsFile({ lefthook: true });
+
+			// Should check for existing dependency
+			expect(packageUtils.hasDependency).toHaveBeenCalledWith(
+				expect.objectContaining({
+					name: "test-project",
+				}),
+				"lefthook",
+			);
+			// Should NOT install lefthook
+			expect(execSyncMock).not.toHaveBeenCalled();
+			// Should show "already installed" message
+			expect(logger.info).toHaveBeenCalledWith(
+				"lefthook is already installed.",
+			);
+			// Should still create config (with force=true since file didn't exist before)
+			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
+				"/test-project",
+				"npm",
+				true, // force=true because file didn't exist before
 			);
 		});
 
@@ -1046,7 +1122,7 @@ describe("init", () => {
 			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
 				"/test-project",
 				"npm",
-				undefined,
+				true,
 			);
 			expect(runCommand).toHaveBeenCalledWith(
 				"npx",
@@ -1078,7 +1154,7 @@ describe("init", () => {
 			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
 				"/test-project",
 				"yarn",
-				undefined,
+				true,
 			);
 			expect(runCommand).toHaveBeenCalledWith(
 				"yarn",
@@ -1109,7 +1185,7 @@ describe("init", () => {
 			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
 				"/test-project",
 				"pnpm",
-				undefined,
+				true,
 			);
 			expect(runCommand).toHaveBeenCalledWith(
 				"pnpm",
@@ -1140,7 +1216,7 @@ describe("init", () => {
 			expect(createLefthookConfigSpy).toHaveBeenCalledWith(
 				"/test-project",
 				"bun",
-				undefined,
+				true,
 			);
 			expect(runCommand).toHaveBeenCalledWith(
 				"bunx",
