@@ -25,6 +25,7 @@ npx @mfyuu/biome-config
 - `.vscode/settings.json` で VS Code 統合をセットアップ
   - Biome のみのフォーマットか、Markdown ファイル用の Biome + Prettier かを選択
 - オプションで Git hooks 自動化のための Lefthook 統合
+  - `lefthook` 依存関係のインストール
   - lefthook 設定ファイルの作成
   - 自動 Git hooks インストール用の `prepare` スクリプトの追加
 

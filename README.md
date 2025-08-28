@@ -25,6 +25,7 @@ This command will:
 - Set up VS Code integration with `.vscode/settings.json`
   - Choose between Biome-only formatting or Biome with Prettier for Markdown files
 - Optionally integrate Lefthook for Git hooks automation
+  - Installs `lefthook` dependency
   - Creates lefthook configuration file
   - Adds `prepare` script for automatic Git hooks installation
 
