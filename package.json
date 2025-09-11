@@ -87,7 +87,7 @@
 	"packageManager": "pnpm@10.15.1",
 	"pnpm": {
 		"overrides": {
-			"rolldown": "1.0.0-beta.35"
+			"rolldown": "1.0.0-beta.37"
 		}
 	}
 }
