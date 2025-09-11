@@ -1,5 +1,11 @@
 # @mfyuu/biome-config
 
+## 1.3.5
+
+### Patch Changes
+
+- [#47](https://github.com/mfyuu/biome-config/pull/47) [`d86f28f`](https://github.com/mfyuu/biome-config/commit/d86f28f163b9ecd6267b13d260005ca8b888d920) Thanks [@mfyuu](https://github.com/mfyuu)! - Fix command execution timeout for Windows CI environments (30s → 60s)
+
 ## 1.3.4
 
 ### Patch Changes
