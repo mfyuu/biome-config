@@ -22,7 +22,7 @@
 		"ora": "^8.2.0",
 		"prettier": "^3.6.2",
 		"prompts": "^2.4.2",
-		"tsdown": "^0.14.1",
+		"tsdown": "^0.15.0",
 		"tsx": "^4.20.4",
 		"typescript": "^5.9.2",
 		"vitest": "^3.2.4"
@@ -84,5 +84,10 @@
 		"test:coverage": "vitest run --coverage"
 	},
 	"type": "module",
-	"packageManager": "pnpm@10.15.1"
+	"packageManager": "pnpm@10.15.1",
+	"pnpm": {
+		"overrides": {
+			"rolldown": "1.0.0-beta.35"
+		}
+	}
 }
