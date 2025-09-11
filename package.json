@@ -1,10 +1,58 @@
 {
 	"name": "@mfyuu/biome-config",
 	"version": "1.3.4",
-	"author": "mfyuu",
+	"description": "Shareable Biome configuration for JavaScript/TypeScript projects",
+	"keywords": [
+		"biome",
+		"config",
+		"linter",
+		"formatter",
+		"javascript",
+		"typescript",
+		"react",
+		"nextjs"
+	],
 	"repository": {
 		"type": "git",
 		"url": "https://github.com/mfyuu/biome-config.git"
+	},
+	"license": "MIT",
+	"author": "mfyuu",
+	"type": "module",
+	"exports": {
+		"./base": "./configs/base.json",
+		"./react": "./configs/react.json",
+		"./next": "./configs/next.json"
+	},
+	"bin": {
+		"biome-config": "./dist/cli.js"
+	},
+	"files": [
+		"configs",
+		"dist",
+		"templates",
+		"README.md",
+		"LICENSE"
+	],
+	"scripts": {
+		"build": "tsdown",
+		"changeset": "changeset",
+		"check": "biome check --write .",
+		"dev": "tsx src/cli.ts",
+		"format": "biome format --write .",
+		"preinstall": "npx only-allow pnpm",
+		"lint": "biome lint .",
+		"lint:fix": "biome lint --write .",
+		"prepare": "lefthook install",
+		"prepublishOnly": "pnpm run build",
+		"release": "changeset publish",
+		"test": "vitest run",
+		"test:coverage": "vitest run --coverage",
+		"test:update": "vitest run --update",
+		"test:watch": "vitest watch",
+		"typecheck": "tsc --noEmit",
+		"version": "changeset version",
+		"watch": "tsdown --watch"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.2.4",
@@ -17,11 +65,13 @@
 		"commander": "^14.0.0",
 		"cross-spawn": "^7.0.6",
 		"kleur": "^4.1.5",
+		"lefthook": "^1.12.4",
 		"log-symbols": "^7.0.1",
 		"memfs": "^4.38.1",
 		"ora": "^8.2.0",
 		"prettier": "^3.6.2",
 		"prompts": "^2.4.2",
+		"sort-package-json": "^3.4.0",
 		"tsdown": "^0.15.0",
 		"tsx": "^4.20.4",
 		"typescript": "^5.9.2",
@@ -30,61 +80,15 @@
 	"peerDependencies": {
 		"@biomejs/biome": ">=2.0.0"
 	},
-	"exports": {
-		"./base": "./configs/base.json",
-		"./react": "./configs/react.json",
-		"./next": "./configs/next.json"
-	},
-	"bin": {
-		"biome-config": "./dist/cli.js"
-	},
-	"description": "Shareable Biome configuration for JavaScript/TypeScript projects",
-	"files": [
-		"configs",
-		"dist",
-		"templates",
-		"README.md",
-		"LICENSE"
-	],
-	"keywords": [
-		"biome",
-		"config",
-		"linter",
-		"formatter",
-		"javascript",
-		"typescript",
-		"react",
-		"nextjs"
-	],
-	"license": "MIT",
 	"peerDependenciesMeta": {
 		"@biomejs/biome": {
 			"optional": false
 		}
 	},
+	"packageManager": "pnpm@10.15.1",
 	"publishConfig": {
 		"access": "public"
 	},
-	"scripts": {
-		"build": "tsdown",
-		"dev": "tsx src/cli.ts",
-		"watch": "tsdown --watch",
-		"format": "biome format --write .",
-		"lint": "biome lint .",
-		"lint:fix": "biome lint --write .",
-		"check": "biome check --write .",
-		"typecheck": "tsc --noEmit",
-		"changeset": "changeset",
-		"release": "changeset publish",
-		"version": "changeset version",
-		"prepublishOnly": "pnpm run build",
-		"test": "vitest run",
-		"test:watch": "vitest watch",
-		"test:update": "vitest run --update",
-		"test:coverage": "vitest run --coverage"
-	},
-	"type": "module",
-	"packageManager": "pnpm@10.15.1",
 	"pnpm": {
 		"overrides": {
 			"rolldown": "1.0.0-beta.35"
