@@ -84,5 +84,10 @@
 		"test:coverage": "vitest run --coverage"
 	},
 	"type": "module",
-	"packageManager": "pnpm@10.15.1"
+	"packageManager": "pnpm@10.15.1",
+	"pnpm": {
+		"overrides": {
+			"rolldown": "1.0.0-beta.35"
+		}
+	}
 }
