@@ -5,7 +5,7 @@ import ora from "ora";
  * Options for running a command
  */
 type CommandOptions = {
-	/** Timeout in milliseconds (default: 30000) */
+	/** Timeout in milliseconds (default: 60000) */
 	timeout?: number;
 	/** Whether to suppress stdout output (default: true) */
 	silent?: boolean;
@@ -99,7 +99,7 @@ export function runCommand(
 	cwd: string,
 	options?: CommandOptions,
 ): Promise<void> {
-	const { timeout = 30000, silent = true } = options || {};
+	const { timeout = 60000, silent = true } = options || {};
 
 	return new Promise((resolve, reject) => {
 		const child = spawn(command, args, {
