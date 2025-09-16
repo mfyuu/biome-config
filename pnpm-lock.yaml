@@ -64,7 +64,7 @@ importers:
         version: 3.4.0
       tsdown:
         specifier: ^0.15.0
-        version: 0.15.1(typescript@5.9.2)
+        version: 0.15.2(typescript@5.9.2)
       tsx:
         specifier: ^4.20.4
         version: 4.20.5
@@ -1590,8 +1590,8 @@ packages:
     resolution: {integrity: sha512-L0Orpi8qGpRG//Nd+H90vFB+3iHnue1zSSGmNOOCh1GLJ7rUKVwV2HvijphGQS2UmhUZewS9VgvxYIdgr+fG1A==}
     hasBin: true
 
-  tsdown@0.15.1:
-    resolution: {integrity: sha512-USTr2wS5OIyohR8Sp09rp5mXVwOX4YvVRqarS9I9jIhF+PqgtVSMXG4vBrHGY1OficNcLT5Z75pSoxd2uU+BYg==}
+  tsdown@0.15.2:
+    resolution: {integrity: sha512-qPbWcVnI7Ekq5p4xPiLwuS9siczCGPAyZYsAzcS1xTcFvkkZIsDbh3ejlmUoe/ypLJl5+oQ4Rbwp63Zf+eWiMw==}
     engines: {node: '>=20.19.0'}
     hasBin: true
     peerDependencies:
@@ -3141,7 +3141,7 @@ snapshots:
 
   tree-kill@1.2.2: {}
 
-  tsdown@0.15.1(typescript@5.9.2):
+  tsdown@0.15.2(typescript@5.9.2):
     dependencies:
       ansis: 4.1.0
       cac: 6.7.14
