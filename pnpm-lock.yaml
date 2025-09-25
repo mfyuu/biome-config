@@ -4,9 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-overrides:
-  rolldown: 1.0.0-beta.40
-
 importers:
 
   .:
@@ -1396,7 +1393,7 @@ packages:
     peerDependencies:
       '@ts-macro/tsc': ^0.3.6
       '@typescript/native-preview': '>=7.0.0-dev.20250601.1'
-      rolldown: 1.0.0-beta.40
+      rolldown: ^1.0.0-beta.9
       typescript: ^5.0.0
       vue-tsc: ~3.0.3
     peerDependenciesMeta:
