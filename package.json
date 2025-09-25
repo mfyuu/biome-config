@@ -88,10 +88,5 @@
 	"packageManager": "pnpm@10.17.1",
 	"publishConfig": {
 		"access": "public"
-	},
-	"pnpm": {
-		"overrides": {
-			"rolldown": "1.0.0-beta.39"
-		}
 	}
 }
