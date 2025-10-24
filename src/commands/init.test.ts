@@ -114,7 +114,10 @@ describe("init", () => {
 
 	beforeEach(() => {
 		originalCwd = process.cwd();
-		vi.spyOn(console, "log").mockImplementation(() => {});
+		vi.clearAllMocks();
+		vi.spyOn(console, "log").mockImplementation(
+			(..._args: Parameters<typeof console.log>) => undefined,
+		);
 		execSyncMock.mockReset();
 
 		findGitRootSpy = vi.spyOn(git, "findGitRoot");

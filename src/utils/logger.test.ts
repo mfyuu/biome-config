@@ -1,15 +1,24 @@
-import { cyan, green, grey } from "kleur/colors";
+import { cyan, dim, green, grey } from "kleur/colors";
 import logSymbols from "log-symbols";
+import type { MockInstance } from "vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { highlight, logger } from "./logger";
 
 describe("logger", () => {
-	let consoleLogSpy: ReturnType<typeof vi.spyOn>;
-	let consoleErrorSpy: ReturnType<typeof vi.spyOn>;
+	let consoleLogSpy: MockInstance<typeof console.log>;
+	let consoleErrorSpy: MockInstance<typeof console.error>;
 
 	beforeEach(() => {
-		consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
-		consoleErrorSpy = vi.spyOn(console, "error").mockImplementation(() => {});
+		consoleLogSpy = vi
+			.spyOn<typeof console, "log">(console, "log")
+			.mockImplementation(
+				(..._args: Parameters<typeof console.log>) => undefined,
+			);
+		consoleErrorSpy = vi
+			.spyOn<typeof console, "error">(console, "error")
+			.mockImplementation(
+				(..._args: Parameters<typeof console.error>) => undefined,
+			);
 	});
 
 	afterEach(() => {
@@ -146,7 +155,7 @@ describe("logger", () => {
 			logger.hooksSync();
 			expect(consoleLogSpy).toHaveBeenCalledTimes(1);
 			expect(consoleLogSpy).toHaveBeenCalledWith(
-				`${cyan("sync hooks:")} ${grey(`✔ (pre-commit, pre-push)`)}`,
+				`${cyan("sync hooks:")} ${dim(`✔ (pre-commit, pre-push)`)}`,
 			);
 		});
 
@@ -154,7 +163,7 @@ describe("logger", () => {
 			logger.hooksSync();
 			const calledWith = consoleLogSpy.mock.calls[0][0];
 			expect(calledWith).toContain(cyan("sync hooks:"));
-			expect(calledWith).toContain(grey("✔ (pre-commit, pre-push)"));
+			expect(calledWith).toContain(dim("✔ (pre-commit, pre-push)"));
 		});
 	});
 });

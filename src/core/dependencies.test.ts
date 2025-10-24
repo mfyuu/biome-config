@@ -21,7 +21,10 @@ vi.mock("node:child_process", () => ({
 
 describe("dependencies", () => {
 	beforeEach(() => {
-		vi.spyOn(console, "log").mockImplementation(() => {});
+		vi.clearAllMocks();
+		vi.spyOn(console, "log").mockImplementation(
+			(..._args: Parameters<typeof console.log>) => undefined,
+		);
 		execSyncMock.mockReset();
 	});
 

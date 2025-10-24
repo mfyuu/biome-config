@@ -1,5 +1,6 @@
 import { green, red, yellow } from "kleur/colors";
 import logSymbols from "log-symbols";
+import type { MockInstance } from "vitest";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { TaskResult } from "../types/index";
 import { showSetupSummary } from "./summary";
@@ -33,11 +34,21 @@ vi.mock("kleur/colors", () => ({
 	yellow: (str: string) => str,
 }));
 
+const stringifyLogCalls = (calls: readonly unknown[][]): string => {
+	return calls
+		.map((args) => args.map((value) => String(value)).join(" "))
+		.join("\n");
+};
+
 describe("summary", () => {
-	let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+	let consoleLogSpy: MockInstance<typeof console.log>;
 
 	beforeEach(() => {
-		consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+		consoleLogSpy = vi
+			.spyOn<typeof console, "log">(console, "log")
+			.mockImplementation(
+				(..._args: Parameters<typeof console.log>) => undefined,
+			);
 	});
 
 	afterEach(() => {
@@ -231,16 +242,12 @@ describe("summary", () => {
 			};
 
 			showSetupSummary(successTasks);
-			const successOutput = consoleLogSpy.mock.calls
-				.map((call) => call.join(" "))
-				.join("\n");
+			const successOutput = stringifyLogCalls(consoleLogSpy.mock.calls);
 			expect(successOutput).toMatchSnapshot("success-failure-patterns");
 
 			consoleLogSpy.mockClear();
 			showSetupSummary(mixedTasks);
-			const mixedOutput = consoleLogSpy.mock.calls
-				.map((call) => call.join(" "))
-				.join("\n");
+			const mixedOutput = stringifyLogCalls(consoleLogSpy.mock.calls);
 			expect(mixedOutput).toMatchSnapshot("success-failure-mixed");
 		});
 
@@ -263,16 +270,12 @@ describe("summary", () => {
 			};
 
 			showSetupSummary(skippedTasks);
-			const skippedOutput = consoleLogSpy.mock.calls
-				.map((call) => call.join(" "))
-				.join("\n");
+			const skippedOutput = stringifyLogCalls(consoleLogSpy.mock.calls);
 			expect(skippedOutput).toMatchSnapshot("skipped-mixed-patterns");
 
 			consoleLogSpy.mockClear();
 			showSetupSummary(complexMixedTasks);
-			const complexOutput = consoleLogSpy.mock.calls
-				.map((call) => call.join(" "))
-				.join("\n");
+			const complexOutput = stringifyLogCalls(consoleLogSpy.mock.calls);
 			expect(complexOutput).toMatchSnapshot("complex-mixed-status");
 		});
 
