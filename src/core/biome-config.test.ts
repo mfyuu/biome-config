@@ -16,6 +16,7 @@ vi.mock("../utils/prompt");
 
 describe("biome-config", () => {
 	beforeEach(() => {
+		vi.clearAllMocks();
 		// Mock getTemplatePath to return mock paths instead of actual file paths
 		vi.spyOn(fileUtils, "getTemplatePath").mockImplementation(
 			(templateName) => {

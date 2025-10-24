@@ -1,13 +1,7 @@
-import prompts from "prompts";
-import {
-	afterEach,
-	beforeEach,
-	describe,
-	expect,
-	it,
-	type MockInstance,
-	vi,
-} from "vitest";
+import { red } from "kleur/colors";
+import prompts, { type Answers, type PromptObject } from "prompts";
+import type { MockInstance } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { EXIT_CODES, PROJECT_TYPES } from "../constants";
 import type { PackageManager } from "./package-manager";
 import {
@@ -24,15 +18,44 @@ import {
 // Mock prompts module
 vi.mock("prompts");
 
+const invokeOnCancel = (
+	options: Parameters<typeof prompts>[1] | undefined,
+	question: PromptObject<string>,
+): void => {
+	const emptyAnswers = {} satisfies Answers<string>;
+	options?.onCancel?.(question, emptyAnswers);
+};
+
+const mockPromptCancellation = (): void => {
+	vi.mocked(prompts).mockImplementation(
+		async (
+			question: PromptObject<string> | PromptObject<string>[],
+			options?: Parameters<typeof prompts>[1],
+		) => {
+			const questionList = Array.isArray(question) ? question : [question];
+			questionList.forEach((item) => {
+				invokeOnCancel(options, item);
+			});
+			const answers = {} satisfies Answers<string>;
+			return answers;
+		},
+	);
+};
+
 describe("prompt", () => {
-	let exitSpy: MockInstance<(code?: number) => never>;
-	let consoleLogSpy: ReturnType<typeof vi.spyOn>;
+	let exitSpy: MockInstance<typeof process.exit>;
+	let consoleLogSpy: MockInstance<typeof console.log>;
 
 	beforeEach(() => {
-		exitSpy = vi.spyOn(process, "exit").mockImplementation((() => {
+		const exitMock: typeof process.exit = (_code?: number): never => {
 			throw new Error("Process exit");
-		}) as never);
-		consoleLogSpy = vi.spyOn(console, "log").mockImplementation(() => {});
+		};
+		exitSpy = vi.spyOn(process, "exit").mockImplementation(exitMock);
+		consoleLogSpy = vi
+			.spyOn(console, "log")
+			.mockImplementation(
+				(..._args: Parameters<typeof console.log>) => undefined,
+			);
 	});
 
 	afterEach(() => {
@@ -64,17 +87,12 @@ describe("prompt", () => {
 		});
 
 		it("should exit when prompt is cancelled", async () => {
-			vi.mocked(prompts).mockImplementation((_question, options) => {
-				if (options?.onCancel) {
-					options.onCancel({} as never, {} as never);
-				}
-				return Promise.resolve({});
-			});
+			mockPromptCancellation();
 
 			await expect(promptOverwriteConfirmation()).rejects.toThrow(
 				"Process exit",
 			);
-			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(consoleLogSpy).toHaveBeenCalledWith(red("\nOperation cancelled."));
 			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
 		});
 
@@ -111,17 +129,12 @@ describe("prompt", () => {
 		});
 
 		it("should exit when prompt is cancelled", async () => {
-			vi.mocked(prompts).mockImplementation((_question, options) => {
-				if (options?.onCancel) {
-					options.onCancel({} as never, {} as never);
-				}
-				return Promise.resolve({});
-			});
+			mockPromptCancellation();
 
 			await expect(promptBiomeOverwriteConfirmation()).rejects.toThrow(
 				"Process exit",
 			);
-			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(consoleLogSpy).toHaveBeenCalledWith(red("\nOperation cancelled."));
 			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
 		});
 	});
@@ -168,17 +181,12 @@ describe("prompt", () => {
 		});
 
 		it("should exit when prompt is cancelled", async () => {
-			vi.mocked(prompts).mockImplementation((_question, options) => {
-				if (options?.onCancel) {
-					options.onCancel({} as never, {} as never);
-				}
-				return Promise.resolve({});
-			});
+			mockPromptCancellation();
 
 			await expect(promptInstallDependencies(["test"])).rejects.toThrow(
 				"Process exit",
 			);
-			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(consoleLogSpy).toHaveBeenCalledWith(red("\nOperation cancelled."));
 			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
 		});
 	});
@@ -213,15 +221,10 @@ describe("prompt", () => {
 		});
 
 		it("should exit when prompt is cancelled", async () => {
-			vi.mocked(prompts).mockImplementation((_question, options) => {
-				if (options?.onCancel) {
-					options.onCancel({} as never, {} as never);
-				}
-				return Promise.resolve({});
-			});
+			mockPromptCancellation();
 
 			await expect(promptPackageManager()).rejects.toThrow("Process exit");
-			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(consoleLogSpy).toHaveBeenCalledWith(red("\nOperation cancelled."));
 			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
 		});
 
@@ -320,15 +323,10 @@ describe("prompt", () => {
 		});
 
 		it("should exit when prompt is cancelled", async () => {
-			vi.mocked(prompts).mockImplementation((_question, options) => {
-				if (options?.onCancel) {
-					options.onCancel({} as never, {} as never);
-				}
-				return Promise.resolve({});
-			});
+			mockPromptCancellation();
 
 			await expect(promptProjectType()).rejects.toThrow("Process exit");
-			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(consoleLogSpy).toHaveBeenCalledWith(red("\nOperation cancelled."));
 			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
 		});
 
@@ -407,15 +405,10 @@ describe("prompt", () => {
 		});
 
 		it("should exit when prompt is cancelled", async () => {
-			vi.mocked(prompts).mockImplementation((_question, options) => {
-				if (options?.onCancel) {
-					options.onCancel({} as never, {} as never);
-				}
-				return Promise.resolve({});
-			});
+			mockPromptCancellation();
 
 			await expect(promptFormatterChoice()).rejects.toThrow("Process exit");
-			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(consoleLogSpy).toHaveBeenCalledWith(red("\nOperation cancelled."));
 			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
 		});
 
@@ -464,15 +457,10 @@ describe("prompt", () => {
 		});
 
 		it("should exit when prompt is cancelled", async () => {
-			vi.mocked(prompts).mockImplementation((_question, options) => {
-				if (options?.onCancel) {
-					options.onCancel({} as never, {} as never);
-				}
-				return Promise.resolve({});
-			});
+			mockPromptCancellation();
 
 			await expect(promptLefthookIntegration()).rejects.toThrow("Process exit");
-			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(consoleLogSpy).toHaveBeenCalledWith(red("\nOperation cancelled."));
 			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
 		});
 
@@ -514,15 +502,10 @@ describe("prompt", () => {
 		});
 
 		it("should exit when prompt is cancelled", async () => {
-			vi.mocked(prompts).mockImplementation((_question, options) => {
-				if (options?.onCancel) {
-					options.onCancel({} as never, {} as never);
-				}
-				return Promise.resolve({});
-			});
+			mockPromptCancellation();
 
 			await expect(promptOverwriteLefthook()).rejects.toThrow("Process exit");
-			expect(consoleLogSpy).toHaveBeenCalledWith("\nOperation cancelled.");
+			expect(consoleLogSpy).toHaveBeenCalledWith(red("\nOperation cancelled."));
 			expect(exitSpy).toHaveBeenCalledWith(EXIT_CODES.FAILURE);
 		});
 
