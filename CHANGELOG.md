@@ -1,5 +1,11 @@
 # @mfyuu/biome-config
 
+## 1.4.0
+
+### Minor Changes
+
+- [#119](https://github.com/mfyuu/biome-config/pull/119) [`fe82e9b`](https://github.com/mfyuu/biome-config/commit/fe82e9bc3c49c9f49778793a980dfb2516f59d14) Thanks [@mfyuu](https://github.com/mfyuu)! - Add support for Tailwind v4 directives by enabling `css.parser.tailwindDirectives` option in all configuration variants (base, react, next)
+
 ## 1.3.5
 
 ### Patch Changes
