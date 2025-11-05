@@ -1,5 +1,13 @@
 # @mfyuu/biome-config
 
+## 1.4.1
+
+### Patch Changes
+
+- [#125](https://github.com/mfyuu/biome-config/pull/125) [`353c9a7`](https://github.com/mfyuu/biome-config/commit/353c9a7bef75d64fc4a0c8e6b3d83191dccdaa4f) Thanks [@renovate](https://github.com/apps/renovate)! - Fix compatibility with tsdown v0.16.0 by updating CLI output extension from .js to .mjs
+
+  This change updates the package to work with tsdown v0.16.0, which changed the default output extension for ESM format to .mjs when targeting Node.js. The package.json bin field and all E2E test references have been updated accordingly. This is a patch release as it has no impact on end users - npm automatically resolves the bin field regardless of the file extension.
+
 ## 1.4.0
 
 ### Minor Changes
