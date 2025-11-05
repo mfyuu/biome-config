@@ -97,7 +97,7 @@ describe("E2E: biome-config init", () => {
 
 	it("should execute init command successfully", async () => {
 		// Get CLI path (use built version)
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Execute command (skip dependency installation with --skip-deps)
 		const output = execSync(`node ${cliPath} --skip-deps --biome-only`, {
@@ -126,7 +126,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should apply React configuration with --type option", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Execute command with React configuration
 		execSync(`node ${cliPath} --type react --skip-deps --biome-only`, {
@@ -143,7 +143,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should overwrite existing files with --force option", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// First execution
 		execSync(`node ${cliPath} --skip-deps --biome-only`, {
@@ -171,7 +171,7 @@ describe("E2E: biome-config init", () => {
 		// Delete package.json
 		await fs.unlink(path.join(tempDir, "package.json"));
 
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Can execute without package.json (explicitly specify type)
 		execSync(`node ${cliPath} --type base --skip-deps --biome-only`, {
@@ -207,7 +207,7 @@ describe("E2E: biome-config init", () => {
 			),
 		);
 
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Execute with --local option
 		execSync(`node ${cliPath} --local --skip-deps --biome-only`, {
@@ -233,7 +233,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should handle error when multiple package manager options are specified", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Should throw error when multiple package managers are specified
 		expectCommandToFail(
@@ -246,7 +246,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should display version information with --version option", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		const output = execSync(`node ${cliPath} --version`, {
 			cwd: tempDir,
@@ -258,7 +258,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should apply Next.js configuration with --type option", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Execute command with Next.js configuration
 		execSync(`node ${cliPath} --type next --skip-deps --biome-only`, {
@@ -275,7 +275,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should throw error with invalid --type value", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Execute error test using helper function (error output is suppressed)
 		expectCommandToFail(`node ${cliPath} --type invalid --skip-deps`, {
@@ -285,7 +285,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should create biome-only VSCode settings with --biome-only flag", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Execute with --biome-only flag
 		execSync(`node ${cliPath} --biome-only --skip-deps`, {
@@ -312,7 +312,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should create with-prettier VSCode settings with --with-prettier flag", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Execute with --with-prettier flag
 		execSync(`node ${cliPath} --with-prettier --skip-deps`, {
@@ -340,7 +340,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should error when both --biome-only and --with-prettier flags are used", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Execute error test using helper function
 		expectCommandToFail(
@@ -353,7 +353,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should use force flag with formatter options", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Create existing VSCode settings file
 		const vscodeDir = path.join(tempDir, ".vscode");
@@ -381,7 +381,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should create lefthook.yml with --lefthook flag", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Execute with --lefthook flag
 		execSync(`node ${cliPath} --lefthook --skip-deps --biome-only`, {
@@ -410,7 +410,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should use correct package manager template for lefthook", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Create pnpm-lock.yaml to indicate pnpm usage
 		await fs.writeFile(path.join(tempDir, "pnpm-lock.yaml"), "");
@@ -428,7 +428,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should overwrite existing lefthook.yml with --force flag", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Create existing lefthook.yml
 		const lefthookPath = path.join(tempDir, "lefthook.yml");
@@ -448,7 +448,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should not prompt for lefthook when formatter flags are present", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Execute with formatter flag (should not create lefthook without explicit --lefthook)
 		execSync(`node ${cliPath} --biome-only --skip-deps`, {
@@ -472,7 +472,7 @@ describe("E2E: biome-config init", () => {
 	});
 
 	it("should show hooks sync message when lefthook installation succeeds", async () => {
-		const cliPath = path.resolve("./dist/cli");
+		const cliPath = path.resolve("./dist/cli.mjs");
 
 		// Install lefthook dependency first to enable actual installation
 		await fs.writeFile(
