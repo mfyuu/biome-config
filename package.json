@@ -25,7 +25,7 @@
 		"./next": "./configs/next.json"
 	},
 	"bin": {
-		"biome-config": "./dist/cli.js"
+		"biome-config": "./dist/cli.mjs"
 	},
 	"files": [
 		"configs",
