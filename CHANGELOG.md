@@ -1,4 +1,10 @@
-# @mfyuu/biome-config
+# @lemtoc/biome-config
+
+## 1.4.2
+
+### Patch Changes
+
+- Renamed package scope from `@mfyuu/biome-config` to `@lemtoc/biome-config`. Existing users should update their `package.json` dependencies and `extends` references accordingly. The old package will be deprecated on npm with a pointer to this new name.
 
 ## 1.4.1
 

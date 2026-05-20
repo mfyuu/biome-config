@@ -139,7 +139,7 @@ describe("E2E: biome-config init", () => {
 		const biomeConfig = await fs.readFile(biomeConfigPath, "utf-8");
 
 		// Verify React configuration is included
-		expect(biomeConfig).toContain("@mfyuu/biome-config/react");
+		expect(biomeConfig).toContain("@lemtoc/biome-config/react");
 	});
 
 	it("should overwrite existing files with --force option", async () => {
@@ -164,7 +164,7 @@ describe("E2E: biome-config init", () => {
 		// Verify file was overwritten
 		const newContent = await fs.readFile(biomeConfigPath, "utf-8");
 		expect(newContent).not.toContain("// Custom config");
-		expect(newContent).toContain("@mfyuu/biome-config");
+		expect(newContent).toContain("@lemtoc/biome-config");
 	});
 
 	it("should work even without package.json", async () => {
@@ -271,7 +271,7 @@ describe("E2E: biome-config init", () => {
 		const biomeConfig = await fs.readFile(biomeConfigPath, "utf-8");
 
 		// Verify Next.js configuration is included
-		expect(biomeConfig).toContain("@mfyuu/biome-config/next");
+		expect(biomeConfig).toContain("@lemtoc/biome-config/next");
 	});
 
 	it("should throw error with invalid --type value", async () => {

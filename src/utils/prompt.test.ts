@@ -145,7 +145,7 @@ describe("prompt", () => {
 
 			const result = await promptInstallDependencies([
 				"@biomejs/biome",
-				"@mfyuu/biome-config",
+				"@lemtoc/biome-config",
 			]);
 			expect(result).toBe(true);
 			expect(prompts).toHaveBeenCalledWith(
@@ -153,7 +153,7 @@ describe("prompt", () => {
 					type: "confirm",
 					name: "install",
 					message:
-						"Install missing dependencies (@biomejs/biome, @mfyuu/biome-config)?",
+						"Install missing dependencies (@biomejs/biome, @lemtoc/biome-config)?",
 					initial: true,
 				}),
 				expect.any(Object),

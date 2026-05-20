@@ -42,7 +42,7 @@ describe("biome-config", () => {
 				"/templates/biome/base.jsonc": `${JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/base"],
+						extends: ["@lemtoc/biome-config/base"],
 					},
 					null,
 					"\t",
@@ -50,7 +50,7 @@ describe("biome-config", () => {
 				"/templates/biome/react.jsonc": `${JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/react"],
+						extends: ["@lemtoc/biome-config/react"],
 					},
 					null,
 					"\t",
@@ -58,7 +58,7 @@ describe("biome-config", () => {
 				"/templates/biome/next.jsonc": `${JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/next"],
+						extends: ["@lemtoc/biome-config/next"],
 					},
 					null,
 					"\t",
@@ -83,7 +83,7 @@ describe("biome-config", () => {
 				"/templates/biome/base.json": JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/base"],
+						extends: ["@lemtoc/biome-config/base"],
 					},
 					null,
 					2,
@@ -129,7 +129,7 @@ describe("biome-config", () => {
 				"/templates/biome/base.json": JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/base"],
+						extends: ["@lemtoc/biome-config/base"],
 					},
 					null,
 					2,
@@ -157,7 +157,7 @@ describe("biome-config", () => {
 				"/templates/biome/react.jsonc": `${JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/react"],
+						extends: ["@lemtoc/biome-config/react"],
 					},
 					null,
 					"\t",
@@ -181,7 +181,7 @@ describe("biome-config", () => {
 				"/templates/biome/next.jsonc": `${JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/next"],
+						extends: ["@lemtoc/biome-config/next"],
 					},
 					null,
 					"\t",
@@ -201,7 +201,7 @@ describe("biome-config", () => {
 				"/templates/biome/base.jsonc": `${JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/base"],
+						extends: ["@lemtoc/biome-config/base"],
 					},
 					null,
 					"\t",
@@ -222,7 +222,7 @@ describe("biome-config", () => {
 				"/templates/biome/base.jsonc": `${JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/base"],
+						extends: ["@lemtoc/biome-config/base"],
 					},
 					null,
 					"\t",
@@ -249,7 +249,7 @@ describe("biome-config", () => {
 				"/templates/biome/base.jsonc": `${JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/base"],
+						extends: ["@lemtoc/biome-config/base"],
 					},
 					null,
 					"\t",
@@ -302,7 +302,7 @@ describe("biome-config", () => {
 				"/templates/biome/next.jsonc": `${JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/next"],
+						extends: ["@lemtoc/biome-config/next"],
 					},
 					null,
 					"\t",
@@ -345,7 +345,7 @@ describe("biome-config", () => {
 				"/templates/biome/base.jsonc": `${JSON.stringify(
 					{
 						$schema: "./node_modules/@biomejs/biome/configuration_schema.json",
-						extends: ["@mfyuu/biome-config/base"],
+						extends: ["@lemtoc/biome-config/base"],
 					},
 					null,
 					"\t",

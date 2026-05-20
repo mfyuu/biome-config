@@ -51,17 +51,17 @@ describe("fixtures", () => {
 		it("should have correct structure for baseBiomeConfig", () => {
 			expect(baseBiomeConfig).toHaveProperty("$schema");
 			expect(baseBiomeConfig).toHaveProperty("extends");
-			expect(baseBiomeConfig.extends).toContain("@mfyuu/biome-config/base");
+			expect(baseBiomeConfig.extends).toContain("@lemtoc/biome-config/base");
 		});
 
 		it("should extend React configuration in reactBiomeConfig", () => {
 			expect(reactBiomeConfig).toHaveProperty("$schema");
-			expect(reactBiomeConfig.extends).toContain("@mfyuu/biome-config/react");
+			expect(reactBiomeConfig.extends).toContain("@lemtoc/biome-config/react");
 		});
 
 		it("should extend Next.js configuration in nextBiomeConfig", () => {
 			expect(nextBiomeConfig).toHaveProperty("$schema");
-			expect(nextBiomeConfig.extends).toContain("@mfyuu/biome-config/next");
+			expect(nextBiomeConfig.extends).toContain("@lemtoc/biome-config/next");
 		});
 	});
 
@@ -92,7 +92,7 @@ describe("fixtures", () => {
 			expect(project).toBeDefined();
 			expect(project["package.json"] as string).toContain("test-project");
 			expect(project["biome.json"] as string).toContain(
-				"@mfyuu/biome-config/base",
+				"@lemtoc/biome-config/base",
 			);
 		});
 
@@ -109,7 +109,7 @@ describe("fixtures", () => {
 			expect(packageJson.name).toBe("test-project");
 
 			const biomeConfig = JSON.parse(project["biome.json"] as string);
-			expect(biomeConfig.extends).toContain("@mfyuu/biome-config/base");
+			expect(biomeConfig.extends).toContain("@lemtoc/biome-config/base");
 
 			expect(project.src).toHaveProperty("index.ts", "// test file");
 		});
@@ -124,7 +124,7 @@ describe("fixtures", () => {
 			expect(packageJson.dependencies).toHaveProperty("react-dom");
 
 			const biomeConfig = JSON.parse(project["biome.json"] as string);
-			expect(biomeConfig.extends).toContain("@mfyuu/biome-config/react");
+			expect(biomeConfig.extends).toContain("@lemtoc/biome-config/react");
 		});
 
 		it("should generate next type project structure", () => {
@@ -137,7 +137,7 @@ describe("fixtures", () => {
 			expect(packageJson.dependencies).toHaveProperty("react");
 
 			const biomeConfig = JSON.parse(project["biome.json"] as string);
-			expect(biomeConfig.extends).toContain("@mfyuu/biome-config/next");
+			expect(biomeConfig.extends).toContain("@lemtoc/biome-config/next");
 		});
 
 		it("should generate structure with correct format", () => {

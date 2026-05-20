@@ -1,6 +1,6 @@
 {
-	"name": "@mfyuu/biome-config",
-	"version": "1.4.1",
+	"name": "@lemtoc/biome-config",
+	"version": "1.4.2",
 	"description": "Shareable Biome configuration for JavaScript/TypeScript projects",
 	"keywords": [
 		"biome",
@@ -14,10 +14,10 @@
 	],
 	"repository": {
 		"type": "git",
-		"url": "https://github.com/mfyuu/biome-config.git"
+		"url": "https://github.com/lemtoc/biome-config.git"
 	},
 	"license": "MIT",
-	"author": "mfyuu",
+	"author": "lemtoc",
 	"type": "module",
 	"exports": {
 		"./base": "./configs/base.json",

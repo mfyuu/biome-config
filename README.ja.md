@@ -1,8 +1,8 @@
-# @mfyuu/biome-config
+# @lemtoc/biome-config
 
 [English](./README.md) | Japanese
 
-[@mfyuu](https://github.com/mfyuu)による JavaScript/TypeScript プロジェクト用の共有可能な Biome 設定パッケージです。
+[@lemtoc](https://github.com/lemtoc)による JavaScript/TypeScript プロジェクト用の共有可能な Biome 設定パッケージです。
 
 プロジェクトタイプに応じて、base、React、Next.js の 3 つの設定から選択できます。
 
@@ -13,13 +13,13 @@
 プロジェクトに Biome をセットアップする最も簡単な方法は、インタラクティブな CLI ウィザードを使用することです：
 
 ```bash
-npx @mfyuu/biome-config
+npx @lemtoc/biome-config
 ```
 
 このコマンドは以下を実行します：
 
 - プロジェクトタイプの検出（base、React、または Next.js）
-- 必要な依存関係のインストール（`@biomejs/biome` と `@mfyuu/biome-config`）
+- 必要な依存関係のインストール（`@biomejs/biome` と `@lemtoc/biome-config`）
 - 適切な設定で `biome.json` または `biome.jsonc` を作成
 - `package.json` に Biome スクリプトを追加（`format`、`lint`、`lint-fix`、`check`）
 - `.vscode/settings.json` で VS Code 統合をセットアップ
@@ -32,7 +32,7 @@ npx @mfyuu/biome-config
 利用可能なすべてのオプションを確認するには：
 
 ```bash
-npx @mfyuu/biome-config --help
+npx @lemtoc/biome-config --help
 ```
 
 ### Manual Setup
@@ -42,7 +42,7 @@ npx @mfyuu/biome-config --help
 1. 必要なパッケージをインストール：
 
 ```bash
-npm i -D @biomejs/biome @mfyuu/biome-config
+npm i -D @biomejs/biome @lemtoc/biome-config
 ```
 
 2. プロジェクトルートに `biome.json` または `biome.jsonc` を作成：
@@ -52,7 +52,7 @@ npm i -D @biomejs/biome @mfyuu/biome-config
 ```json
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@mfyuu/biome-config/base"]
+  "extends": ["@lemtoc/biome-config/base"]
 }
 ```
 
@@ -61,7 +61,7 @@ npm i -D @biomejs/biome @mfyuu/biome-config
 ```json
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@mfyuu/biome-config/react"]
+  "extends": ["@lemtoc/biome-config/react"]
 }
 ```
 
@@ -70,7 +70,7 @@ npm i -D @biomejs/biome @mfyuu/biome-config
 ```json
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@mfyuu/biome-config/next"]
+  "extends": ["@lemtoc/biome-config/next"]
 }
 ```
 
@@ -109,7 +109,7 @@ npm i -D @biomejs/biome @mfyuu/biome-config
 ```json
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@mfyuu/biome-config/base"],
+  "extends": ["@lemtoc/biome-config/base"],
   "formatter": {
     "indentStyle": "space"
   }
@@ -118,4 +118,4 @@ npm i -D @biomejs/biome @mfyuu/biome-config
 
 ## License
 
-[MIT](./LICENSE) License © 2025-PRESENT [Kazuya Suzuki](https://github.com/mfyuu)
+[MIT](./LICENSE) License © 2025-PRESENT [Kazuya Suzuki](https://github.com/lemtoc)
