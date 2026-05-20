@@ -87,6 +87,7 @@
 	},
 	"packageManager": "pnpm@10.33.4",
 	"publishConfig": {
-		"access": "public"
+		"access": "public",
+		"registry": "https://registry.npmjs.org"
 	}
 }
