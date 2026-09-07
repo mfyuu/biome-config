@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## プロジェクト概要
 
-これは`@lemtoc/biome-config`という共有可能なBiome設定パッケージです。プロジェクトのタイプに応じて、base、React、Next.jsの3つの設定を提供しています。
+これは`@xrryx/biome-config`という共有可能なBiome設定パッケージです。プロジェクトのタイプに応じて、base、React、Next.jsの3つの設定を提供しています。
 
 ## コマンド
 
@@ -46,9 +46,9 @@ next.json (Next.js domainを追加)
 
 package.jsonの`exports`フィールドで各設定ファイルをエクスポートしています：
 
-- `@lemtoc/biome-config/base`
-- `@lemtoc/biome-config/react`
-- `@lemtoc/biome-config/next`
+- `@xrryx/biome-config/base`
+- `@xrryx/biome-config/react`
+- `@xrryx/biome-config/next`
 
 ### 公開設定
 

@@ -67,7 +67,7 @@ export const MESSAGES = {
 
 export const DEPENDENCIES = {
 	BIOME: "@biomejs/biome",
-	CONFIG: "@lemtoc/biome-config",
+	CONFIG: "@xrryx/biome-config",
 	PRETTIER: "prettier",
 	LEFTHOOK: "lefthook",
 } as const;

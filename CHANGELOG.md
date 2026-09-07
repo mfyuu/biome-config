@@ -1,8 +1,18 @@
-# @lemtoc/biome-config
+# @xrryx/biome-config
+
+## 1.4.3
+
+### Patch Changes
+
+- Renamed package scope from `@ve62ca/biome-config` to `@xrryx/biome-config` following the maintainer's npm username change. Existing users should update their `package.json` dependencies and `extends` references accordingly. The old package will be deprecated on npm with a pointer to this new name.
+
+- Removed the package-manager enforcement `preinstall` script so npm, Yarn, pnpm, and Bun consumers can install and run the package.
 
 ## 1.4.2
 
 ### Patch Changes
+
+- Renamed package scope from `@lemtoc/biome-config` to `@ve62ca/biome-config` following the maintainer's npm username change. Existing users should update their `package.json` dependencies and `extends` references accordingly. The old package will be deprecated on npm with a pointer to this new name.
 
 - Renamed package scope from `@mfyuu/biome-config` to `@lemtoc/biome-config`. Existing users should update their `package.json` dependencies and `extends` references accordingly. The old package will be deprecated on npm with a pointer to this new name.
 

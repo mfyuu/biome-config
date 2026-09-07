@@ -1,8 +1,8 @@
-# @lemtoc/biome-config
+# @xrryx/biome-config
 
 English | [Japanese](./README.ja.md)
 
-Shareable Biome configuration package for JavaScript/TypeScript projects by [@lemtoc](https://github.com/lemtoc).
+Shareable Biome configuration package for JavaScript/TypeScript projects by [@xrryx](https://github.com/xrryx).
 
 Choose from three configurations based on your project type: base, React, or Next.js.
 
@@ -13,13 +13,13 @@ Choose from three configurations based on your project type: base, React, or Nex
 The easiest way to set up Biome in your project is using our interactive CLI wizard:
 
 ```bash
-npx @lemtoc/biome-config
+npx @xrryx/biome-config
 ```
 
 This command will:
 
 - Detect your project type (base, React, or Next.js)
-- Install required dependencies (`@biomejs/biome` and `@lemtoc/biome-config`)
+- Install required dependencies (`@biomejs/biome` and `@xrryx/biome-config`)
 - Create `biome.json` or `biome.jsonc` with the appropriate configuration
 - Add Biome scripts to your `package.json` (`format`, `lint`, `lint-fix`, `check`)
 - Set up VS Code integration with `.vscode/settings.json`
@@ -32,7 +32,7 @@ This command will:
 For all available options:
 
 ```bash
-npx @lemtoc/biome-config --help
+npx @xrryx/biome-config --help
 ```
 
 ### Manual Setup
@@ -42,7 +42,7 @@ If you prefer to set up manually:
 1. Install the required packages:
 
 ```bash
-npm i -D @biomejs/biome @lemtoc/biome-config
+npm i -D @biomejs/biome @xrryx/biome-config
 ```
 
 2. Create `biome.json` or `biome.jsonc` in your project root:
@@ -52,7 +52,7 @@ npm i -D @biomejs/biome @lemtoc/biome-config
 ```json
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@lemtoc/biome-config/base"]
+  "extends": ["@xrryx/biome-config/base"]
 }
 ```
 
@@ -61,7 +61,7 @@ npm i -D @biomejs/biome @lemtoc/biome-config
 ```json
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@lemtoc/biome-config/react"]
+  "extends": ["@xrryx/biome-config/react"]
 }
 ```
 
@@ -70,7 +70,7 @@ npm i -D @biomejs/biome @lemtoc/biome-config
 ```json
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@lemtoc/biome-config/next"]
+  "extends": ["@xrryx/biome-config/next"]
 }
 ```
 
@@ -109,7 +109,7 @@ You can override inherited settings by adding custom configuration in your `biom
 ```json
 {
   "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
-  "extends": ["@lemtoc/biome-config/base"],
+  "extends": ["@xrryx/biome-config/base"],
   "formatter": {
     "indentStyle": "space"
   }
@@ -118,4 +118,4 @@ You can override inherited settings by adding custom configuration in your `biom
 
 ## License
 
-[MIT](./LICENSE) License © 2025-PRESENT [Kazuya Suzuki](https://github.com/lemtoc)
+[MIT](./LICENSE) License © 2025-PRESENT [Kazuya Suzuki](https://github.com/xrryx)
