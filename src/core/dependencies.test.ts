@@ -71,8 +71,8 @@ describe("dependencies", () => {
 					expect(command).toBe(
 						"pnpm add --save-dev --save-exact @biomejs/biome",
 					);
-				} else if (command.includes("@lemtoc/biome-config")) {
-					expect(command).toBe("pnpm add --save-dev @lemtoc/biome-config");
+				} else if (command.includes("@xrryx/biome-config")) {
+					expect(command).toBe("pnpm add --save-dev @xrryx/biome-config");
 				}
 				return Buffer.from("Dependencies installed successfully\n");
 			});
@@ -109,7 +109,7 @@ describe("dependencies", () => {
 			);
 			execSyncMock.mockImplementation((command: string) => {
 				// Verify command format is correct
-				expect(command).toBe("yarn add --dev @lemtoc/biome-config");
+				expect(command).toBe("yarn add --dev @xrryx/biome-config");
 				return Buffer.from("Dependencies installed successfully\n");
 			});
 
@@ -409,8 +409,8 @@ describe("dependencies", () => {
 					expect(command).toBe(
 						"pnpm add --save-dev --save-exact @biomejs/biome prettier",
 					);
-				} else if (command.includes("@lemtoc/biome-config")) {
-					expect(command).toBe("pnpm add --save-dev @lemtoc/biome-config");
+				} else if (command.includes("@xrryx/biome-config")) {
+					expect(command).toBe("pnpm add --save-dev @xrryx/biome-config");
 				}
 				return Buffer.from("Dependencies installed successfully\n");
 			});
@@ -508,8 +508,8 @@ describe("dependencies", () => {
 					expect(command).toBe(
 						"pnpm add --save-dev --save-exact @biomejs/biome",
 					);
-				} else if (command.includes("@lemtoc/biome-config")) {
-					expect(command).toBe("pnpm add --save-dev @lemtoc/biome-config");
+				} else if (command.includes("@xrryx/biome-config")) {
+					expect(command).toBe("pnpm add --save-dev @xrryx/biome-config");
 				}
 				return Buffer.from("Dependencies installed successfully\n");
 			});
